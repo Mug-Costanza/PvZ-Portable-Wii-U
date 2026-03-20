@@ -2640,13 +2640,10 @@ void SexyAppBase::EmscriptenMainLoopCallback()
 	if (!app->UpdateAppStep(&updated))
 		return;
 
-	// Prevent web FPS drop: complete all pending stages in one rAF instead of spreading across frames.
-	while (updated || app->mUpdateAppState == UPDATESTATE_PROCESS_2 || app->mHasPendingDraw)
+	// Prevent web FPS drop and input lag: complete all pending stages and process all events in one rAF.
+	while (app->mUpdateAppState != UPDATESTATE_PROCESS_DONE || app->mHasPendingDraw)
 	{
 		if (!app->UpdateAppStep(&updated))
-			break;
-
-		if (!updated && app->mUpdateAppState == UPDATESTATE_PROCESS_DONE && !app->mHasPendingDraw)
 			break;
 	}
 }
