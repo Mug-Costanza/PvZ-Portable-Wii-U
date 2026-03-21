@@ -1536,10 +1536,11 @@ bool LawnApp::UpdatePlayerProfileForFinishingLevel()
 			ReportAchievement::GiveAchievement(this, DontPea, false);
 		} else if (mBoard->StageHasRoof() && !mBoard->HasConveyorBeltSeedBank() && !mBoard->mCatapultPlantsUsed) {
 			ReportAchievement::GiveAchievement(this, Grounded, false);
-		} else if (mBoard->StageIsNight() && !mBoard->mMushroomsUsed) {
-			ReportAchievement::GiveAchievement(this, NoFungusAmongUs, false);
 		} else if (mBoard->StageIsDayWithoutPool() && mBoard->mMushroomAndCoffeeBeansOnly) {
 			ReportAchievement::GiveAchievement(this, GoodMorning, false);
+		}
+		if (mBoard->StageIsNight() && !mBoard->mMushroomsUsed) {
+			ReportAchievement::GiveAchievement(this, NoFungusAmongUs, false);
 		}
 	}
 
