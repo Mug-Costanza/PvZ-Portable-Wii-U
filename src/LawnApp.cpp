@@ -1472,20 +1472,6 @@ bool LawnApp::UpdatePlayerProfileForFinishingLevel()
 		{
 			mPlayerInfo->mNeedsMagicTacoReward = 1;
 		}
-		
-		// @Patoke: implemented
-		if (mBoard->StageIsDayWithPool() && !mBoard->mPeaShooterUsed) {
-			ReportAchievement::GiveAchievement(this, DontPea, false);
-		}
-		if (mBoard->StageHasRoof() && !mBoard->HasConveyorBeltSeedBank() && !mBoard->mCatapultPlantsUsed) {
-			ReportAchievement::GiveAchievement(this, Grounded, false);
-		}
-		if (mBoard->StageIsNight() && !mBoard->mMushroomsUsed) {
-			ReportAchievement::GiveAchievement(this, NoFungusAmongUs, false);
-		}
-		if (mBoard->StageIsDayWithoutPool() && mBoard->mMushroomAndCoffeeBeansOnly) {
-			ReportAchievement::GiveAchievement(this, GoodMorning, false);
-		}
 	}
 	else if (IsSurvivalMode())
 	{
@@ -1540,10 +1526,21 @@ bool LawnApp::UpdatePlayerProfileForFinishingLevel()
 			}
 		}
 
-		// @Patoke: implemented
 		int aNumTrophies = GetNumTrophies(ChallengePage::CHALLENGE_PAGE_CHALLENGE);
 		if (aNumTrophies == 20)
 			ReportAchievement::GiveAchievement(this, BeyondTheGrave, false);
+	}
+
+	if ((IsAdventureMode() || IsSurvivalMode()) && !IsScaryPotterLevel() && !IsWhackAZombieLevel()) {
+		if (mBoard->StageIsDayWithPool() && !mBoard->mPeaShooterUsed) {
+			ReportAchievement::GiveAchievement(this, DontPea, false);
+		} else if (mBoard->StageHasRoof() && !mBoard->HasConveyorBeltSeedBank() && !mBoard->mCatapultPlantsUsed) {
+			ReportAchievement::GiveAchievement(this, Grounded, false);
+		} else if (mBoard->StageIsNight() && !mBoard->mMushroomsUsed) {
+			ReportAchievement::GiveAchievement(this, NoFungusAmongUs, false);
+		} else if (mBoard->StageIsDayWithoutPool() && mBoard->mMushroomAndCoffeeBeansOnly) {
+			ReportAchievement::GiveAchievement(this, GoodMorning, false);
+		}
 	}
 
 	WriteCurrentUserConfig();
