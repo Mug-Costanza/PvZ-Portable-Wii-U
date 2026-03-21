@@ -478,7 +478,7 @@ void Projectile::DoSplashDamage(Zombie* theZombie)
 
 	int aOriginalDamage = aProjectileDef.mDamage;
 	int aSplashDamage = aProjectileDef.mDamage / 3;
-	int aMaxSplashDamageAmount = aSplashDamage * 7;
+	int aMaxSplashDamageAmount = aOriginalDamage * 7;
 	if (mProjectileType == ProjectileType::PROJECTILE_FIREBALL)
 	{
 		aMaxSplashDamageAmount = aOriginalDamage;
