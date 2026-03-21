@@ -44,6 +44,7 @@ AwardScreen::AwardScreen(LawnApp* theApp, AwardType theAwardType, bool theShowin
 	mApp = theApp;
 	mClip = false;
 	mFadeInCounter = 180;
+	mAchievementAnimTime = 0;
 	mAwardType = theAwardType;
 	mShowingAchievements = theShowingAchievements;
 
@@ -459,7 +460,7 @@ void AwardScreen::Update()
 	mStartButton->Update();
 	mMenuButton->Update();
 	mContinueButton->Update(); // @Patoke: add call
-	mApp->SetCursor(mStartButton->IsMouseOver() || mMenuButton->IsMouseOver() ? CURSOR_HAND : CURSOR_POINTER);
+	mApp->SetCursor(mStartButton->IsMouseOver() || mMenuButton->IsMouseOver() || mContinueButton->IsMouseOver() ? CURSOR_HAND : CURSOR_POINTER);
 	MarkDirty();
 	if (mFadeInCounter > 0) mFadeInCounter--;
 }
@@ -583,7 +584,7 @@ void AwardScreen::MouseDown(int x, int y, int theClickCount)
 		mStartButton->Update(); // @Patoke: implemented
 		mMenuButton->Update();
 		mContinueButton->Update();
-		if (mStartButton->IsMouseOver() || mMenuButton->IsMouseOver())
+		if (mStartButton->IsMouseOver() || mMenuButton->IsMouseOver() || mContinueButton->IsMouseOver())
 			mApp->PlaySample(Sexy::SOUND_TAP);
 	}
 }
@@ -626,13 +627,13 @@ void AwardScreen::DrawAchievements(Graphics* g) {
 		aAchievementName.append(" Earned!");
 
 		Rect aSrcRect = Rect(70 * (mAchievementItems[i].mId % 7), 70 * (mAchievementItems[i].mId / 7), 70, 70);
-		Rect aDestRect = Rect(70, 70, 70, 70);
-		Rect aTextRect = Rect(300, mAchievementItems[i].mY + 20, 300, 60);
+		Rect aDestRect = Rect(160, mAchievementItems[i].mY + 5, 70, 70);
+		Rect aTextRect = Rect(250, mAchievementItems[i].mY + 36, 300, 60);
 
 		g->DrawImage(IMAGE_ACHEESEMENTS_ICONS, aDestRect, aSrcRect);
 
 		TodDrawString(g, aAchievementName, BOARD_WIDTH / 2, mAchievementItems[i].mY + 25, FONT_DWARVENTODCRAFT15, Color(224, 187, 98), DS_ALIGN_CENTER);
-		TodDrawStringWrapped(g, aAchievementName, aTextRect, FONT_DWARVENTODCRAFT12, Color(255, 255, 255), DS_ALIGN_CENTER_VERTICAL_MIDDLE);
+		TodDrawStringWrapped(g, aAchievementDesc, aTextRect, FONT_DWARVENTODCRAFT12, Color(255, 255, 255), DS_ALIGN_CENTER_VERTICAL_MIDDLE);
 	}
 }
 
