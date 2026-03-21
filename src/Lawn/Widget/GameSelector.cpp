@@ -815,12 +815,13 @@ void GameSelector::Update()
 		mAchievementsButton->SetOffset(aNewX, aNewY);
 		mQuickPlayButton->SetOffset(aNewX, aNewY);
 
-		// @Patoke: make sure these are drawn even outside of bounds (force redraw)
+		// Make sure these are drawn even outside of bounds (force redraw)
 		mAchievementsButton->MarkDirty();
 		mOptionsButton->MarkDirty();
 		mHelpButton->MarkDirty();
 		mQuitButton->MarkDirty();
 		mStoreButton->MarkDirty();
+		mZenGardenButton->MarkDirty();
 
 		mSlideCounter--;
 	}
