@@ -242,6 +242,63 @@ static KeyCode SDLKeyToKeyCode(SDL_Keycode theSDLKey)
 	}
 }
 
+// Synthesize a minimal ASCII char stream from keydown so legacy KeyChar hotkeys still work.
+static bool SDLSynthesizeAsciiCharFromKeyDown(const SDL_KeyboardEvent& theEvent, char& theChar)
+{
+	theChar = 0;
+
+	if (SDL_IsTextInputActive())
+		return false;
+
+	SDL_Keycode aSym = theEvent.keysym.sym;
+	SDL_Keymod aMods = static_cast<SDL_Keymod>(theEvent.keysym.mod);
+	const bool aHasCtrl = (aMods & KMOD_CTRL) != 0;
+	const bool aHasAlt = (aMods & KMOD_ALT) != 0;
+	const bool aHasGui = (aMods & KMOD_GUI) != 0;
+	const bool aHasShift = (aMods & KMOD_SHIFT) != 0;
+
+	if (aHasAlt || aHasGui)
+		return false;
+
+	if (aSym >= SDLK_a && aSym <= SDLK_z)
+	{
+		theChar = aHasCtrl
+			? static_cast<char>(aSym - SDLK_a + 1)
+			: static_cast<char>(aHasShift ? aSym - SDLK_a + 'A' : aSym);
+		return true;
+	}
+
+	if (aHasCtrl)
+		return false;
+
+	switch (aSym)
+	{
+		case SDLK_1: theChar = aHasShift ? '!' : '1'; return true;
+		case SDLK_2: theChar = aHasShift ? '@' : '2'; return true;
+		case SDLK_3: theChar = aHasShift ? '#' : '3'; return true;
+		case SDLK_4: theChar = aHasShift ? '$' : '4'; return true;
+		case SDLK_5: theChar = aHasShift ? '%' : '5'; return true;
+		case SDLK_6: theChar = aHasShift ? '^' : '6'; return true;
+		case SDLK_7: theChar = aHasShift ? '&' : '7'; return true;
+		case SDLK_8: theChar = aHasShift ? '*' : '8'; return true;
+		case SDLK_9: theChar = aHasShift ? '(' : '9'; return true;
+		case SDLK_0: theChar = aHasShift ? ')' : '0'; return true;
+		case SDLK_MINUS: theChar = aHasShift ? '_' : '-'; return true;
+		case SDLK_EQUALS: theChar = aHasShift ? '+' : '='; return true;
+		case SDLK_LEFTBRACKET: theChar = aHasShift ? '{' : '['; return true;
+		case SDLK_RIGHTBRACKET: theChar = aHasShift ? '}' : ']'; return true;
+		case SDLK_BACKSLASH: theChar = aHasShift ? '|' : '\\'; return true;
+		case SDLK_SEMICOLON: theChar = aHasShift ? ':' : ';'; return true;
+		case SDLK_QUOTE: theChar = aHasShift ? '"' : '\''; return true;
+		case SDLK_COMMA: theChar = aHasShift ? '<' : ','; return true;
+		case SDLK_PERIOD: theChar = aHasShift ? '>' : '.'; return true;
+		case SDLK_SLASH: theChar = aHasShift ? '?' : '/'; return true;
+		case SDLK_BACKQUOTE: theChar = aHasShift ? '~' : '`'; return true;
+		case SDLK_SPACE: theChar = ' '; return true;
+		default: return false;
+	}
+}
+
 void SexyAppBase::InitInput()
 {
 	SDL_Init(SDL_INIT_EVENTS);
@@ -399,9 +456,16 @@ bool SexyAppBase::ProcessDeferredMessages(bool singleMessage)
 			}
 
 			case SDL_KEYDOWN:
+			{
 				mLastUserInputTick = mLastTimerTime;
 				mWidgetManager->KeyDown(SDLKeyToKeyCode(event.key.keysym.sym));
+
+				char aSynthesizedChar = 0;
+				if (SDLSynthesizeAsciiCharFromKeyDown(event.key, aSynthesizedChar))
+					mWidgetManager->KeyChar(aSynthesizedChar);
+
 				break;
+			}
 
 			case SDL_KEYUP:
 				mLastUserInputTick = mLastTimerTime;
