@@ -273,6 +273,22 @@ static bool SDLSynthesizeAsciiCharFromKeyDown(const SDL_KeyboardEvent& theEvent,
 
 	switch (aSym)
 	{
+		case SDLK_KP_1: theChar = '1'; return true;
+		case SDLK_KP_2: theChar = '2'; return true;
+		case SDLK_KP_3: theChar = '3'; return true;
+		case SDLK_KP_4: theChar = '4'; return true;
+		case SDLK_KP_5: theChar = '5'; return true;
+		case SDLK_KP_6: theChar = '6'; return true;
+		case SDLK_KP_7: theChar = '7'; return true;
+		case SDLK_KP_8: theChar = '8'; return true;
+		case SDLK_KP_9: theChar = '9'; return true;
+		case SDLK_KP_0: theChar = '0'; return true;
+		case SDLK_KP_PLUS: theChar = '+'; return true;
+		case SDLK_KP_MINUS: theChar = '-'; return true;
+		case SDLK_KP_MULTIPLY: theChar = '*'; return true;
+		case SDLK_KP_DIVIDE: theChar = '/'; return true;
+		case SDLK_KP_PERIOD: theChar = '.'; return true;
+		case SDLK_KP_EQUALS: theChar = '='; return true;
 		case SDLK_1: theChar = aHasShift ? '!' : '1'; return true;
 		case SDLK_2: theChar = aHasShift ? '@' : '2'; return true;
 		case SDLK_3: theChar = aHasShift ? '#' : '3'; return true;
