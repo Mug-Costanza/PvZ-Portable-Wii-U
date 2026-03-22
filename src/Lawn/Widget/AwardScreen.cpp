@@ -639,10 +639,20 @@ void AwardScreen::DrawAchievements(Graphics* g) {
 
 // GOTY @Patoke: 0x409400
 void AwardScreen::AchievementsContinuePressed() {
-	// @Patoke: implemented
 	if (mAwardType == AWARD_ACHIEVEMENTONLY) {
 		mApp->KillAwardScreen();
-		mApp->PreNewGame(GAMEMODE_ADVENTURE, false);
+		if (mApp->IsAdventureMode()) {
+			mApp->PreNewGame(mApp->mGameMode, false);
+		}
+		else if (mApp->IsSurvivalMode()) {
+			mApp->ShowChallengeScreen(ChallengePage::CHALLENGE_PAGE_SURVIVAL);
+		}
+		else if (mApp->IsPuzzleMode()) {
+			mApp->ShowChallengeScreen(ChallengePage::CHALLENGE_PAGE_PUZZLE);
+		}
+		else {
+			mApp->ShowChallengeScreen(ChallengePage::CHALLENGE_PAGE_CHALLENGE);
+		}
 	}
 	else {
 		mStartButton->mBtnNoDraw = !mShowStartButtonAfterAchievements;
