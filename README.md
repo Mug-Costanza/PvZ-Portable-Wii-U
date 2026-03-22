@@ -353,8 +353,6 @@ Note that this code has been **heavily refactored**, **optimized** and **moderni
 
 - **[@Headshotnoby](https://www.github.com/headshot2017)**: For almost fully implementing the 64-bit support and the initial fixed-function OpenGL backend.
 - **[@Patoke](https://www.github.com/Patoke)**: For the incredible initial reimplementation of PvZ GOTY.
-- **[@rspforhp](https://www.github.com/octokatherine)**: For the 0.9.9 version's work.
-- **[@ruslan831](https://github.com/ruslan831)**: For archiving the 0.9.9 version's re-implementation.
 - **PopCap Games**: For creating the amazing game and releasing their framework to the public with a permissive license.
 - **The SDL Team**: For the amazing cross-platform development library that powers this port.
 - **The OpenMPT Team**: For libopenmpt, enabling high-quality MO3 music playback.
