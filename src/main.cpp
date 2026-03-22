@@ -42,6 +42,7 @@ extern "C" {
 
 #ifdef __IPHONEOS__
 #include <SDL.h>
+#include <fstream>
 #endif
 
 #ifdef __EMSCRIPTEN__
@@ -108,16 +109,24 @@ int main(int argc, char** argv)
 
 #ifdef __IPHONEOS__
 	bool aHasGameResources = false;
+	std::filesystem::path aDocsPath;
 	const char* aHome = std::getenv("HOME");
 	if (aHome != nullptr && aHome[0] != '\0')
 	{
-		const std::filesystem::path aDocsPath = std::filesystem::path(aHome) / "Documents";
+		aDocsPath = std::filesystem::path(aHome) / "Documents";
 		aHasGameResources = std::filesystem::is_regular_file(aDocsPath / "main.pak") &&
 			std::filesystem::is_directory(aDocsPath / "properties");
 	}
 
 	if (!aHasGameResources)
 	{
+		const std::filesystem::path aReadmePath = aDocsPath / "README.txt";
+		if (!aDocsPath.empty() && !std::filesystem::exists(aReadmePath))
+		{
+			std::ofstream(aReadmePath, std::ios::out | std::ios::trunc)
+				<< "Place your `main.pak` and `properties/` folder here to play the game.\n";
+		}
+
 		SDL_Init(SDL_INIT_VIDEO);
 		SDL_ShowSimpleMessageBox(
 			SDL_MESSAGEBOX_ERROR,
