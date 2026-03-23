@@ -132,7 +132,7 @@ You can also [download the WASM build](https://github.com/wszqkzqk/PvZ-Portable/
 
 ## Game Version Compatibility
 
-This project is designed and tested against Plants vs. Zombies **GOTY Edition 1.2.0.1073** EN (the standalone PopCap release). **Non-English GOTY editions** (1.2.0.1093 DE/ES/FR/IT) and the **Steam GOTY Edition 1.2.0.1096** are also fully playable — all game mechanics work correctly. The only differences are minor cosmetic UI text issues caused by renamed string keys across versions, and these can be **easily fixed** by the user via a custom `properties/default.xml` (see below). 1.1.0.1056 ZH may have freezing issues in some cases (see below).
+This project is designed and tested against Plants vs. Zombies **GOTY Edition 1.2.0.1073** EN (the standalone PopCap release). **Non-English GOTY editions** (1.2.0.1093 DE/ES/FR/IT or 1.1.0.1056 ZH based on 1.2.0.1073) and the **Steam GOTY Edition 1.2.0.1096** are also fully playable — all game mechanics work correctly. The only differences are minor cosmetic UI text issues caused by renamed string keys across versions, and these can be **easily fixed** by the user via a custom `properties/default.xml` (see below).
 
 **Recommendation:** use the **1.2.0.1073 EN** asset package for the best **out-of-box** experience.
 
@@ -147,8 +147,6 @@ This project is designed and tested against Plants vs. Zombies **GOTY Edition 1.
 | **Crazy Dave's plant sell price shows 1/10 of the correct value** | In 1.2.0.1073, the string template `[CRAZY_DAVE_1700]` contains a trailing `0` after `{SELL_PRICE}` (i.e. `${SELL_PRICE}0`) because the engine passes the price divided by 10. In 1.2.0.1096 the trailing `0` was removed, so the displayed price becomes 1/10 of the intended amount. |
 
 All of the above can be resolved by adding the missing or corrected string entries to a `properties/default.xml` file placed alongside the game data.
-
-In addition, 1.1.0.1056 ZH is reported to cause freezing on some platforms due to resource incompatibility when showing "A large wave of zombies" banner.
 </details>
 
 ### Multilingual Support
