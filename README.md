@@ -25,22 +25,19 @@ A **cross-platform** community-driven reimplementation of Plants vs. Zombies: Ga
 
 ## Features
 
-This project is **based on** [Patoke](https://github.com/Patoke/re-plants-vs-zombies) and [Headshotnoby](https://github.com/headshot2017/re-plants-vs-zombies)'s PvZ GOTY implementation with the following objectives:
-- [x] Replace renderer with SDL + OpenGL ES 2.0 (desktop OpenGL 2.1 fallback)
+- [x] Render with SDL + OpenGL ES 2.0 (desktop OpenGL 2.1 fallback)
   - Also enable to **resize the window**, which was not possible in the original game
   - **Why OpenGL ES 2.0?** GLES 2.0 is the common subset of virtually all modern GPU APIs — every desktop OpenGL 2.1+ driver, mobile GPU, and game console inherently supports it. This means the game works **out of the box** everywhere without extra dependencies. [ANGLE](https://chromium.googlesource.com/angle/angle) can also be optionally used to translate calls to DirectX/Metal/Vulkan if needed.
-- [x] Replace Windows code with cross-platform code
-- [x] Replace DirectSound/BASS/FMod with [SDL Mixer X](https://github.com/WohlSoft/SDL-Mixer-X)
+- [x] Implement a cross-platform audio system based on [SDL Mixer X](https://github.com/WohlSoft/SDL-Mixer-X)
   - This project uses a fork of SDL Mixer X that adds compatibility with the MO3 format by using libopenmpt. This fork is located under SexyAppFramework/sound/SDL-Mixer-X
-- [x] main.pak support
-- [x] Optimize memory usage for console ports (Partial)
+- [x] Save more memory by disabling caching for console platforms that have very limited RAM
 - [x] **Compatible** with original PvZ GOTY Edition's ***global user data*** (profile info, adventure progress, coins, Zen Garden, etc., stored in `user*.dat`)
   - [x] Fix 2038 year problem while keeping compatibility
 - [x] **Portable mid-level save game** format `.v4` support (share **mid-level saves** between Windows, Linux, macOS, Android, Switch, etc.)
   - [x] Support export/import of `.v4` save files to/from human-readable YAML format for easy editing
 - [x] Implement with `std::thread` for cross-platform threading support
 - [x] Implement with `std::filesystem` for cross-platform file system support
-- [x] Replace wide-string with `std::string` and UTF-8 encoding
+- [x] Unified use of UTF-8 encoding within the program
 - [x] **Multilingual Support**: Supports game resource data from official GOTY editions in various languages, including **Chinese, German, Spanish, French, and Italian**.
 - [x] 32 and 64-bit builds support
 - [x] Different CPU architectures support (i686, x86_64, aarch64, riscv64, loongarch64, etc.)
@@ -60,9 +57,9 @@ This project supports the following platforms (including but not limited to):
 | Haiku           | Executable dir (resources); per-user app-data for writable files | Partially works: no music                                                              |
 | Android         | `Android/data/io.github.wszqkzqk.pvzportable/files/` | Works                                                                                  |
 | iOS / iPadOS    | App Documents directory (Files app) | Works (sideload only; unsigned IPA)                                                    |
-| Nintendo Switch | sdmc:/switch/PvZPortable | Works on real hardware. Kenji-NX crashes on boot.                           |
-| Nintendo 3DS    | sdmc:/3ds/PvZPortable    | In development, might not have enough memory for Old 3DS, might barely work on New 3DS |
 | Web (WASM)      | Browser IndexedDB (saves); resources uploaded at runtime    | Works (requires a HTTP server) |
+| Nintendo Switch | sdmc:/switch/PvZPortable | Works on real hardware. Kenji-NX crashes on boot.                           |
+| Nintendo 3DS    | sdmc:/3ds/PvZPortable    | Might not have enough memory for Old 3DS and barely work on New 3DS (discontionued) |
 
 To play the game, you need the game data from PvZ GOTY. Place `main.pak` and the `properties/` folder next to the `pvz-portable` executable (the game will search for resources relative to the executable's directory). You can also use extracted data instead of `main.pak` if you prefer.
 
@@ -349,9 +346,7 @@ Note that this code has been **heavily refactored**, **optimized** and **moderni
 
 ## Thanks
 
-- **[@Headshotnoby](https://www.github.com/headshot2017)**: For almost fully implementing the 64-bit support and the initial fixed-function OpenGL backend.
-- **[@Patoke](https://www.github.com/Patoke)**: For the incredible initial reimplementation of PvZ GOTY.
 - **PopCap Games**: For creating the amazing game and releasing their framework to the public with a permissive license.
 - **The SDL Team**: For the amazing cross-platform development library that powers this port.
 - **The OpenMPT Team**: For libopenmpt, enabling high-quality MO3 music playback.
-- All the contributors who have worked or are actively working in this amazing project.
+- All the contributors who have worked or are actively working in this amazing project, especially [@Headshotnoby](https://www.github.com/headshot2017) and [@Patoke](https://www.github.com/Patoke) for their groundwork.
