@@ -758,7 +758,7 @@ void GameSelector::UpdateTooltip()
 	{
 		int aMouseX = mApp->mWidgetManager->mLastMouseX;
 		int aMouseY = mApp->mWidgetManager->mLastMouseY;
-		if (aMouseX >= 50 && aMouseX < 135 && aMouseY >= 325 && aMouseY <= 550)
+		if (aMouseX >= 50 && aMouseX < 135 && aMouseY >= 275 && aMouseY < 500)
 		{
 			if (mApp->EarnedGoldTrophy())
 			{
