@@ -415,10 +415,7 @@ bool SexyAppBase::ProcessDeferredMessages(bool singleMessage)
 			case SDL_MOUSEWHEEL:
 			{
 				mLastUserInputTick = mLastTimerTime;
-				if (event.wheel.direction == SDL_MOUSEWHEEL_FLIPPED)
-					mWidgetManager->MouseWheel(event.wheel.y);
-				else
-					mWidgetManager->MouseWheel(-event.wheel.y);
+				mWidgetManager->MouseWheel(event.wheel.y);
 				break;
 			}
 
