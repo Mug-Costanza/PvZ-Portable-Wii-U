@@ -293,7 +293,6 @@ public:
 	void							PreloadForUser();
 	int								GetNumPreloadingTasks();
 	int								LawnMessageBox(int theDialogId, const char* theHeaderName, const char* theLinesName, const char* theButton1Name, const char* theButton2Name, int theButtonMode);
-	virtual void					EnforceCursor();
 	void							ShowCreditScreen();
 	void							KillCreditScreen();
 	static std::string				Pluralize(int theCount, const char* theSingular, const char* thePlural);
