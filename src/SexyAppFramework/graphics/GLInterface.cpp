@@ -25,9 +25,7 @@
 #define GLAD_GLES2_IMPLEMENTATION
 #include "graphics/GLPlatform.h"
 
-#ifndef NINTENDO_SWITCH
 #include <SDL.h>
-#endif
 
 #include "graphics/GLInterface.h"
 #include "graphics/GLImage.h"
@@ -1120,7 +1118,7 @@ void GLInterface::UpdateViewport()
 {
 	int vx = 0, vy = 0, vw, vh;
 
-#ifdef NINTENDO_SWITCH
+#ifdef __SWITCH__
 	int width = 1280, height = 720;
 #else
 	int width, height;
@@ -1235,7 +1233,7 @@ bool GLInterface::PreDraw()
 void GLInterface::Flush()
 {
 	gNumVertices = 0;
-#ifdef NINTENDO_SWITCH
+#ifdef __SWITCH__
 	eglSwapBuffers(mApp->mWindow, mApp->mSurface);
 #else
 	SDL_GL_SwapWindow((SDL_Window*)mApp->mWindow);
