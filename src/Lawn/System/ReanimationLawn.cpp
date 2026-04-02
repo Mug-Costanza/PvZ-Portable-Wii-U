@@ -28,7 +28,6 @@
 #include "../../Sexy.TodLib/Reanimator.h"
 #include "graphics/MemoryImage.h"
 
-//0x46EF00
 void ReanimatorCache::UpdateReanimationForVariation(Reanimation* theReanim, DrawVariation theDrawVariation)
 {
 	if (theDrawVariation >= DrawVariation::VARIATION_MARIGOLD_WHITE && theDrawVariation <= DrawVariation::VARIATION_MARIGOLD_LIGHT_GREEN)
@@ -80,7 +79,6 @@ void ReanimatorCache::UpdateReanimationForVariation(Reanimation* theReanim, Draw
 	}
 }
 
-//0x46F100
 void ReanimatorCache::DrawReanimatorFrame(Graphics* g, float thePosX, float thePosY, ReanimationType theReanimationType, const char* theTrackName, DrawVariation theDrawVariation)
 {
 	Reanimation aReanim;
@@ -114,7 +112,6 @@ void ReanimatorCache::DrawReanimatorFrame(Graphics* g, float thePosX, float theP
 	aReanim.Draw(g);
 }
 
-//0x46F280
 MemoryImage* ReanimatorCache::MakeBlankMemoryImage(int theWidth, int theHeight)
 {
 	MemoryImage* aImage = new MemoryImage();
@@ -153,7 +150,6 @@ void ReanimatorCache::GetPlantImageSize(SeedType theSeedType, int& theOffsetX, i
 	}
 }
 
-//0x46F330
 MemoryImage* ReanimatorCache::MakeCachedMowerFrame(LawnMowerType theMowerType)
 {
 	MemoryImage* aImage = nullptr;
@@ -208,7 +204,6 @@ MemoryImage* ReanimatorCache::MakeCachedMowerFrame(LawnMowerType theMowerType)
 	return aImage;
 }
 
-//0x46F550
 MemoryImage* ReanimatorCache::MakeCachedPlantFrame(SeedType theSeedType, DrawVariation theDrawVariation)
 {
 	int aOffsetX, aOffsetY, aWidth, aHeight;
@@ -263,7 +258,6 @@ MemoryImage* ReanimatorCache::MakeCachedPlantFrame(SeedType theSeedType, DrawVar
 	return aMemoryImage;
 }
 
-//0x46F8A0
 MemoryImage* ReanimatorCache::MakeCachedZombieFrame(ZombieType theZombieType)
 {
 	MemoryImage* aMemoryImage = MakeBlankMemoryImage(200, 210);
@@ -338,7 +332,6 @@ MemoryImage* ReanimatorCache::MakeCachedZombieFrame(ZombieType theZombieType)
 	return aMemoryImage;
 }
 
-//0x46FDC0
 void ReanimatorCache::ReanimatorCacheInitialize()
 {
 	mApp = (LawnApp*)gSexyAppBase;
@@ -350,7 +343,6 @@ void ReanimatorCache::ReanimatorCacheInitialize()
 		mZombieImages[i] = nullptr;
 }
 
-//0x46FED0
 void ReanimatorCache::ReanimatorCacheDispose()
 {
 	for (int i = 0; i < SeedType::NUM_SEED_TYPES; i++)
@@ -368,7 +360,6 @@ void ReanimatorCache::ReanimatorCacheDispose()
 }
 
 
-//0x46FFB0
 void ReanimatorCache::DrawCachedPlant(Graphics* g, float thePosX, float thePosY, SeedType theSeedType, DrawVariation theDrawVariation)
 {
 	TOD_ASSERT(theSeedType >= 0 && theSeedType < SeedType::NUM_SEED_TYPES);
@@ -414,7 +405,6 @@ void ReanimatorCache::DrawCachedPlant(Graphics* g, float thePosX, float thePosY,
 		TodDrawImageScaledF(g, aImage, thePosX + (aOffsetX * g->mScaleX), thePosY + (aOffsetY * g->mScaleY), g->mScaleX, g->mScaleY);
 }
 
-//0x470110
 void ReanimatorCache::DrawCachedMower(Graphics* g, float thePosX, float thePosY, LawnMowerType theMowerType)
 {
 	TOD_ASSERT(theMowerType >= 0 && theMowerType < LawnMowerType::NUM_MOWER_TYPES);
@@ -424,7 +414,6 @@ void ReanimatorCache::DrawCachedMower(Graphics* g, float thePosX, float thePosY,
 	TodDrawImageScaledF(g, mLawnMowers[theMowerType], thePosX - 20.0f, thePosY, g->mScaleX, g->mScaleY);
 }
 
-//0x470170
 void ReanimatorCache::DrawCachedZombie(Graphics* g, float thePosX, float thePosY, ZombieType theZombieType)
 {
 	TOD_ASSERT(theZombieType >= 0 && theZombieType < ZombieType::NUM_CACHED_ZOMBIE_TYPES);

@@ -36,7 +36,6 @@
 
 using namespace Sexy;
 
-//0x44CFA0
 GridItem::GridItem()
 {
     mApp = (LawnApp*)gSexyAppBase;
@@ -62,7 +61,6 @@ GridItem::GridItem()
     mMotionTrailCount = 0;
 }
 
-//0x44D000
 void GridItem::GridItemDie()
 {
     mDead = true;
@@ -81,7 +79,6 @@ void GridItem::GridItemDie()
     }
 }
 
-//0x44D070
 void GridItem::DrawGridItemOverlay(Graphics* g)
 {
     if (mGridItemType == GridItemType::GRIDITEM_STINKY)
@@ -94,7 +91,6 @@ void GridItem::DrawGridItemOverlay(Graphics* g)
     }
 }
 
-//0x44D140
 void GridItem::DrawGridItem(Graphics* g)
 {
     switch (mGridItemType)
@@ -127,7 +123,6 @@ void GridItem::DrawGridItem(Graphics* g)
     }
 }
 
-//0x44D250
 void GridItem::DrawIZombieBrain(Graphics* g)
 {
     if (mGridItemState == GridItemState::GRIDITEM_STATE_BRAIN_SQUISHED)
@@ -157,7 +152,6 @@ void GridItem::DrawIZombieBrain(Graphics* g)
     g->SetColorizeImages(false);
 }
 
-//0x44D3A0
 // GOTY @Patoke: 0x450673
 void GridItem::DrawGraveStone(Graphics* g)
 {
@@ -203,7 +197,6 @@ void GridItem::DrawGraveStone(Graphics* g)
     g->DrawImage(IMAGE_TOMBSTONE_MOUNDS, x, y - aVisibleHeightDirt, aSrcRectDirt);
 }
 
-//0x44D690
 void GridItem::DrawStinky(Graphics* g)
 {
     Reanimation* aStinkyReanim = mApp->ReanimationGet(mGridItemReanimID);
@@ -243,7 +236,6 @@ void GridItem::DrawStinky(Graphics* g)
     aStinkyReanim->mEnableExtraAdditiveDraw = false;
 }
 
-//0x44D860
 // GOTY @Patoke: 0x450B39
 void GridItem::DrawCrater(Graphics* g)
 {
@@ -317,7 +309,6 @@ void GridItem::DrawCrater(Graphics* g)
     g->SetColorizeImages(false);
 }
 
-//0x44DB00
 void GridItem::DrawScaryPot(Graphics* g)
 {
     int aImageCol = static_cast<int>(mGridItemState) - static_cast<int>(GridItemState::GRIDITEM_STATE_SCARY_POT_QUESTION);
@@ -406,7 +397,6 @@ void GridItem::DrawScaryPot(Graphics* g)
     g->SetColorizeImages(false);
 }
 
-//0x44DFD0
 void GridItem::DrawLadder(Graphics* g)
 {
     int aXPos = mBoard->GridToPixelX(mGridX, mGridY);
@@ -445,7 +435,6 @@ void GridItem::DrawSquirrel(Graphics* g)
 }
 */
 
-//0x44E090
 void GridItem::AddGraveStoneParticles()
 {
     int aXOffset = mBoard->mGridCelOffset[mGridX][mGridY][0];
@@ -456,7 +445,6 @@ void GridItem::AddGraveStoneParticles()
     mApp->PlayFoley(FoleyType::FOLEY_DIRT_RISE);
 }
 
-//0x44E1B0
 void GridItem::OpenPortal()
 {
     float aXPos = mGridX * 80.0f - 6.0f;
@@ -491,7 +479,6 @@ void GridItem::OpenPortal()
     mApp->PlayFoley(FoleyType::FOLEY_PORTAL);
 }
 
-//0x44E360
 void GridItem::ClosePortal()
 {
     Reanimation* aPortalReanim = mApp->ReanimationTryToGet(mGridItemReanimID);
@@ -516,7 +503,6 @@ bool GridItem::IsOpenPortal()
 		(mGridItemType == GridItemType::GRIDITEM_PORTAL_CIRCLE || mGridItemType == GridItemType::GRIDITEM_PORTAL_SQUARE);
 }
 
-//0x44E400
 void GridItem::UpdatePortal()
 {
     Reanimation* aPortalReanim = mApp->ReanimationGet(mGridItemReanimID);
@@ -546,7 +532,6 @@ void GridItem::UpdatePortal()
     }
 }
 
-//0x44E520
 void GridItem::UpdateScaryPot()
 {
     if (mApp->mTodCheatKeys && mApp->mWidgetManager->mKeyDown[KeyCode::KEYCODE_SHIFT])
@@ -599,7 +584,6 @@ void GridItem::UpdateBrain()
     }
 }
 
-//0x44E5E0
 void GridItem::Update()
 {
     Reanimation* aGridItemReanim = mApp->ReanimationTryToGet(mGridItemReanimID);
@@ -632,7 +616,6 @@ void GridItem::Update()
     }
 }
 
-//0x44E6A0
 Zombie* GridItem::RakeFindZombie()
 {
     Rect aRakeRect(mPosX, mPosY, 63, 80);
@@ -653,7 +636,6 @@ Zombie* GridItem::RakeFindZombie()
     return nullptr;
 }
 
-//0x44E780
 void GridItem::UpdateRake()
 {
     if (mGridItemState == GridItemState::GRIDITEM_STATE_RAKE_ATTRACTING || mGridItemState == GridItemState::GRIDITEM_STATE_RAKE_WAITING)

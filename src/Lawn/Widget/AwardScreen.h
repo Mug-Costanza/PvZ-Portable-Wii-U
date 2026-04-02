@@ -49,11 +49,11 @@ private:
 	};
 
 public:
-	GameButton*							mStartButton;			//+0x88
-	GameButton*							mMenuButton;			//+0x8C
-	LawnApp*							mApp;					//+0x90
-	int									mFadeInCounter;			//+0x94
-	AwardType							mAwardType;				//+0x98 GOTY @Patoke: 0xB8
+	GameButton*							mStartButton;
+	GameButton*							mMenuButton;
+	LawnApp*							mApp;
+	int									mFadeInCounter;
+	AwardType							mAwardType;				//+GOTY @Patoke: 0xB8
 	GameButton*							mContinueButton;		//+GOTY @Patoke: 0xA8
 	bool								mShowStartButtonAfterAchievements;	//+GOTY @Patoke: 0xAC
 	bool								mShowMenuButtonAfterAchievements;	//+GOTY @Patoke: 0xAD

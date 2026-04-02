@@ -27,7 +27,6 @@
 #include "misc/PerfTimer.h"
 #include "graphics/MemoryImage.h"
 
-//0x470250
 ReanimAtlas::ReanimAtlas()
 {
 	mMemoryImage = nullptr;
@@ -49,7 +48,6 @@ ReanimAtlasImage* ReanimAtlas::GetEncodedReanimAtlas(Image* theImage)
 	return &mImageArray[aAtlasIndex];
 }
 
-//0x470290
 MemoryImage* ReanimAtlasMakeBlankMemoryImage(int theWidth, int theHeight)
 {
 	MemoryImage* aImage = new MemoryImage();
@@ -65,7 +63,6 @@ MemoryImage* ReanimAtlasMakeBlankMemoryImage(int theWidth, int theHeight)
 	return aImage;
 }
 
-//0x470340
 bool sSortByNonIncreasingHeight(const ReanimAtlasImage& image1, const ReanimAtlasImage& image2)
 {
 	//if (image1->mHeight != image2->mHeight)
@@ -92,7 +89,6 @@ static int GetClosestPowerOf2Above(int theNum)
 	return aPower2;
 }
 
-//0x470370
 int ReanimAtlas::PickAtlasWidth()
 {
 	int totalArea = 0;
@@ -109,7 +105,6 @@ int ReanimAtlas::PickAtlasWidth()
 	return GetClosestPowerOf2Above(std::min(std::max(aWidth, aMaxWidth), 2048));  // 取“边长”和“最宽贴图的宽度”的较大值（且不超过 2048），并向上取至 2 的整数次幂
 }
 
-//0x470420
 bool ReanimAtlas::ImageFits(int theImageCount, const Rect& rectTest, int theMaxWidth)
 {
 	if (rectTest.mX + rectTest.mWidth > theMaxWidth)
@@ -124,7 +119,6 @@ bool ReanimAtlas::ImageFits(int theImageCount, const Rect& rectTest, int theMaxW
 	return true;
 }
 
-//0x4704C0
 bool ReanimAtlas::ImageFindPlaceOnSide(ReanimAtlasImage* theAtlasImageToPlace, int theImageCount, int theMaxWidth, bool theToRight)
 {
 	Rect rectTest;
@@ -184,7 +178,6 @@ bool ReanimAtlas::PlaceAtlasImage(ReanimAtlasImage* theAtlasImageToPlace, int th
 	return false;
 }
 
-//0x470580
 void ReanimAtlas::ArrangeImages(int& theAtlasWidth, int& theAtlasHeight)
 {
 	std::sort(mImageArray.begin(), mImageArray.end(), sSortByNonIncreasingHeight);  // 将所有图集图片按高度降序排序
@@ -226,7 +219,6 @@ int ReanimAtlas::FindImage(Image* theImage)
 	return -1;
 }
 
-//0x470680
 void ReanimAtlas::ReanimAtlasCreate(ReanimatorDefinition* theReanimDef)
 {
 	PerfTimer aTimer;

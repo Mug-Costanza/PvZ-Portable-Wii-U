@@ -31,19 +31,19 @@ namespace Sexy
 class ToolTipWidget
 {
 public:
-    std::string			mTitle;                 //+0x0
-    std::string			mLabel;                 //+0x1C
-    std::string			mWarningText;           //+0x28
-    int                 mX;                     //+0x54
-    int                 mY;                     //+0x58
-    int                 mWidth;                 //+0x5C
-    int                 mHeight;                //+0x60
-    bool                mVisible;               //+0x64
-    bool                mCenter;                //+0x65
-    int                 mMinLeft;               //+0x68
-    int                 mMaxBottom;             //+0x6C
-    int                 mGetsLinesWidth;        //+0x70
-    int                 mWarningFlashCounter;   //+0x74
+    std::string			mTitle;
+    std::string			mLabel;
+    std::string			mWarningText;
+    int                 mX;
+    int                 mY;
+    int                 mWidth;
+    int                 mHeight;
+    bool                mVisible;
+    bool                mCenter;
+    int                 mMinLeft;
+    int                 mMaxBottom;
+    int                 mGetsLinesWidth;
+    int                 mWarningFlashCounter;
     int                 mMaxLinesWidth;         // max line width override (0 = auto)
 
 public:

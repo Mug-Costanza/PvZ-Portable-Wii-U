@@ -99,4 +99,3 @@ bool Sexy::Quantize8Bit(const uint32_t* theSrcBits, int theWidth, int theHeight,
 
 	return true;
 }
-

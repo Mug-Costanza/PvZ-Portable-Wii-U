@@ -42,7 +42,6 @@ MessageWidget::MessageWidget(LawnApp* theApp)
 	memset(mTextReanimID, static_cast<int>(ReanimationID::REANIMATIONID_NULL), MAX_MESSAGE_LENGTH);
 }
 
-//0x458FC0
 void MessageWidget::ClearReanim()
 {
 	for (int i = 0; i < MAX_MESSAGE_LENGTH; i++)
@@ -68,7 +67,6 @@ void MessageWidget::ClearLabel()
 	}
 }
 
-//0x459010
 // GOTY @Patoke: inlined 0x459715
 void MessageWidget::SetLabel(const std::string& theNewLabel, MessageStyle theMessageStyle)
 {
@@ -146,7 +144,6 @@ void MessageWidget::SetLabel(const std::string& theNewLabel, MessageStyle theMes
 	}
 }
 
-//0x4591E0
 void MessageWidget::LayoutReanimText()
 {
 	float aMaxWidth = 0;
@@ -196,7 +193,6 @@ void MessageWidget::LayoutReanimText()
 	}
 }
 
-//0x4594B0
 void MessageWidget::Update()
 {
 	if (!mApp->mBoard || mApp->mBoard->mPaused)
@@ -253,7 +249,6 @@ void MessageWidget::Update()
 	}
 }
 
-//0x459710
 void MessageWidget::DrawReanimatedText(Graphics* g, _Font* theFont, const Color& theColor, float thePosY)
 {
 	int aLabelLen = strlen(mLabel);
@@ -292,7 +287,6 @@ void MessageWidget::DrawReanimatedText(Graphics* g, _Font* theFont, const Color&
 	}
 }
 
-//0x459990
 // GOTY @Patoke: inlined 0x45CAEF
 _Font* MessageWidget::GetFont()
 {
@@ -327,7 +321,6 @@ _Font* MessageWidget::GetFont()
 	unreachable();
 }
 
-//0x4599E0
 // GOTY @Patoke: 0x45D2B0
 void MessageWidget::Draw(Graphics* g)
 {

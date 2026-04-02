@@ -49,8 +49,8 @@ extern "C" {
 #include <emscripten.h>
 #endif
 
-bool (*gAppCloseRequest)();				//[0x69E6A0]
-bool (*gAppHasUsedCheatKeys)();			//[0x69E6A4]
+bool (*gAppCloseRequest)();
+bool (*gAppHasUsedCheatKeys)();
 std::string (*gGetCurrentLevelName)();
 
 #ifdef _WIN32
@@ -96,7 +96,6 @@ static void BuildUtf8ArgsFromWin32(int& argc, char**& argv)
 }
 #endif
 
-//0x44E8F0
 int main(int argc, char** argv)
 {
 #ifdef __3DS__

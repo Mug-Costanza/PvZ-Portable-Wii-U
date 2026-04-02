@@ -69,30 +69,30 @@ struct BeghouledBoardState
 class Challenge
 {
 public:
-	LawnApp*				mApp;                                               //+0x0
-	Board*					mBoard;                                             //+0x4
-	int32_t					mBeghouledMouseCapture;                             //+0x8
-    int32_t                 mBeghouledMouseDownX;                               //+0xC
-    int32_t                 mBeghouledMouseDownY;                               //+0x10
-    int32_t                mBeghouledEated[9][6];                              //+0x14
-    int32_t                mBeghouledPurcasedUpgrade[NUM_BEGHOULED_UPGRADES];  //+0x4A
-    int32_t                 mBeghouledMatchesThisMove;                          //+0x50
-    ChallengeState          mChallengeState;                                    //+0x54
-    int32_t                 mChallengeStateCounter;                             //+0x58
-    int32_t                 mConveyorBeltCounter;                               //+0x5C
-    int32_t                 mChallengeScore;                                    //+0x60
-    int32_t                mShowBowlingLine;                                   //+0x64
-    SeedType                mLastConveyorSeedType;                              //+0x68
-    int32_t                 mSurvivalStage;                                     //+0x6C
-    int32_t                 mSlotMachineRollCount;                              //+0x70
-    ReanimationID           mReanimChallenge;                                   //+0x74
-    ReanimationID           mReanimClouds[6];                                   //+0x78
-    int32_t                 mCloudsCounter[6];                                  //+0x90
-    int32_t                 mChallengeGridX;                                    //+0xA8
-    int32_t                 mChallengeGridY;                                    //+0xAC
-    int32_t                 mScaryPotterPots;                                   //+0xB0
-    int32_t                 mRainCounter;                                       //+0xB4
-    int32_t                 mTreeOfWisdomTalkIndex;                             //+0xB8
+	LawnApp*				mApp;
+	Board*					mBoard;
+	int32_t					mBeghouledMouseCapture;
+    int32_t                 mBeghouledMouseDownX;
+    int32_t                 mBeghouledMouseDownY;
+    int32_t                mBeghouledEated[9][6];
+    int32_t                mBeghouledPurcasedUpgrade[NUM_BEGHOULED_UPGRADES];
+    int32_t                 mBeghouledMatchesThisMove;
+    ChallengeState          mChallengeState;
+    int32_t                 mChallengeStateCounter;
+    int32_t                 mConveyorBeltCounter;
+    int32_t                 mChallengeScore;
+    int32_t                mShowBowlingLine;
+    SeedType                mLastConveyorSeedType;
+    int32_t                 mSurvivalStage;
+    int32_t                 mSlotMachineRollCount;
+    ReanimationID           mReanimChallenge;
+    ReanimationID           mReanimClouds[6];
+    int32_t                 mCloudsCounter[6];
+    int32_t                 mChallengeGridX;
+    int32_t                 mChallengeGridY;
+    int32_t                 mScaryPotterPots;
+    int32_t                 mRainCounter;
+    int32_t                 mTreeOfWisdomTalkIndex;
 
 public:
     Challenge();
@@ -267,7 +267,7 @@ public:
     ZombieType                      mZombieType;
     int32_t                         mAllowedOnLevel[50];
 };
-extern int gZombieWaves[NUM_LEVELS]; //0x6A34E8
-extern ZombieAllowedLevels gZombieAllowedLevels[NUM_ZOMBIE_TYPES];  //0x6A35B0
+extern int gZombieWaves[NUM_LEVELS];
+extern ZombieAllowedLevels gZombieAllowedLevels[NUM_ZOMBIE_TYPES];
 
 #endif

@@ -205,4 +205,3 @@ extern void DrawTriangle_0555_TEX1_TALPHA1_MOD1_GLOB1_BLEND0(SWHelper::SWVertex 
 extern void DrawTriangle_0555_TEX1_TALPHA1_MOD1_GLOB1_BLEND1(SWHelper::SWVertex * pVerts, void * pFrameBuffer, const unsigned int bytepitch, const SWHelper::SWTextureInfo * textureInfo, SWHelper::SWDiffuse & globalDiffuse);
 
 } // namespace Sexy
-

@@ -33,7 +33,7 @@
 #include "../Sexy.TodLib/Attachment.h"
 #include "Widget/AchievementsScreen.h"
 
-ProjectileDefinition gProjectileDefinition[] = {  //0x69F1C0
+ProjectileDefinition gProjectileDefinition[] = {
 	{ ProjectileType::PROJECTILE_PEA,           0,  20  },
 	{ ProjectileType::PROJECTILE_SNOWPEA,       0,  20  },
 	{ ProjectileType::PROJECTILE_CABBAGE,       0,  40  },
@@ -59,7 +59,6 @@ Projectile::~Projectile()
 	AttachmentDie(mAttachmentID);
 }
 
-//0x46C730
 void Projectile::ProjectileInitialize(int theX, int theY, int theRenderOrder, int theRow, ProjectileType theProjectileType)
 {
 	int aGridX = mBoard->PixelToGridXKeepOnBoard(theX, theY);
@@ -152,7 +151,6 @@ void Projectile::ProjectileInitialize(int theX, int theY, int theRenderOrder, in
 	mY = static_cast<int>(mPosY);
 }
 
-//0x46CAA0
 Plant* Projectile::FindCollisionTargetPlant()
 {
 	Rect aProjectileRect = GetProjectileRect();
@@ -191,7 +189,6 @@ Plant* Projectile::FindCollisionTargetPlant()
 	return nullptr;
 }
 
-//0x46CC30
 bool Projectile::PeaAboutToHitTorchwood()
 {
 	if (mMotionType != ProjectileMotion::MOTION_STRAIGHT)
@@ -219,7 +216,6 @@ bool Projectile::PeaAboutToHitTorchwood()
 	return false;
 }
 
-//0x46CD40
 Zombie* Projectile::FindCollisionTarget()
 {
 	if (PeaAboutToHitTorchwood())  // “卡火炬”的原理，这段代码在两版内测版中均不存在
@@ -259,7 +255,6 @@ Zombie* Projectile::FindCollisionTarget()
 	return aBestZombie;
 }
 
-//0x46CE80
 void Projectile::CheckForCollision()
 {
 	if (mMotionType == ProjectileMotion::MOTION_PUFF && mProjectileAge >= 75)
@@ -333,7 +328,6 @@ void Projectile::CheckForCollision()
 	}
 }
 
-//0x46D090
 bool Projectile::CantHitHighGround()
 {
 	if (mMotionType == ProjectileMotion::MOTION_BACKWARDS || mMotionType == ProjectileMotion::MOTION_HOMING)
@@ -348,7 +342,6 @@ bool Projectile::CantHitHighGround()
 		) && !mOnHighGround;
 }
 
-//0x46D0D0
 void Projectile::CheckForHighGround()
 {
 	float aShadowDelta = mShadowY - mPosY;
@@ -388,7 +381,6 @@ void Projectile::CheckForHighGround()
 	}
 }
 
-//0x46D1F0
 bool Projectile::IsSplashDamage(Zombie* theZombie)
 {
 	if (mProjectileType && theZombie && theZombie->IsFireResistant())
@@ -400,7 +392,6 @@ bool Projectile::IsSplashDamage(Zombie* theZombie)
 		mProjectileType == ProjectileType::PROJECTILE_FIREBALL;
 }
 
-//0x46D230
 unsigned int Projectile::GetDamageFlags(Zombie* theZombie)
 {
 	unsigned int aDamageFlags = 0U;
@@ -426,7 +417,6 @@ unsigned int Projectile::GetDamageFlags(Zombie* theZombie)
 	return aDamageFlags;
 }
 
-//0x46D2B0
 bool Projectile::IsZombieHitBySplash(Zombie* theZombie)
 {
 	Rect aProjectileRect = GetProjectileRect();
@@ -461,7 +451,6 @@ bool Projectile::IsZombieHitBySplash(Zombie* theZombie)
 	return theZombie->EffectedByDamage(static_cast<unsigned int>(mDamageRangeFlags)) && GetRectOverlap(aProjectileRect, aZombieRect) >= 0;
 }
 
-//0x46D390
 void Projectile::DoSplashDamage(Zombie* theZombie)
 {
 	const ProjectileDefinition& aProjectileDef = GetProjectileDef();
@@ -509,7 +498,6 @@ void Projectile::DoSplashDamage(Zombie* theZombie)
 	}
 }
 
-//0x46D490
 // GOTY @Patoke: 0x471B41
 void Projectile::UpdateLobMotion()
 {
@@ -643,7 +631,6 @@ void Projectile::UpdateLobMotion()
 	}
 }
 
-//0x46D890
 void Projectile::UpdateNormalMotion()
 {
 	if (mMotionType == ProjectileMotion::MOTION_BACKWARDS)
@@ -743,7 +730,6 @@ void Projectile::UpdateNormalMotion()
 	CheckForHighGround();
 }
 
-//0x46DC70
 void Projectile::UpdateMotion()
 {
 	if (mAnimTicksPerFrame > 0)
@@ -782,7 +768,6 @@ void Projectile::UpdateMotion()
 	mY = static_cast<int>(mPosY + mPosZ);
 }
 
-//0x46DD30
 void Projectile::PlayImpactSound(Zombie* theZombie)
 {
 	bool aPlayHelmSound = true;
@@ -829,7 +814,6 @@ void Projectile::PlayImpactSound(Zombie* theZombie)
 	}
 }
 
-//0x46E000
 void Projectile::DoImpact(Zombie* theZombie)
 {
 	PlayImpactSound(theZombie);
@@ -948,7 +932,6 @@ void Projectile::DoImpact(Zombie* theZombie)
 	Die();
 }
 
-//0x46E460
 void Projectile::Update()
 {
 	mProjectileAge++;
@@ -984,7 +967,6 @@ void Projectile::Update()
 	AttachmentUpdateAndMove(mAttachmentID, mPosX, mPosY + mPosZ);
 }
 
-//0x46E540
 void Projectile::Draw(Graphics* g)
 {
 	const ProjectileDefinition& aProjectileDef = GetProjectileDef();
@@ -1093,7 +1075,6 @@ void Projectile::Draw(Graphics* g)
 	}
 }
 
-//0x46E8C0
 void Projectile::DrawShadow(Graphics* g)
 {
 	int aCelCol = 0;
@@ -1173,7 +1154,6 @@ void Projectile::DrawShadow(Graphics* g)
 	TodDrawImageCelScaledF(g, IMAGE_PEA_SHADOWS, aOffsetX, (mShadowY - mPosY + aOffsetY), aCelCol, 0, aScale * aStretch, aScale);
 }
 
-//0x46EB20
 void Projectile::Die()
 {
 	mDead = true;
@@ -1189,7 +1169,6 @@ void Projectile::Die()
 	}
 }
 
-//0x46EBC0
 Rect Projectile::GetProjectileRect()
 {
 	if (mProjectileType == ProjectileType::PROJECTILE_PEA || 
@@ -1220,7 +1199,6 @@ Rect Projectile::GetProjectileRect()
 	}
 }
 
-//0x46ECB0
 void Projectile::ConvertToFireball(int theGridX)
 {
 	if (mHitTorchwoodGridX == theGridX)
@@ -1245,7 +1223,6 @@ void Projectile::ConvertToFireball(int theGridX)
 	AttachReanim(mAttachmentID, aFirePeaReanim, aOffsetX, aOffsetY);
 }
 
-//0x46EE00
 void Projectile::ConvertToPea(int theGridX)
 {
 	if (mHitTorchwoodGridX == theGridX)

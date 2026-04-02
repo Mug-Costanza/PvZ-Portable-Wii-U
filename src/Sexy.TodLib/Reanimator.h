@@ -93,8 +93,8 @@ public:
 public:
     ReanimatorDefinition() : mTracks({nullptr, 0}), mFPS(12.0f), mReanimAtlas(nullptr) { }
 };
-extern unsigned int gReanimatorDefCount;                     //[0x6A9EE4]
-extern ReanimatorDefinition* gReanimatorDefArray;   //[0x6A9EE8]
+extern unsigned int gReanimatorDefCount;
+extern ReanimatorDefinition* gReanimatorDefArray;
 
 // ====================================================================================================
 // ★ 【动画参数】
@@ -108,8 +108,8 @@ public:
     const char*                     mReanimFileName;
     int32_t                         mReanimParamFlags;
 };
-extern unsigned int gReanimationParamArraySize;              //[0x6A9EEC]
-extern ReanimationParams* gReanimationParamArray;   //[0x6A9EF0]
+extern unsigned int gReanimationParamArraySize;
+extern ReanimationParams* gReanimationParamArray;
 
 inline void                         ReanimationFillInMissingData(float& thePrev, float& theValue);
 inline void                         ReanimationFillInMissingData(void*& thePrev, void*& theValue);
@@ -119,7 +119,7 @@ void                                ReanimatorEnsureDefinitionLoaded(Reanimation
 void                                ReanimatorLoadDefinitions(ReanimationParams* theReanimationParamArray, int theReanimationParamArraySize);
 void                                ReanimatorFreeDefinitions();
 
-extern ReanimationParams gLawnReanimationArray[static_cast<int>(ReanimationType::NUM_REANIMS)];  //0x6A1340
+extern ReanimationParams gLawnReanimationArray[static_cast<int>(ReanimationType::NUM_REANIMS)];
 
 // ######################################################################################################################################################
 // ############################################################## 以下正式开始动画相关声明 ##############################################################
@@ -182,20 +182,20 @@ public:
 class ReanimatorTrackInstance
 {
 public:
-    int32_t                         mBlendCounter;                  //+0x0
-    int32_t                         mBlendTime;                     //+0x4
-    ReanimatorTransform             mBlendTransform;                //+0x8
-    float                           mShakeOverride;                 //+0x34
-    float                           mShakeX;                        //+0x38
-    float                           mShakeY;                        //+0x3C
-    AttachmentID                    mAttachmentID;                  //+0x40
-    Image*                          mImageOverride;                 //+0x44
-    int32_t                         mRenderGroup;                   //+0x48
-    Color                           mTrackColor;                    //+0x4C
-    bool                            mIgnoreClipRect;                //+0x5C
-    bool                            mTruncateDisappearingFrames;    //+0x5D
-    bool                            mIgnoreColorOverride;           //+0x5E
-    bool                            mIgnoreExtraAdditiveColor;      //+0x5F
+    int32_t                         mBlendCounter;
+    int32_t                         mBlendTime;
+    ReanimatorTransform             mBlendTransform;
+    float                           mShakeOverride;
+    float                           mShakeX;
+    float                           mShakeY;
+    AttachmentID                    mAttachmentID;
+    Image*                          mImageOverride;
+    int32_t                         mRenderGroup;
+    Color                           mTrackColor;
+    bool                            mIgnoreClipRect;
+    bool                            mTruncateDisappearingFrames;
+    bool                            mIgnoreColorOverride;
+    bool                            mIgnoreExtraAdditiveColor;
 
 public:
     ReanimatorTrackInstance();
@@ -284,4 +284,3 @@ void                                ReanimationPreload(ReanimationType theReanim
 void                                BlendTransform(ReanimatorTransform* theResult, const ReanimatorTransform& theTransform1, const ReanimatorTransform& theTransform2, float theBlendFactor);
 
 #endif
-

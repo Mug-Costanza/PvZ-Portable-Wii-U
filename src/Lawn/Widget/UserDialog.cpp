@@ -28,7 +28,7 @@
 #include "../../Sexy.TodLib/TodStringFile.h"
 #include "widget/ListWidget.h"
 
-static int gUserListWidgetColors[][3] = {  //0x69F274
+static int gUserListWidgetColors[][3] = {
     {  23,  24,  35 },
     {   0,   0,   0 },
     { 235, 225, 180 },
@@ -36,7 +36,6 @@ static int gUserListWidgetColors[][3] = {  //0x69F274
     {  20, 180,  15 }
 };
 
-//0x51C760
 // @Patoke: these dialogs don't have localizations
 UserDialog::UserDialog(LawnApp* theApp) : LawnDialog(theApp, Dialogs::DIALOG_USERDIALOG, true, "WHO ARE YOU?", "", "", Dialog::BUTTONS_OK_CANCEL)
 {
@@ -78,7 +77,6 @@ UserDialog::UserDialog(LawnApp* theApp) : LawnDialog(theApp, Dialogs::DIALOG_USE
     CalcSize(210, 270);
 }
 
-//0x51CBC0 and 0x51CBE0
 UserDialog::~UserDialog()
 {
     delete mUserList;
@@ -86,7 +84,6 @@ UserDialog::~UserDialog()
     delete mDeleteButton;
 }
 
-//0x51CC80
 void UserDialog::Resize(int theX, int theY, int theWidth, int theHeight)
 {
     LawnDialog::Resize(theX, theY, theWidth, theHeight);
@@ -95,13 +92,11 @@ void UserDialog::Resize(int theX, int theY, int theWidth, int theHeight)
     mDeleteButton->Layout(LayoutFlags::LAY_SameLeft | LayoutFlags::LAY_Above | LayoutFlags::LAY_SameHeight | LayoutFlags::LAY_SameWidth, mLawnNoButton, 0, 0, 0, 0);
 }
 
-//0x51CD20
 int UserDialog::GetPreferredHeight(int theWidth)
 {
     return LawnDialog::GetPreferredHeight(theWidth) + 190;
 }
 
-//0x51CD40
 void UserDialog::AddedToManager(WidgetManager* theWidgetManager)
 {
     LawnDialog::AddedToManager(theWidgetManager);
@@ -110,7 +105,6 @@ void UserDialog::AddedToManager(WidgetManager* theWidgetManager)
     AddWidget(mRenameButton);
 }
 
-//0x51CDC0
 void UserDialog::RemovedFromManager(WidgetManager* theWidgetManager)
 {
     LawnDialog::RemovedFromManager(theWidgetManager);
@@ -119,7 +113,6 @@ void UserDialog::RemovedFromManager(WidgetManager* theWidgetManager)
     RemoveWidget(mRenameButton);
 }
 
-//0x51CE10
 std::string UserDialog::GetSelName()
 {
     if (mUserList->mSelectIdx < 0 || mUserList->mSelectIdx >= mNumUsers)
@@ -129,7 +122,6 @@ std::string UserDialog::GetSelName()
     return mUserList->GetStringAt(mUserList->mSelectIdx);
 }
 
-//0x51CE70
 void UserDialog::FinishDeleteUser()
 {
     int aSelIdx = mUserList->mSelectIdx;
@@ -160,13 +152,11 @@ void UserDialog::FinishRenameUser(const std::string& theNewName)
     }
 }
 
-//0x51CF50
 void UserDialog::Draw(Graphics* g)
 {
     LawnDialog::Draw(g);
 }
 
-//0x51CF60
 void UserDialog::ListClicked(int theId, int theIdx, int theClickCount)
 {
     (void)theId;
@@ -184,7 +174,6 @@ void UserDialog::ListClicked(int theId, int theIdx, int theClickCount)
     }
 }
 
-//0x51CFA0
 // GOTY @Patoke: 0x5278C0
 void UserDialog::ButtonDepress(int theId)
 {
@@ -205,14 +194,12 @@ void UserDialog::ButtonDepress(int theId)
     }
 }
 
-//0x51D060
 void UserDialog::EditWidgetText(int theId, const std::string& theString)
 {
     (void)theId;(void)theString;
     mApp->ButtonDepress(mId + 2000);
 }
 
-//0x51D080
 bool UserDialog::AllowChar(int theId, char theChar)
 {
     (void)theId;

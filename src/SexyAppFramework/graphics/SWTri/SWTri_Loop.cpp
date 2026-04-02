@@ -81,4 +81,3 @@
 		lu += ldu;
 		lv += ldv;
 	#endif
-

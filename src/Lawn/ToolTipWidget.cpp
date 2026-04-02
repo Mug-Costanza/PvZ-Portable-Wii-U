@@ -43,7 +43,6 @@ ToolTipWidget::ToolTipWidget()
 	mMaxLinesWidth = 0;
 }
 
-//0x51A530
 void ToolTipWidget::GetLines(std::vector<std::string>& theLines)
 {
 	int aLineWidth = 0;
@@ -122,7 +121,6 @@ void ToolTipWidget::GetLines(std::vector<std::string>& theLines)
 	}
 }
 
-//0x51A710
 void ToolTipWidget::CalculateSize()
 {
 	std::vector<std::string> aLines;
@@ -157,28 +155,24 @@ void ToolTipWidget::CalculateSize()
 	mHeight = aHeight + aLines.size() * 2 - 2;
 }
 
-//0x51A8D0
 void ToolTipWidget::SetLabel(const std::string& theLabel)
 {
 	mLabel = TodStringTranslate(theLabel);
 	CalculateSize();
 }
 
-//0x51A950
 void ToolTipWidget::SetTitle(const std::string& theTitle)
 {
 	mTitle = TodStringTranslate(theTitle);
 	CalculateSize();
 }
 
-//0x51A9D0
 void ToolTipWidget::SetWarningText(const std::string& theWarningText)
 {
 	mWarningText = TodStringTranslate(theWarningText);
 	CalculateSize();
 }
 
-//0x51AA50
 void ToolTipWidget::Draw(Graphics* g)
 {
 	if (!mVisible)

@@ -27,7 +27,6 @@
 using namespace Sexy;
 static int gProfileVersion = 14;
 
-//0x46A7C0
 // GOTY @Patoke: 0x46EBC0
 PlayerInfo* ProfileMgr::GetAnyProfile()
 {
@@ -40,7 +39,6 @@ PlayerInfo* ProfileMgr::GetAnyProfile()
     return aPlayerInfo;
 }
 
-//0x46A7F0
 void ProfileMgr::Clear()
 {
     mProfileMap.clear();
@@ -48,7 +46,6 @@ void ProfileMgr::Clear()
     mNextProfileUseSeq = 1U;
 }
 
-//0x46A830
 void ProfileMgr::SyncState(DataSync& theSync)
 {
     DataReader* aReader = theSync.GetReader();
@@ -91,7 +88,6 @@ void ProfileMgr::SyncState(DataSync& theSync)
     }
 }
 
-//0x46ABC0
 void ProfileMgr::Load()
 {
     Buffer aBuffer;
@@ -113,7 +109,6 @@ void ProfileMgr::Load()
     }
 }
 
-//0x46AD80
 void ProfileMgr::Save()
 {
     DataWriter aWriter;
@@ -132,7 +127,6 @@ void ProfileMgr::DeleteProfile(ProfileMap::iterator theProfile)
     mProfileMap.erase(theProfile);
 }
 
-//0x46AF70
 bool ProfileMgr::DeleteProfile(const std::string& theName)
 {
     auto anItr = mProfileMap.find(theName);
@@ -143,7 +137,6 @@ bool ProfileMgr::DeleteProfile(const std::string& theName)
     return true;
 }
 
-//0x46AFF0
 bool ProfileMgr::RenameProfile(const std::string& theOldName, const std::string& theNewName)
 {
     auto anOldItr = mProfileMap.find(theOldName);
@@ -173,7 +166,6 @@ bool ProfileMgr::RenameProfile(const std::string& theOldName, const std::string&
     }
 }
 
-//0x46B1C0
 void ProfileMgr::DeleteOldestProfile()
 {
     if (mProfileMap.size() == 0)
@@ -188,7 +180,6 @@ void ProfileMgr::DeleteOldestProfile()
     DeleteProfile(anOldest);
 }
 
-//0x46B290
 // GOTY @Patoke: 0x46F7C0
 PlayerInfo* ProfileMgr::GetProfile(const std::string& theName)
 {
@@ -203,7 +194,6 @@ PlayerInfo* ProfileMgr::GetProfile(const std::string& theName)
     return nullptr;
 }
 
-//0x46B310
 PlayerInfo* ProfileMgr::AddProfile(const std::string& theName)
 {
     auto aRet = mProfileMap.emplace(theName, PlayerInfo());

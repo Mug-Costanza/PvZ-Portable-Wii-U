@@ -28,7 +28,6 @@ using namespace Sexy;
 
 bool gNeedRecalcVariableToIdMap = false;
 
-//0x474700
 bool Sexy::ExtractResourcesByName(ResourceManager* theResourceManager, const char* theName)
 {
 	// @Patoke: updated these, please use compiletime hashes
@@ -3254,7 +3253,6 @@ Sexy::ResourceId Sexy::GetIdBySound(intptr_t theSound)
 	return GetIdByVariable((void*)theSound);
 }
 
-//0x47FBC0
 Sexy::ResourceId Sexy::GetIdByVariable(void* theVariable)
 {
 	static std::map<void*, int> aMap;

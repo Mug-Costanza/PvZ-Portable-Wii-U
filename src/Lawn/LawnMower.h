@@ -38,24 +38,24 @@ using namespace Sexy;
 class LawnMower
 {
 public:
-    LawnApp*            mApp;                   //+0x0
-    Board*              mBoard;                 //+0x4
-    float               mPosX;                  //+0x8
-    float               mPosY;                  //+0xC
-    int32_t             mRenderOrder;           //+0x10
-    int32_t             mRow;                   //+0x14
-    int32_t             mAnimTicksPerFrame;     //+0x18
-    ReanimationID       mReanimID;              //+0x1C
-    int32_t             mChompCounter;          //+0x20
-    int32_t             mRollingInCounter;      //+0x24
-    int32_t             mSquishedCounter;       //+0x28
-    LawnMowerState      mMowerState;            //+0x2C
-    bool                mDead;                  //+0x30
-    bool                mVisible;               //+0x31
-    LawnMowerType       mMowerType;             //+0x34
-    float               mAltitude;              //+0x38
-    MowerHeight         mMowerHeight;           //+0x3C
-    int32_t             mLastPortalX;           //+0x40
+    LawnApp*            mApp;
+    Board*              mBoard;
+    float               mPosX;
+    float               mPosY;
+    int32_t             mRenderOrder;
+    int32_t             mRow;
+    int32_t             mAnimTicksPerFrame;
+    ReanimationID       mReanimID;
+    int32_t             mChompCounter;
+    int32_t             mRollingInCounter;
+    int32_t             mSquishedCounter;
+    LawnMowerState      mMowerState;
+    bool                mDead;
+    bool                mVisible;
+    LawnMowerType       mMowerType;
+    float               mAltitude;
+    MowerHeight         mMowerHeight;
+    int32_t             mLastPortalX;
 
 public:
     void                LawnMowerInitialize(int theRow);

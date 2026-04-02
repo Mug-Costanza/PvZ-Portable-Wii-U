@@ -65,4 +65,3 @@
 	#else
 		alpha = 0xFF;
 	#endif
-

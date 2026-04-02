@@ -51,16 +51,16 @@ protected:
 	};
 
 public:
-	LawnApp*				mApp;								//+0x158
-	Sexy::Slider*			mMusicVolumeSlider;					//+0x15C
-	Sexy::Slider*			mSfxVolumeSlider;					//+0x160
-	Sexy::Checkbox*			mFullscreenCheckbox;				//+0x164
-	Sexy::Checkbox*			mHardwareAccelerationCheckbox;		//+0x168
-	LawnStoneButton*		mAlmanacButton;						//+0x16C
-	LawnStoneButton*		mBackToMainButton;					//+0x170
-	LawnStoneButton*		mRestartButton;						//+0x174
-	NewLawnButton*			mBackToGameButton;					//+0x178
-	bool					mFromGameSelector;					//+0x17C
+	LawnApp*				mApp;
+	Sexy::Slider*			mMusicVolumeSlider;
+	Sexy::Slider*			mSfxVolumeSlider;
+	Sexy::Checkbox*			mFullscreenCheckbox;
+	Sexy::Checkbox*			mHardwareAccelerationCheckbox;
+	LawnStoneButton*		mAlmanacButton;
+	LawnStoneButton*		mBackToMainButton;
+	LawnStoneButton*		mRestartButton;
+	NewLawnButton*			mBackToGameButton;
+	bool					mFromGameSelector;
 
 public:
 	NewOptionsDialog(LawnApp* theApp, bool theFromGameSelector);

@@ -313,4 +313,3 @@ void	funcname(SWHelper::SWVertex* pVerts, void* pFrameBuffer, const unsigned int
 #undef NAME3
 #undef NAME4
 #undef NAME5
-

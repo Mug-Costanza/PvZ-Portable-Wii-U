@@ -267,4 +267,3 @@ void OutputDebug(const char* fmt ...)
 
 	printf("%s", result.c_str());
 }
-

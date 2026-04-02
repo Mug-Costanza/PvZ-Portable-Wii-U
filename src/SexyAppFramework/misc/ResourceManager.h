@@ -242,5 +242,3 @@ struct ResourceManagerException : public std::exception
 }
 
 #endif //__PROPERTIESPARSER_H__
-
-

@@ -22,13 +22,11 @@
 #include "TypingCheck.h"
 using namespace Sexy;
 
-//0x51C470
 TypingCheck::TypingCheck(const std::string& thePhrase)
 {
 	SetPhrase(thePhrase);
 }
 
-//0x51C4D0
 void TypingCheck::SetPhrase(const std::string& thePhrase)
 {
 	for (size_t i = 0; i < thePhrase.size(); i++)
@@ -40,7 +38,6 @@ void TypingCheck::AddKeyCode(Sexy::KeyCode theKeyCode)
 	mPhrase.append(1, static_cast<char>(theKeyCode));
 }
 
-//0x51C510
 void TypingCheck::AddChar(char theChar)
 {
 	theChar = static_cast<char>(tolower(static_cast<unsigned char>(theChar)));
@@ -58,7 +55,6 @@ bool TypingCheck::Check()
 	return false;
 }
 
-//0x51C5A0
 bool TypingCheck::Check(Sexy::KeyCode theKeyCode)
 {
 	mRecentTyping.append(1, static_cast<char>(theKeyCode));

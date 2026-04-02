@@ -677,5 +677,3 @@ void	SWHelper::SWDrawTriangle(bool textured, bool talpha, bool mod_argb, bool gl
 
 //	#include "SWTri_DrawTriangleInc2.cpp"
 }
-
-

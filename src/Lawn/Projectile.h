@@ -41,38 +41,38 @@ public:
     int32_t                 mImageRow;
     int32_t                 mDamage;
 };
-extern ProjectileDefinition gProjectileDefinition[NUM_PROJECTILES];  //0x69F1C0
+extern ProjectileDefinition gProjectileDefinition[NUM_PROJECTILES];
 
 class Projectile : public GameObject
 {
 public:
-    int32_t                 mFrame;                 //+0x24
-    int32_t                 mNumFrames;             //+0x28
-    int32_t                 mAnimCounter;           //+0x2C
-    float                   mPosX;                  //+0x30
-    float                   mPosY;                  //+0x34
-    float                   mPosZ;                  //+0x38
-    float                   mVelX;                  //+0x3C
-    float                   mVelY;                  //+0x40
-    float                   mVelZ;                  //+0x44
-    float                   mAccZ;                  //+0x48
-    float                   mShadowY;               //+0x4C
-    bool                    mDead;                  //+0x50
-    int32_t                 mAnimTicksPerFrame;     //+0x54
-    ProjectileMotion        mMotionType;            //+0x58
-    ProjectileType          mProjectileType;        //+0x5C
-    int32_t                 mProjectileAge;         //+0x60
-    int32_t                 mClickBackoffCounter;   //+0x64
-    float                   mRotation;              //+0x68
-    float                   mRotationSpeed;         //+0x6C
-    bool                    mOnHighGround;          //+0x70
-    int32_t                 mDamageRangeFlags;      //+0x74
-    int32_t                 mHitTorchwoodGridX;     //+0x78
-    AttachmentID            mAttachmentID;          //+0x7C
-    float                   mCobTargetX;            //+0x80
-    int32_t                 mCobTargetRow;          //+0x84
-    ZombieID                mTargetZombieID;        //+0x88
-    int32_t                 mLastPortalX;           //+0x8C
+    int32_t                 mFrame;
+    int32_t                 mNumFrames;
+    int32_t                 mAnimCounter;
+    float                   mPosX;
+    float                   mPosY;
+    float                   mPosZ;
+    float                   mVelX;
+    float                   mVelY;
+    float                   mVelZ;
+    float                   mAccZ;
+    float                   mShadowY;
+    bool                    mDead;
+    int32_t                 mAnimTicksPerFrame;
+    ProjectileMotion        mMotionType;
+    ProjectileType          mProjectileType;
+    int32_t                 mProjectileAge;
+    int32_t                 mClickBackoffCounter;
+    float                   mRotation;
+    float                   mRotationSpeed;
+    bool                    mOnHighGround;
+    int32_t                 mDamageRangeFlags;
+    int32_t                 mHitTorchwoodGridX;
+    AttachmentID            mAttachmentID;
+    float                   mCobTargetX;
+    int32_t                 mCobTargetRow;
+    ZombieID                mTargetZombieID;
+    int32_t                 mLastPortalX;
 
 public:
     Projectile();

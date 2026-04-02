@@ -108,7 +108,6 @@ ChallengeDefinition gChallengeDefs[NUM_CHALLENGE_MODES] = {
 	{ GameMode::GAMEMODE_INTRO,                                10,  ChallengePage::CHALLENGE_PAGE_LIMBO,       2,  3,  "Intro" }
 };
 
-//0x42DAE0
 // GOTY @Patoke: 0x430810
 ChallengeScreen::ChallengeScreen(LawnApp* theApp, ChallengePage thePage)
 {
@@ -206,7 +205,6 @@ ChallengeScreen::ChallengeScreen(LawnApp* theApp, ChallengePage thePage)
 	}
 }
 
-//0x42E280 & 0x42E2A0
 ChallengeScreen::~ChallengeScreen()
 {
 	delete mBackButton;
@@ -236,7 +234,6 @@ bool ChallengeScreen::IsIZombieLevel(GameMode theGameMode)
 	return theGameMode >= GAMEMODE_PUZZLE_I_ZOMBIE_1 && theGameMode <= GAMEMODE_PUZZLE_I_ZOMBIE_ENDLESS;
 }
 
-//0x42E3C0
 void ChallengeScreen::SetUnlockChallengeIndex(ChallengePage thePage, bool theIsIZombie)
 {
 	mUnlockState = UNLOCK_SHAKING;
@@ -258,7 +255,6 @@ void ChallengeScreen::SetUnlockChallengeIndex(ChallengePage thePage, bool theIsI
 	}
 }
 
-//0x42E440
 int ChallengeScreen::MoreTrophiesNeeded(int theChallengeIndex)
 {
 	ChallengeDefinition& aDef = GetChallengeDefinition(theChallengeIndex);
@@ -360,13 +356,11 @@ int ChallengeScreen::MoreTrophiesNeeded(int theChallengeIndex)
 	unreachable();
 }
 
-//0x42E6E0
 bool ChallengeScreen::ShowPageButtons()
 {
 	return mApp->mTodCheatKeys && mPageIndex != CHALLENGE_PAGE_SURVIVAL && mPageIndex != CHALLENGE_PAGE_PUZZLE;
 }
 
-//0x42E710
 void ChallengeScreen::UpdateButtons()
 {
 	for (int aChallengeMode = 0; aChallengeMode < NUM_CHALLENGE_MODES; aChallengeMode++)
@@ -392,7 +386,6 @@ void ChallengeScreen::UpdateButtons()
 	}
 }
 
-//0x42E8A0
 int ChallengeScreen::AccomplishmentsNeeded(int theChallengeIndex)
 {
 	int aTrophiesNeeded = MoreTrophiesNeeded(theChallengeIndex);
@@ -402,7 +395,6 @@ int ChallengeScreen::AccomplishmentsNeeded(int theChallengeIndex)
 	return mCheatEnableChallenges ? 0 : aTrophiesNeeded;
 }
 
-//0x42E920
 void ChallengeScreen::DrawButton(Graphics* g, int theChallengeIndex)
 {
 	ButtonWidget* aChallengeButton = mChallengeButtons[theChallengeIndex];
@@ -548,7 +540,6 @@ void ChallengeScreen::DrawButton(Graphics* g, int theChallengeIndex)
 	}
 }
 
-//0x42F160
 void ChallengeScreen::Draw(Graphics* g)
 {
 	g->SetLinearBlend(true);
@@ -574,7 +565,6 @@ void ChallengeScreen::Draw(Graphics* g)
 	mToolTip->Draw(g);
 }
 
-//0x42F510
 void ChallengeScreen::Update()
 {
 	Widget::Update();
@@ -607,7 +597,6 @@ void ChallengeScreen::Update()
 	MarkDirty();
 }
 
-//0x42F640
 void ChallengeScreen::AddedToManager(WidgetManager* theWidgetManager)
 {
 	Widget::AddedToManager(theWidgetManager);
@@ -616,7 +605,6 @@ void ChallengeScreen::AddedToManager(WidgetManager* theWidgetManager)
 	for (ButtonWidget* aButton : mChallengeButtons) AddWidget(aButton);
 }
 
-//0x42F6B0
 void ChallengeScreen::RemovedFromManager(WidgetManager* theWidgetManager)
 {
 	Widget::RemovedFromManager(theWidgetManager);
@@ -625,14 +613,12 @@ void ChallengeScreen::RemovedFromManager(WidgetManager* theWidgetManager)
 	for (ButtonWidget* aButton : mChallengeButtons) RemoveWidget(aButton);
 }
 
-//0x42F720
 void ChallengeScreen::ButtonPress(int theId)
 {
 	(void)theId;
 	mApp->PlaySample(Sexy::SOUND_BUTTONCLICK);
 }
 
-//0x42F740
 void ChallengeScreen::ButtonDepress(int theId)
 {
 	if (theId == ChallengeScreen::ChallengeScreen_Back)
@@ -656,7 +642,6 @@ void ChallengeScreen::ButtonDepress(int theId)
 	}
 }
 
-//0x42F7E0
 void ChallengeScreen::UpdateToolTip()
 {
 	if (!mApp->mWidgetManager->mMouseIn || !mApp->mActive)

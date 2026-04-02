@@ -311,5 +311,3 @@ void ButtonWidget::Update()
 		MarkDirty();
 	}
 }
-
-

@@ -46,7 +46,6 @@ Coin::~Coin()
 	AttachmentDie(mAttachmentID);
 }
 
-//0x42FF60
 void Coin::CoinInitialize(int theX, int theY, CoinType theCoinType, CoinMotion theCoinMotion)
 {
 	mPosX = theX;
@@ -426,25 +425,21 @@ bool Coin::IsMoney(CoinType theType)
     return theType == CoinType::COIN_SILVER || theType == CoinType::COIN_GOLD || theType == CoinType::COIN_DIAMOND;
 }
 
-//0x430970
 bool Coin::IsMoney()
 {
     return IsMoney(mType);
 }
 
-//0x430990
 bool Coin::IsSun()
 {
     return mType == CoinType::COIN_SUN || mType == CoinType::COIN_SMALLSUN || mType == CoinType::COIN_LARGESUN;
 }
 
-//0x4309B0
 bool Coin::IsPresentWithAdvice()
 {
     return mType == CoinType::COIN_PRESENT_MINIGAMES || mType == CoinType::COIN_PRESENT_PUZZLE_MODE || mType == CoinType::COIN_PRESENT_SURVIVAL_MODE;
 }
 
-//0x4309D0
 // GOTY @Patoke: 0x4336C0
 void Coin::ScoreCoin()
 {
@@ -495,7 +490,6 @@ void Coin::UpdateFade()
     }
 }
 
-//0x430AC0
 void Coin::UpdateFall()
 {
     if (mCoinMotion == CoinMotion::COIN_MOTION_FROM_PRESENT)
@@ -620,7 +614,6 @@ void Coin::UpdateFall()
     }
 }
 
-//0x430E40
 // GOTY @Patoke: 0x433BD0
 void Coin::UpdateCollected()
 {
@@ -748,7 +741,6 @@ void Coin::UpdateCollected()
     }
 }
 
-//0x431500
 void Coin::Update()
 {
     mCoinAge++;
@@ -791,7 +783,6 @@ void Coin::Update()
     }
 }
 
-//0x4316F0
 Color Coin::GetColor()
 {
     if ((IsSun() || IsMoney()) && mIsBeingCollected)
@@ -809,7 +800,6 @@ Color Coin::GetColor()
     return Color::White;
 }
 
-//0x4317D0
 SeedType Coin::GetFinalSeedPacketType()
 {
     if (mApp->IsFirstTimeAdventureMode() && mBoard && mBoard->mLevel <= 50)
@@ -820,7 +810,6 @@ SeedType Coin::GetFinalSeedPacketType()
     return SeedType::SEED_NONE;
 }
 
-//0x431810
 void Coin::Draw(Graphics* g)
 {
     g->SetColor(GetColor());
@@ -1028,7 +1017,6 @@ void Coin::Draw(Graphics* g)
     g->SetColorizeImages(false);
 }
 
-//0x431F30
 void Coin::FanOutCoins(CoinType theCoinType, int theNumCoins)
 {
     TOD_ASSERT(mBoard);
@@ -1044,7 +1032,6 @@ void Coin::FanOutCoins(CoinType theCoinType, int theNumCoins)
     }
 }
 
-//0x432000
 void Coin::TryAutoCollectAfterLevelAward()
 {
     bool aCanBeAutoCollected = false;
@@ -1068,7 +1055,6 @@ void Coin::TryAutoCollectAfterLevelAward()
     }
 }
 
-//0x432060
 // GOTY @Patoke: 0x434DC0
 void Coin::Collect()
 {
@@ -1323,19 +1309,16 @@ float Coin::GetSunScale()
     return mType == CoinType::COIN_SMALLSUN ? 0.5f : mType == CoinType::COIN_LARGESUN ? 2.0f : 1.0f;
 }
 
-//0x4329A0
 int Coin::GetSunValue()
 {
     return mType == CoinType::COIN_SUN ? 25 : mType == CoinType::COIN_SMALLSUN ? 15 : mType == CoinType::COIN_LARGESUN ? 50 : 0;
 }
 
-//0x4329D0
 int Coin::GetCoinValue(CoinType theCoinType)
 {
     return theCoinType == CoinType::COIN_SILVER ? 1 : theCoinType == CoinType::COIN_GOLD ? 5 : theCoinType == CoinType::COIN_DIAMOND ? 100 : 0;
 }
 
-//0x432A00
 void Coin::PlayLaunchSound()
 {
     if (mType == CoinType::COIN_DIAMOND || 
@@ -1349,7 +1332,6 @@ void Coin::PlayLaunchSound()
     }
 }
 
-//0x432A90
 void Coin::PlayGroundSound()
 {
     if (mType == CoinType::COIN_GOLD)
@@ -1414,7 +1396,6 @@ void Coin::DroppedUsableSeed()
     mTimesDropped++;
 }
 
-//0x432C00
 void Coin::MouseDown(int x, int y, int theClickCount)
 {
     (void)x;(void)y;
@@ -1435,7 +1416,6 @@ void Coin::MouseDown(int x, int y, int theClickCount)
     }
 }
 
-//0x432DD0
 // GOTY @Patoke: 0x435B20
 void Coin::Die()
 {
@@ -1445,7 +1425,6 @@ void Coin::Die()
     AttachmentDie(mAttachmentID);
 }
 
-//0x432E20
 bool Coin::MouseHitTest(int theX, int theY, HitResult* theHitResult)
 {
     int aOffsetY = 0;
@@ -1495,7 +1474,6 @@ bool Coin::MouseHitTest(int theX, int theY, HitResult* theHitResult)
     return false;
 }
 
-//0x432F80
 bool Coin::IsLevelAward()
 {
     return 
@@ -1516,7 +1494,6 @@ bool Coin::IsLevelAward()
         mType == CoinType::COIN_AWARD_CHOCOLATE;
 }
 
-//0x432FE0
 bool Coin::CoinGetsBouncyArrow()
 {
     if (IsLevelAward())
@@ -1533,7 +1510,6 @@ bool Coin::CoinGetsBouncyArrow()
     return IsPresentWithAdvice();
 }
 
-//0x433050
 int Coin::GetDisappearTime()
 {
     int aTime = 750;

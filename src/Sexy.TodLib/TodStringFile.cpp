@@ -25,11 +25,11 @@
 #include "paklib/PakInterface.h"
 #include "graphics/Font.h"
 
-int gTodStringFormatCount;               //[0x69DE4C]
-TodStringListFormat* gTodStringFormats;  //[0x69DA34]
+int gTodStringFormatCount;
+TodStringListFormat* gTodStringFormats;
 
 const int gLawnStringFormatCount = 12;
-TodStringListFormat gLawnStringFormats[12] = {    //0x6A5010 // GOTY @Patoke: 0x7248EC
+TodStringListFormat gLawnStringFormats[12] = {    // GOTY @Patoke: 0x7248EC
 	{ "NORMAL",           nullptr,    Color(40,   50,     90,     255),       0,      0U },
 	{ "FLAVOR",           nullptr,    Color(143,  67,     27,     255),       0,      1U },
 	{ "KEYWORD",          nullptr,    Color(143,  67,     27,     255),       0,      0U },
@@ -63,7 +63,6 @@ void TodStringListSetColors(TodStringListFormat* theFormats, int theCount)
 	gTodStringFormatCount = theCount;
 }
 
-//0x518E40
 bool TodStringListReadName(const char*& thePtr, std::string& theName)
 {
 	const char* aNameStart = strchr(thePtr, '[');
@@ -100,7 +99,6 @@ bool TodStringListReadName(const char*& thePtr, std::string& theName)
 	}
 }
 
-//0x518F60
 void TodStringRemoveReturnChars(std::string& theString)
 {
 	for (size_t i = 0; i < theString.size(); )
@@ -112,7 +110,6 @@ void TodStringRemoveReturnChars(std::string& theString)
 	}
 }
 
-//0x518FB0
 bool TodStringListReadValue(const char*& thePtr, std::string& theValue)
 {
 	const char* aValueEnd = strchr(thePtr, '[');
@@ -123,7 +120,6 @@ bool TodStringListReadValue(const char*& thePtr, std::string& theValue)
 	return true;
 }
 
-//0x519080
 bool TodStringListReadItems(const char* theFileText)
 {
 	const char* aPtr = theFileText;
@@ -144,7 +140,6 @@ bool TodStringListReadItems(const char* theFileText)
 	}
 }
 
-//0x519240
 bool TodStringListReadFile(const char* theFileName)
 {
 	std::string aFileContent;
@@ -157,14 +152,12 @@ bool TodStringListReadFile(const char* theFileName)
 	return TodStringListReadItems(aFileContent.c_str());
 }
 
-//0x519390
 void TodStringListLoad(const char* theFileName)
 {
 	if (!TodStringListReadFile(theFileName))
 		TodErrorMessageBox(Sexy::StrFormat("Failed to load string list file '%s'", theFileName).c_str(), "Error");
 }
 
-//0x519410
 std::string TodStringListFind(const std::string& theName)
 {
 	StringSexyStringMap::iterator anItr = gSexyAppBase->mStringProperties.find(theName);
@@ -178,7 +171,6 @@ std::string TodStringListFind(const std::string& theName)
 	}
 }
 
-//0x519520
 // GOTY @Patoke: 0x523B90
 std::string TodStringTranslate(const std::string& theString)
 {
@@ -190,7 +182,6 @@ std::string TodStringTranslate(const std::string& theString)
 	return theString;
 }
 
-//0x5195D0
 std::string TodStringTranslate(const char* theString)
 {
 	if (theString != nullptr)
@@ -208,7 +199,6 @@ std::string TodStringTranslate(const char* theString)
 		return "";
 }
 
-//0x5196C0
 bool TodStringListExists(const std::string& theString)
 {
 	if (theString.size() >= 3 && theString[0] == '[')
@@ -219,7 +209,6 @@ bool TodStringListExists(const std::string& theString)
 	return false;
 }
 
-//0x5197B0
 // GOTY @Patoke: 0x523E20
 void TodWriteStringSetFormat(const char* theFormat, TodStringListFormat& theCurrentFormat)
 {
@@ -244,7 +233,6 @@ bool CharIsSpaceInFormat(char theChar, const TodStringListFormat& theCurrentForm
 	return theChar == ' ' || (TestBit(theCurrentFormat.mFormatFlags, TodStringFormatFlag::TOD_FORMAT_IGNORE_NEWLINES) && theChar == '\n');
 }
 
-//0x519870
 int TodWriteString(Graphics* g, const std::string& theString, int theX, int theY, TodStringListFormat& theCurrentFormat, int theWidth, DrawStringJustification theJustification, bool drawString, int theOffset, int theLength)
 {
 	_Font* aFont = *theCurrentFormat.mNewFont;
@@ -327,7 +315,6 @@ int TodWriteWordWrappedHelper(Graphics* g, const std::string& theString, int the
 	return TodWriteString(g, theString, theX, theY, theCurrentFormat, theWidth, theJustification, drawString, theOffset, theLength);
 }
 
-//0x519B50
 // GOTY @Patoke: 0x5241C0
 int TodDrawStringWrappedHelper(Graphics* g, const std::string& theText, const Rect& theRect, _Font* theFont, const Color& theColor, DrawStringJustification theJustification, bool drawString)
 {
@@ -508,7 +495,6 @@ int TodDrawStringWrappedHelper(Graphics* g, const std::string& theText, const Re
 	return (*aCurrentFormat.mNewFont)->GetDescent() + aYOffset - aLineSpacing;
 }
 
-//0x51A040
 // GOTY @Patoke: 0x5246A0
 void TodDrawStringWrapped(Graphics* g, const std::string& theText, const Rect& theRect, _Font* theFont, const Color& theColor, DrawStringJustification theJustification)
 {

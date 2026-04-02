@@ -301,4 +301,3 @@ void	Sexy::funcname(SWHelper::SWVertex * pVerts, void * pFrameBuffer, const unsi
 #undef NAME3
 #undef NAME4
 #undef NAME5
-

@@ -320,4 +320,3 @@ std::string SexyPerf::GetResults()
 
 	return aResult;
 }
-

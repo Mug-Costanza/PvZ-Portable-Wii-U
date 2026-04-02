@@ -81,5 +81,3 @@ std::string					GetLegacySavedGameName(GameMode theGameMode, int theProfileId);
 int							GetCurrentDaysSince2000();
 
 #endif
-
-

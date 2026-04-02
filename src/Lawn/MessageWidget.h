@@ -40,16 +40,16 @@ namespace Sexy
 class MessageWidget
 {
 public:
-	LawnApp*			mApp;									//+0x0
-	char				mLabel[MAX_MESSAGE_LENGTH];				//+0x4
-	int32_t				mDisplayTime;							//+0x84
-	int32_t				mDuration;								//+0x88
-	MessageStyle		mMessageStyle;							//+0x8C
-	ReanimationID		mTextReanimID[MAX_MESSAGE_LENGTH];		//+0x90
-	ReanimationType		mReanimType;							//+0x290
-	int32_t				mSlideOffTime;							//+0x294
-	char				mLabelNext[MAX_MESSAGE_LENGTH];			//+0x298
-	MessageStyle		mMessageStyleNext;						//+0x318
+	LawnApp*			mApp;
+	char				mLabel[MAX_MESSAGE_LENGTH];
+	int32_t				mDisplayTime;
+	int32_t				mDuration;
+	MessageStyle		mMessageStyle;
+	ReanimationID		mTextReanimID[MAX_MESSAGE_LENGTH];
+	ReanimationType		mReanimType;
+	int32_t				mSlideOffTime;
+	char				mLabelNext[MAX_MESSAGE_LENGTH];
+	MessageStyle		mMessageStyleNext;
 
 public:
 	MessageWidget(LawnApp* theApp);

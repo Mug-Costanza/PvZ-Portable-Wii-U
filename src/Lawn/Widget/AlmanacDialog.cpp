@@ -37,7 +37,6 @@
 
 bool gZombieDefeated[NUM_ZOMBIE_TYPES] = { false };
 
-//0x401010
 AlmanacDialog::AlmanacDialog(LawnApp* theApp) : LawnDialog(theApp, DIALOG_ALMANAC, true, "Almanac", "", "", BUTTONS_NONE)
 {
 	mApp = (LawnApp*)gSexyAppBase;
@@ -106,7 +105,6 @@ AlmanacDialog::AlmanacDialog(LawnApp* theApp) : LawnDialog(theApp, DIALOG_ALMANA
 		mApp->mMusic->MakeSureMusicIsPlaying(MUSIC_TUNE_CHOOSE_YOUR_SEEDS);
 }
 
-//0x401880 & 0x4018A0
 AlmanacDialog::~AlmanacDialog()
 {
 	if (mCloseButton)	delete mCloseButton;
@@ -117,7 +115,6 @@ AlmanacDialog::~AlmanacDialog()
 	ClearPlantsAndZombies();
 }
 
-//0x401970
 void AlmanacDialog::ClearPlantsAndZombies()
 {
 	if (mPlant)
@@ -143,14 +140,12 @@ void AlmanacDialog::ClearPlantsAndZombies()
 	}
 }
 
-//0x401A10
 void AlmanacDialog::RemovedFromManager(WidgetManager* theWidgetManager)
 {
 	LawnDialog::RemovedFromManager(theWidgetManager);
 	ClearPlantsAndZombies();
 }
 
-//0x401A30
 // GOTY @Patoke: 0x402C50
 void AlmanacDialog::SetupPlant()
 {
@@ -172,7 +167,6 @@ void AlmanacDialog::SetupPlant()
 	mPlant->mY = aPosY;
 }
 
-//0x401B70
 // GOTY @Patoke: 0x402D90
 void AlmanacDialog::SetupZombie()
 {
@@ -185,7 +179,6 @@ void AlmanacDialog::SetupZombie()
 	mZombie->mPosY = ALMANAC_ZOMBIE_POSITION_Y;
 }
 
-//0x401BE0
 void AlmanacDialog::SetPage(AlmanacPage thePage)
 {
 	mOpenPage = thePage;
@@ -236,7 +229,6 @@ void AlmanacDialog::ShowZombie(ZombieType theZombieType)
 	SetPage(ALMANAC_PAGE_ZOMBIES);
 }
 
-//0x401D30
 void AlmanacDialog::Update()
 {
 	mCloseButton->Update();
@@ -274,7 +266,6 @@ ZombieType AlmanacDialog::GetZombieType(int theIndex)
 	return theIndex < NUM_ZOMBIE_TYPES ? (ZombieType)theIndex : ZOMBIE_INVALID;
 }
 
-//0x401E70
 void AlmanacDialog::DrawIndex(Graphics* g)
 {
 	g->DrawImage(Sexy::IMAGE_ALMANAC_INDEXBACK, 0, 0);
@@ -294,7 +285,6 @@ void AlmanacDialog::DrawIndex(Graphics* g)
 	}
 }
 
-//0x402060
 void AlmanacDialog::DrawPlants(Graphics* g)
 {
 	g->DrawImage(Sexy::IMAGE_ALMANAC_PLANTBACK, 0, 0);
@@ -375,7 +365,6 @@ void AlmanacDialog::DrawPlants(Graphics* g)
 	}
 }
 
-//0x402C00
 // GOTY @Patoke: 0x403DE0
 void AlmanacDialog::DrawZombies(Graphics* g)
 {
@@ -519,7 +508,6 @@ void AlmanacDialog::DrawZombies(Graphics* g)
 	TodDrawStringWrapped(g, aDescription, Rect(484, mSelectedZombie == ZombieType::ZOMBIE_ZAMBONI ? 372 : 377, 258, 170), Sexy::FONT_BRIANNETOD12, Color(40, 50, 90), aAlign);
 }
 
-//0x403810
 void AlmanacDialog::Draw(Graphics* g)
 {
 	g->SetLinearBlend(true);
@@ -556,7 +544,6 @@ void AlmanacDialog::GetSeedPosition(SeedType theSeedType, int& x, int& y)
 	}
 }
 
-//0x403940
 SeedType AlmanacDialog::SeedHitTest(int x, int y)
 {
 	if (mMouseVisible && mOpenPage == AlmanacPage::ALMANAC_PAGE_PLANTS)
@@ -585,7 +572,6 @@ bool AlmanacDialog::ZombieHasSilhouette(ZombieType theZombieType)
 	return mApp->HasFinishedAdventure() || mApp->mPlayerInfo->GetLevel() > GetZombieDefinition(ZombieType::ZOMBIE_YETI).mStartingLevel;
 }
 
-//0x403A10
 // GOTY @Patoke: 0x404C50
 bool AlmanacDialog::ZombieIsShown(ZombieType theZombieType)
 {
@@ -615,7 +601,6 @@ bool AlmanacDialog::ZombieIsShown(ZombieType theZombieType)
 	return false;
 }
 
-//0x403B30
 // GOTY @Patoke: 0x404D50
 bool AlmanacDialog::ZombieHasDescription(ZombieType theZombieType)
 {
@@ -652,7 +637,6 @@ void AlmanacDialog::GetZombiePosition(ZombieType theZombieType, int& x, int& y)
 	}
 }
 
-//0x403BB0
 // GOTY @Patoke: 0x404DD0
 ZombieType AlmanacDialog::ZombieHitTest(int x, int y)
 {
@@ -674,7 +658,6 @@ ZombieType AlmanacDialog::ZombieHitTest(int x, int y)
 	return ZombieType::ZOMBIE_INVALID;
 }
 
-//0x403C60
 void AlmanacDialog::MouseUp(int x, int y, int theClickCount)
 {
 	(void)x;(void)y;(void)theClickCount;
@@ -684,7 +667,6 @@ void AlmanacDialog::MouseUp(int x, int y, int theClickCount)
 	else if (mIndexButton->IsMouseOver())	SetPage(ALMANAC_PAGE_INDEX);
 }
 
-//0x403D00
 // GOTY @Patoke: 0x404F10
 void AlmanacDialog::MouseDown(int x, int y, int theClickCount)
 {

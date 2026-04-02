@@ -33,18 +33,18 @@ class HitResult;
 class SeedPacket : public GameObject
 {
 public:
-    int32_t             mRefreshCounter;                            //+0x24
-    int32_t             mRefreshTime;                               //+0x28
-    int32_t             mIndex;                                     //+0x2C
-    int32_t             mOffsetX;                                   //+0x30
-    SeedType            mPacketType;                                //+0x34
-    SeedType            mImitaterType;                              //+0x38
-    int32_t             mSlotMachineCountDown;                      //+0x3C
-    SeedType            mSlotMachiningNextSeed;                     //+0x40
-    float               mSlotMachiningPosition;                     //+0x44
-    bool                mActive;                                    //+0x48
-    bool                mRefreshing;                                //+0x49
-    int32_t             mTimesUsed;                                 //+0x4C
+    int32_t             mRefreshCounter;
+    int32_t             mRefreshTime;
+    int32_t             mIndex;
+    int32_t             mOffsetX;
+    SeedType            mPacketType;
+    SeedType            mImitaterType;
+    int32_t             mSlotMachineCountDown;
+    SeedType            mSlotMachiningNextSeed;
+    float               mSlotMachiningPosition;
+    bool                mActive;
+    bool                mRefreshing;
+    int32_t             mTimesUsed;
 
 public:
     SeedPacket();
@@ -67,10 +67,10 @@ public:
 class SeedBank : public GameObject
 {
 public:
-    int32_t			    mNumPackets;                    //+0x24
-    SeedPacket		    mSeedPackets[SEEDBANK_MAX];     //+0x28
-    int32_t			    mCutSceneDarken;                //+0x348
-    int32_t			    mConveyorBeltCounter;           //+0x34C
+    int32_t			    mNumPackets;
+    SeedPacket		    mSeedPackets[SEEDBANK_MAX];
+    int32_t			    mCutSceneDarken;
+    int32_t			    mConveyorBeltCounter;
 
 public:
     SeedBank();

@@ -59,9 +59,9 @@ public:
     int                 mSymbolValue;                   //+0x0：标志位上的值或枚举项对应的数值，若为 -1 则表示不存在该项
     const char*         mSymbolName;                    //+0x4：标志位或枚举项的名称，为空指针时表示不存在该项，故被作为读取结束的标志
 };
-//extern DefSymbol gParticleFlagSymbols[];  //0x69E290
-//extern DefSymbol gEmitterTypeSymbols[];  //0x69E260
-//extern DefSymbol gParticleTypeSymbols[];  //0x69E200
+//extern DefSymbol gParticleFlagSymbols[];
+//extern DefSymbol gEmitterTypeSymbols[];
+//extern DefSymbol gParticleTypeSymbols[];
 
 // ====================================================================================================
 // ★ 【结构字段】
@@ -95,33 +95,33 @@ public:
     void*               (*mConstructorFunc)(void*);     //+0x8：_DefClass 类型实例的构造函数的指针
 };
 
-void*            TodParticleDefinitionConstructor(void* thePointer); //0x5155A0
-void*            TodEmitterDefinitionConstructor(void* thePointer);  //0x5155C0
-void*            ParticleFieldConstructor(void* thePointer);         //0x515620
-void*            TrailDefinitionConstructor(void* thePointer);       //0x51B7F0
-void*            ReanimatorTransformConstructor(void* thePointer);   //0x471570
-void*            ReanimatorTrackConstructor(void* thePointer);       //0x4715B0
-void*            ReanimatorDefinitionConstructor(void* thePointer);  //0x4715D0
+void*            TodParticleDefinitionConstructor(void* thePointer);
+void*            TodEmitterDefinitionConstructor(void* thePointer);
+void*            ParticleFieldConstructor(void* thePointer);
+void*            TrailDefinitionConstructor(void* thePointer);
+void*            ReanimatorTransformConstructor(void* thePointer);
+void*            ReanimatorTrackConstructor(void* thePointer);
+void*            ReanimatorDefinitionConstructor(void* thePointer);
 
-//extern DefField gParticleFieldDefFields[];  //0x69E2F8
-extern DefMap gParticleFieldDefMap;  //0x69E338
+//extern DefField gParticleFieldDefFields[];
+extern DefMap gParticleFieldDefMap;
 //
-//extern DefField gEmitterDefFields[];  //0x69E350
-extern DefMap gEmitterDefMap;  //0x69E344
+//extern DefField gEmitterDefFields[];
+extern DefMap gEmitterDefMap;
 //
-//extern DefField gParticleDefFields[];  //0x69E670
-extern DefMap gParticleDefMap;  //0x69E690
+//extern DefField gParticleDefFields[];
+extern DefMap gParticleDefMap;
 //
-extern DefMap gTrailDefMap;  //0x69D98C
+extern DefMap gTrailDefMap;
 //
-//extern DefField gReanimatorTransformDefFields[];  //0x69F088
-extern DefMap gReanimatorTransformDefMap;  //0x69F07C
+//extern DefField gReanimatorTransformDefFields[];
+extern DefMap gReanimatorTransformDefMap;
 //
-//extern DefField gReanimatorTrackDefFields[];  //0x69F148
-extern DefMap gReanimatorTrackDefMap;  //0x69F178
+//extern DefField gReanimatorTrackDefFields[];
+extern DefMap gReanimatorTrackDefMap;
 //
-//extern DefField gReanimatorDefFields[];  //0x69F184
-extern DefMap gReanimatorDefMap;  //0x69F1B4
+//extern DefField gReanimatorDefFields[];
+extern DefMap gReanimatorDefMap;
 
 // ====================================================================================================
 // ★ 【定义数组】

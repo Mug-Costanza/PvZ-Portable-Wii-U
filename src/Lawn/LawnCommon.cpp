@@ -83,12 +83,10 @@ LawnEditWidget::LawnEditWidget(int theId, EditListener* theListener, Dialog* the
     mAutoCapFirstLetter = true;
 }
 
-//0x456700
 LawnEditWidget::~LawnEditWidget()
 {
 }
 
-//0x456720
 void LawnEditWidget::KeyDown(KeyCode theKey)
 {
     EditWidget::KeyDown(theKey);
@@ -96,7 +94,6 @@ void LawnEditWidget::KeyDown(KeyCode theKey)
         mDialog->KeyDown(KeyCode::KEYCODE_ESCAPE);
 }
 
-//0x456760
 void LawnEditWidget::KeyChar(char theChar)
 {
     if (mAutoCapFirstLetter && isalpha(theChar))
@@ -108,7 +105,6 @@ void LawnEditWidget::KeyChar(char theChar)
     EditWidget::KeyChar(theChar);
 }
 
-//0x4567B0
 LawnEditWidget* CreateEditWidget(int theId, EditListener* theListener, Dialog* theDialog)
 {
     LawnEditWidget* aEditWidget = new LawnEditWidget(theId, theListener, theDialog);
@@ -125,7 +121,6 @@ void DrawEditBox(Graphics* g, EditWidget* theWidget)
     g->DrawImageBox(aDest, IMAGE_EDITBOX);
 }
 
-//0x456860
 Checkbox* MakeNewCheckbox(int theId, CheckboxListener* theListener, bool theDefault)
 {
     Checkbox* aCheckbox = new Checkbox(Sexy::IMAGE_OPTIONS_CHECKBOX0, Sexy::IMAGE_OPTIONS_CHECKBOX1, theId, theListener);
@@ -141,14 +136,12 @@ std::string GetSavedGameName(GameMode theGameMode, int theProfileId)
     return GetAppDataPath(StrFormat("userdata/game%d_%d.v4", theProfileId, static_cast<int>(theGameMode)));
 }
 
-//0x4568D0
 // GOTY @Patoke: 0x45A200
 std::string GetLegacySavedGameName(GameMode theGameMode, int theProfileId)
 {
     return GetAppDataPath(StrFormat("userdata/game%d_%d.dat", theProfileId, static_cast<int>(theGameMode)));
 }
 
-//0x456980
 int GetCurrentDaysSince2000()
 {
     time_t aNow = time(0);

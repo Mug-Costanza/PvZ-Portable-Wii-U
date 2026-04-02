@@ -38,7 +38,6 @@ DataReader::DataReader()
 	mOwnData = false;
 }
 
-//0x441B20 and 0x441B80
 DataReader::~DataReader()
 {
 	if (mFile)
@@ -90,7 +89,6 @@ void DataReader::Close()
 	}
 }
 
-//0x441BE0
 void DataReader::ReadBytes(void* theMem, uint32_t theNumBytes)
 {
 	if (mData)
@@ -181,26 +179,22 @@ void DataReader::ReadString(std::string& theStr)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//0x441E70
 DataSync::DataSync(DataReader& theReader)
 {
 	Reset();
 	mReader = &theReader;
 }
 
-//0x441F10
 DataSync::DataSync(DataWriter& theWriter)
 {
 	Reset();
 	mWriter = &theWriter;
 }
 
-//0x441FB0
 DataSync::~DataSync()
 {
 }
 
-//0x442020
 void DataSync::ResetPointerTable()
 {
 	mIntToPointerMap.clear();
@@ -426,7 +420,6 @@ DataWriter::DataWriter()
 	mCapacity = 0;
 }
 
-//0x4436A0 and 0x4436F0
 DataWriter::~DataWriter()
 {
 	if (mFile)
@@ -456,7 +449,6 @@ void DataWriter::Close()
 	}
 }
 
-//0x443730
 void DataWriter::EnsureCapacity(uint32_t theNumBytes)
 {
 	if (mCapacity < theNumBytes)
@@ -506,7 +498,6 @@ void DataWriter::WriteBytes(const void* theData, uint32_t theDataLen)
 	}
 }
 
-//0x443770
 void DataWriter::WriteUInt32(uint32_t theUInt32)
 {
 	uint32_t aLE = ToLE32(theUInt32);
@@ -519,7 +510,6 @@ void DataWriter::WriteUInt64(uint64_t theUInt64)
 	WriteBytes(&aLE, sizeof(uint64_t));
 }
 
-//0x4437C0
 void DataWriter::WriteUInt16(uint16_t theUInt16)
 {
 	uint16_t aLE = ToLE16(theUInt16);
@@ -552,7 +542,6 @@ void DataWriter::WriteDouble(double theDouble)
 	WriteBytes(&aRaw, sizeof(uint64_t));
 }
 
-//0x443810
 void DataWriter::WriteString(const std::string& theStr)
 {
 	uint16_t aStrLen = static_cast<uint16_t>(theStr.length());

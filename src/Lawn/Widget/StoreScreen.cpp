@@ -67,7 +67,6 @@ void StoreScreenOverlay::Draw(Graphics* g)
     mParent->DrawOverlay(g);
 }
 
-//0x489DA0
 StoreScreen::StoreScreen(LawnApp* theApp) : Dialog(nullptr, nullptr, DIALOG_STORE, true, "Store", "", "", BUTTONS_NONE)
 {
 	mApp = theApp;
@@ -148,7 +147,6 @@ StoreScreen::StoreScreen(LawnApp* theApp) : Dialog(nullptr, nullptr, DIALOG_STOR
     mTrialLockedWhenStoreOpened = mApp->IsTrialStageLocked();
 }
 
-//0x48A610 and 0x48A630
 StoreScreen::~StoreScreen()
 {
     mCoins.DataArrayDispose();
@@ -158,7 +156,6 @@ StoreScreen::~StoreScreen()
     if (mOverlayWidget) delete mOverlayWidget;
 }
 
-//0x48A760
 StoreItem StoreScreen::GetStoreItemType(int theSpotIndex)
 {
     // 这个函数原版是穷举判断的，这里优化一下……
@@ -176,7 +173,6 @@ StoreItem StoreScreen::GetStoreItemType(int theSpotIndex)
     return STORE_ITEM_INVALID;
 }
 
-//0x48A8D0
 bool StoreScreen::IsFullVersionOnly(StoreItem theStoreItem)
 {
     if (!mApp->IsTrialStageLocked())
@@ -193,7 +189,6 @@ bool StoreScreen::IsPottedPlant(StoreItem theStoreItem)
     return theStoreItem == STORE_ITEM_POTTED_MARIGOLD_1 || theStoreItem == STORE_ITEM_POTTED_MARIGOLD_2 || theStoreItem == STORE_ITEM_POTTED_MARIGOLD_3;
 }
 
-//0x48A940
 bool StoreScreen::IsComingSoon(StoreItem theStoreItem)
 {
     if (IsFullVersionOnly(theStoreItem))
@@ -207,7 +202,6 @@ bool StoreScreen::IsComingSoon(StoreItem theStoreItem)
     return false;
 }
 
-//0x48A9D0
 bool StoreScreen::IsItemSoldOut(StoreItem theStoreItem)
 {
     PlayerInfo* aPlayer = mApp->mPlayerInfo;
@@ -228,7 +222,6 @@ bool StoreScreen::IsItemSoldOut(StoreItem theStoreItem)
     unreachable();
 }
 
-//0x48AAD0
 bool StoreScreen::IsItemUnavailable(StoreItem theStoreItem)
 {
     if (mEasyBuyingCheat)
@@ -302,7 +295,6 @@ void StoreScreen::GetStorePosition(int theSpotIndex, int& thePosX, int& thePosY)
     }
 }
 
-//0x48AC50
 void StoreScreen::DrawItemIcon(Graphics* g, int theItemPosition, StoreItem theItemType, bool theIsForHighlight)
 {
     if (theIsForHighlight)
@@ -412,7 +404,6 @@ void StoreScreen::DrawItemIcon(Graphics* g, int theItemPosition, StoreItem theIt
     g->SetColorizeImages(false);
 }
 
-//0x48B170
 void StoreScreen::DrawItem(Graphics* g, int theItemPosition, StoreItem theItemType)
 {
     if (IsItemUnavailable(theItemType))
@@ -457,7 +448,6 @@ void StoreScreen::DrawItem(Graphics* g, int theItemPosition, StoreItem theItemTy
     }
 }
 
-//0x48B4C0
 void StoreScreen::Draw(Graphics* g)
 {
     g->SetLinearBlend(true);
@@ -532,7 +522,6 @@ void StoreScreen::Draw(Graphics* g)
     }
 }
 
-//0x48BA30
 void StoreScreen::DrawOverlay(Graphics* g)
 {
     Coin* aCoin = nullptr;
@@ -545,7 +534,6 @@ void StoreScreen::DrawOverlay(Graphics* g)
     }
 }
 
-//0x48BAA0
 // GOTY @Patoke: 0x4578F0
 void StoreScreen::SetBubbleText(int theCrazyDaveMessage, int theTime, bool theClickToContinue)
 {
@@ -554,7 +542,6 @@ void StoreScreen::SetBubbleText(int theCrazyDaveMessage, int theTime, bool theCl
     mBubbleClickToContinue = theClickToContinue;
 }
 
-//0x48BAD0
 void StoreScreen::UpdateMouse()
 {
     mMouseOverItem = STORE_ITEM_INVALID;
@@ -621,7 +608,6 @@ void StoreScreen::UpdateMouse()
     mApp->SetCursor(mBackButton->mIsOver || mPrevButton->mIsOver || mNextButton->mIsOver || aShowFinger ? CURSOR_HAND : CURSOR_POINTER);
 }
 
-//0x48BE30
 void StoreScreen::StorePreload()
 {
     ReanimatorEnsureDefinitionLoaded(REANIM_CRAZY_DAVE, true);
@@ -648,7 +634,6 @@ bool StoreScreen::CanInteractWithButtons()
     return mStoreTime >= 120 && !mBubbleClickToContinue && mHatchTimer <= 0 && !mWaitForDialog;
 }
 
-//0x48BF60
 void StoreScreen::Update()
 {
     mApp->mMusic->MakeSureMusicIsPlaying(MUSIC_TUNE_TITLE_CRAZY_DAVE_MAIN_THEME);
@@ -802,7 +787,6 @@ void StoreScreen::Update()
     }
 }
 
-//0x48C350
 void StoreScreen::AddedToManager(WidgetManager* theWidgetManager)
 {
     WidgetContainer::AddedToManager(theWidgetManager);
@@ -812,7 +796,6 @@ void StoreScreen::AddedToManager(WidgetManager* theWidgetManager)
     AddWidget(mOverlayWidget);
 }
 
-//0x48C3B0
 void StoreScreen::RemovedFromManager(WidgetManager* theWidgetManager)
 {
     WidgetContainer::RemovedFromManager(theWidgetManager);
@@ -823,14 +806,12 @@ void StoreScreen::RemovedFromManager(WidgetManager* theWidgetManager)
     mApp->CrazyDaveDie();
 }
 
-//0x48C410
 void StoreScreen::ButtonPress(int theId)
 {
     if (theId != StoreScreen::StoreScreen_Prev && theId != StoreScreen::StoreScreen_Next)
         mApp->PlaySample(Sexy::SOUND_BUTTONCLICK);
 }
 
-//0x48C440
 bool StoreScreen::IsPageShown(StorePages thePage)
 {
     // 试玩模式下，仅显示默认页
@@ -845,7 +826,6 @@ bool StoreScreen::IsPageShown(StorePages thePage)
     return thePage != STORE_PAGE_ZEN2;
 }
 
-//0x48C4D0
 void StoreScreen::ButtonDepress(int theId)
 {
     if (theId == StoreScreen::StoreScreen_Back)
@@ -879,13 +859,11 @@ void StoreScreen::ButtonDepress(int theId)
     }
 }
 
-//0x48C5F0
 void StoreScreen::KeyChar(char theChar)
 {
     if (mBubbleClickToContinue && (theChar == ' ' || theChar == '\r')) AdvanceCrazyDaveDialog();
 }
 
-//0x48C620
 int StoreScreen::GetItemCost(StoreItem theStoreItem)
 {
     if (theStoreItem == STORE_ITEM_BONUS_LAWN_MOWER)    return gLawnApp->mPlayerInfo->mPurchases[STORE_ITEM_BONUS_LAWN_MOWER] ? 500 : 200;
@@ -932,7 +910,6 @@ bool StoreScreen::CanAffordItem(StoreItem theStoreItem)
     return mApp->mPlayerInfo->mCoins >= GetItemCost(theStoreItem);
 }
 
-//0x48C740
 // GOTY @Patoke: 0x497340
 void StoreScreen::PurchaseItem(StoreItem theStoreItem)
 {
@@ -1085,7 +1062,6 @@ void StoreScreen::PurchaseItem(StoreItem theStoreItem)
     }
 }
 
-//0x48CF50
 void StoreScreen::AdvanceCrazyDaveDialog()
 {
     if (!mBubbleClickToContinue)
@@ -1136,7 +1112,6 @@ void StoreScreen::AdvanceCrazyDaveDialog()
     }
 }
 
-//0x48D130
 void StoreScreen::MouseDown(int x, int y, int theClickCount)
 {
     (void)theClickCount;
@@ -1174,7 +1149,6 @@ void StoreScreen::MouseDown(int x, int y, int theClickCount)
     }
 }
 
-//0x48D2E0
 void StoreScreen::EnableButtons(bool theEnable)
 {
     if (mEasyBuyingCheat || IsPageShown(STORE_PAGE_PLANT_UPGRADES) || !theEnable)
@@ -1188,7 +1162,6 @@ void StoreScreen::EnableButtons(bool theEnable)
     mBackButton->SetDisabled(!theEnable);
 }
 
-//0x48D3A0
 // GOTY @Patoke: 0x498110
 void StoreScreen::SetupForIntro(int theDialogIndex)
 {

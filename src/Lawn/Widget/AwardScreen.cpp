@@ -37,7 +37,6 @@
 #include "../../Sexy.TodLib/TodStringFile.h"
 #include "AchievementsScreen.h"
 
-//0x405780
 // GOTY @Patoke: 0x4063E0
 AwardScreen::AwardScreen(LawnApp* theApp, AwardType theAwardType, bool theShowingAchievements)
 {
@@ -258,7 +257,6 @@ AwardScreen::AwardScreen(LawnApp* theApp, AwardType theAwardType, bool theShowin
 		mApp->mMusic->MakeSureMusicIsPlaying(MUSIC_TUNE_ZEN_GARDEN);
 }
 
-//0x406420 & 0x406440
 AwardScreen::~AwardScreen()
 {
 	if (mStartButton) delete mStartButton;
@@ -275,7 +273,6 @@ bool AwardScreen::IsPaperNote()
 	return mApp->IsAdventureMode() && (aLevel == 10 || aLevel == 20 || aLevel == 30 || aLevel == 40 || aLevel == 50);
 }
 
-//0x4064D0
 void AwardScreen::DrawBottom(Graphics* g, const std::string& theTitle, const std::string& theAward, const std::string& theMessage)
 {
 	g->DrawImage(Sexy::IMAGE_AWARDSCREEN_BACK, 0, 0);
@@ -284,7 +281,6 @@ void AwardScreen::DrawBottom(Graphics* g, const std::string& theTitle, const std
 	TodDrawStringWrapped(g, theMessage, Rect(285, 360, 230, 90), Sexy::FONT_BRIANNETOD16, Color(40, 50, 90), DS_ALIGN_CENTER_VERTICAL_MIDDLE);
 }
 
-//0x4066A0
 void AwardScreen::DrawAwardSeed(Graphics* g)
 {
 	SeedType aSeedType = mApp->GetAwardSeedForLevel(mApp->mPlayerInfo->GetLevel() - 1);
@@ -301,7 +297,6 @@ void AwardScreen::DrawAwardSeed(Graphics* g)
 	g->SetScale(1, 1, 0, 0);
 }
 
-//0x4068D0
 // GOTY @Patoke: 0x4081C0
 void AwardScreen::Draw(Graphics* g)
 {
@@ -438,7 +433,6 @@ void AwardScreen::Draw(Graphics* g)
 	g->FillRect(0, 0, BOARD_WIDTH, BOARD_HEIGHT);
 }
 
-//0x4076A0
 // GOTY @Patoke: 0x408FE0
 void AwardScreen::Update()
 {
@@ -468,14 +462,12 @@ void AwardScreen::Update()
 	if (mFadeInCounter > 0) mFadeInCounter--;
 }
 
-//0x407760
 void AwardScreen::KeyChar(char theChar)
 {
 	if (theChar == ' ' || theChar == '\r' || theChar == '\u001B')
 		StartButtonPressed();
 }
 
-//0x407780
 // GOTY @Patoke: 0x409530
 void AwardScreen::StartButtonPressed()
 {
@@ -578,7 +570,6 @@ void AwardScreen::StartButtonPressed()
 	}
 }
 
-//0x4079F0
 // GOTY @Patoke: 0x4097A0
 void AwardScreen::MouseDown(int x, int y, int theClickCount)
 {
@@ -592,7 +583,6 @@ void AwardScreen::MouseDown(int x, int y, int theClickCount)
 	}
 }
 
-//0x407A70
 // GOTY @Patoke: 0x409840
 void AwardScreen::MouseUp(int x, int y, int theClickCount)
 {

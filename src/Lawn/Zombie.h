@@ -109,81 +109,81 @@ public:
     };
 
 public:
-	ZombieType			            mZombieType;                                //+0x24
-	ZombiePhase			            mZombiePhase;                               //+0x28
-	float				            mPosX;                                      //+0x2C
-	float				            mPosY;                                      //+0x30
-	float				            mVelX;                                      //+0x34
-    int32_t                         mAnimCounter;                               //+0x38
-    int32_t                         mGroanCounter;                              //+0x3C
-    int32_t                         mAnimTicksPerFrame;                         //+0x40
-    int32_t                         mAnimFrames;                                //+0x44
-    int32_t                         mFrame;                                     //+0x48
-    int32_t                         mPrevFrame;                                 //+0x4C
-    bool                            mVariant;                                   //+0x50
-    bool                            mIsEating;                                  //+0x51
-    int32_t                         mJustGotShotCounter;                        //+0x54
-    int32_t                         mShieldJustGotShotCounter;                  //+0x58
-    int32_t                         mShieldRecoilCounter;                       //+0x5C
-    int32_t                         mZombieAge;                                 //+0x60
-    ZombieHeight                    mZombieHeight;                              //+0x64
-    int32_t                         mPhaseCounter;                              //+0x68
-    int32_t                         mFromWave;                                  //+0x6C
-    bool                            mDroppedLoot;                               //+0x70
-    int32_t                         mZombieFade;                                //+0x74
-    bool                            mFlatTires;                                 //+0x78
-    int32_t                         mUseLadderCol;                              //+0x7C
-    int32_t                         mTargetCol;                                 //+0x80
-    float                           mAltitude;                                  //+0x84
-    bool                            mHitUmbrella;                               //+0x88
-    Rect                            mZombieRect;                                //+0x8C
-    Rect                            mZombieAttackRect;                          //+0x9C
-    int32_t                         mChilledCounter;                            //+0xAC
-    int32_t                         mButteredCounter;                           //+0xB0
-    int32_t                         mIceTrapCounter;                            //+0xB4
-    bool                            mMindControlled;                            //+0xB8
-    bool                            mBlowingAway;                               //+0xB9
-    bool                            mHasHead;                                   //+0xBA
-    bool                            mHasArm;                                    //+0xBB
-    bool                            mHasObject;                                 //+0xBC
-    bool                            mInPool;                                    //+0xBD
-    bool                            mOnHighGround;                              //+0xBE
-    bool                            mYuckyFace;                                 //+0xBF
-    int32_t                         mYuckyFaceCounter;                          //+0xC0
-    HelmType                        mHelmType;                                  //+0xC4
-    int32_t                         mBodyHealth;                                //+0xC8
-    int32_t                         mBodyMaxHealth;                             //+0xCC
-    int32_t                         mHelmHealth;                                //+0xD0
-    int32_t                         mHelmMaxHealth;                             //+0xD4
-    ShieldType                      mShieldType;                                //+0xD8
-    int32_t                         mShieldHealth;                              //+0xDC
-    int32_t                         mShieldMaxHealth;                           //+0xE0
-    int32_t                         mFlyingHealth;                              //+0xE4
-    int32_t                         mFlyingMaxHealth;                           //+0xE8
-    bool                            mDead;                                      //+0xEC
-    ZombieID                        mRelatedZombieID;                           //+0xF0
-    ZombieID                        mFollowerZombieID[MAX_ZOMBIE_FOLLOWERS];    //+0xF4
-    bool                            mPlayingSong;                               //+0x104
-    int32_t                         mParticleOffsetX;                           //+0x108
-    int32_t                         mParticleOffsetY;                           //+0x10C
-    AttachmentID                    mAttachmentID;                              //+0x110
-    int32_t                         mSummonCounter;                             //+0x114
-    ReanimationID                   mBodyReanimID;                              //+0x118
-    float                           mScaleZombie;                               //+0x11C
-    float                           mVelZ;                                      //+0x120
-    float                           mOriginalAnimRate;                          //+0x124
-    PlantID                         mTargetPlantID;                             //+0x128
-    int32_t                         mBossMode;                                  //+0x12C
-    int32_t                         mTargetRow;                                 //+0x130
-    int32_t                         mBossBungeeCounter;                         //+0x134
-    int32_t                         mBossStompCounter;                          //+0x138
-    int32_t                         mBossHeadCounter;                           //+0x13C
-    ReanimationID                   mBossFireBallReanimID;                      //+0x140
-    ReanimationID                   mSpecialHeadReanimID;                       //+0x144
-    int32_t                         mFireballRow;                               //+0x148
-    bool                            mIsFireBall;                                //+0x14C
-    ReanimationID                   mMoweredReanimID;                           //+0x150
-    int32_t                         mLastPortalX;                               //+0x154
+	ZombieType			            mZombieType;
+	ZombiePhase			            mZombiePhase;
+	float				            mPosX;
+	float				            mPosY;
+	float				            mVelX;
+    int32_t                         mAnimCounter;
+    int32_t                         mGroanCounter;
+    int32_t                         mAnimTicksPerFrame;
+    int32_t                         mAnimFrames;
+    int32_t                         mFrame;
+    int32_t                         mPrevFrame;
+    bool                            mVariant;
+    bool                            mIsEating;
+    int32_t                         mJustGotShotCounter;
+    int32_t                         mShieldJustGotShotCounter;
+    int32_t                         mShieldRecoilCounter;
+    int32_t                         mZombieAge;
+    ZombieHeight                    mZombieHeight;
+    int32_t                         mPhaseCounter;
+    int32_t                         mFromWave;
+    bool                            mDroppedLoot;
+    int32_t                         mZombieFade;
+    bool                            mFlatTires;
+    int32_t                         mUseLadderCol;
+    int32_t                         mTargetCol;
+    float                           mAltitude;
+    bool                            mHitUmbrella;
+    Rect                            mZombieRect;
+    Rect                            mZombieAttackRect;
+    int32_t                         mChilledCounter;
+    int32_t                         mButteredCounter;
+    int32_t                         mIceTrapCounter;
+    bool                            mMindControlled;
+    bool                            mBlowingAway;
+    bool                            mHasHead;
+    bool                            mHasArm;
+    bool                            mHasObject;
+    bool                            mInPool;
+    bool                            mOnHighGround;
+    bool                            mYuckyFace;
+    int32_t                         mYuckyFaceCounter;
+    HelmType                        mHelmType;
+    int32_t                         mBodyHealth;
+    int32_t                         mBodyMaxHealth;
+    int32_t                         mHelmHealth;
+    int32_t                         mHelmMaxHealth;
+    ShieldType                      mShieldType;
+    int32_t                         mShieldHealth;
+    int32_t                         mShieldMaxHealth;
+    int32_t                         mFlyingHealth;
+    int32_t                         mFlyingMaxHealth;
+    bool                            mDead;
+    ZombieID                        mRelatedZombieID;
+    ZombieID                        mFollowerZombieID[MAX_ZOMBIE_FOLLOWERS];
+    bool                            mPlayingSong;
+    int32_t                         mParticleOffsetX;
+    int32_t                         mParticleOffsetY;
+    AttachmentID                    mAttachmentID;
+    int32_t                         mSummonCounter;
+    ReanimationID                   mBodyReanimID;
+    float                           mScaleZombie;
+    float                           mVelZ;
+    float                           mOriginalAnimRate;
+    PlantID                         mTargetPlantID;
+    int32_t                         mBossMode;
+    int32_t                         mTargetRow;
+    int32_t                         mBossBungeeCounter;
+    int32_t                         mBossStompCounter;
+    int32_t                         mBossHeadCounter;
+    ReanimationID                   mBossFireBallReanimID;
+    ReanimationID                   mSpecialHeadReanimID;
+    int32_t                         mFireballRow;
+    bool                            mIsFireBall;
+    ReanimationID                   mMoweredReanimID;
+    int32_t                         mLastPortalX;
 
 public:
     Zombie();
@@ -428,7 +428,7 @@ public:
     int                             mPickWeight;
     const char*                 mZombieName;
 };
-extern ZombieDefinition gZombieDefs[NUM_ZOMBIE_TYPES];  //0x69DA80
+extern ZombieDefinition gZombieDefs[NUM_ZOMBIE_TYPES];
 
 /*inline*/ ZombieDefinition&            GetZombieDefinition(ZombieType theZombieType);
 
