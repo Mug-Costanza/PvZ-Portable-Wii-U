@@ -54,7 +54,7 @@ Image::Image()
 
 Image::~Image()
 {
-	delete mBits;
+	delete[] mBits;
 }
 
 int	Image::GetWidth()
@@ -404,7 +404,7 @@ Image* GetGIFImage(const std::string& theFileName)
 				if (comments == (char*)nullptr)
 					break;
 
-				delete comments;
+				delete[] comments;
 				break;
 			}
 			case 0xff:
@@ -536,7 +536,7 @@ Image* GetGIFImage(const std::string& theFileName)
 
 				colortable[i] = 0xFF000000 | (r << 16) | (g << 8) | (b);
 			}
-			delete colormap;
+			delete[] colormap;
 		}
 
 		/*if (opacity >= (int) colors)
@@ -804,10 +804,10 @@ Image* GetGIFImage(const std::string& theFileName)
 			if (QuantumTick(y,image->rows))
 			MagickMonitor(LoadImageText,y,image->rows);*/
 		}
-		delete pixel_stack;
-		delete suffix;
-		delete prefix;
-		delete packet;
+		delete[] pixel_stack;
+		delete[] suffix;
+		delete[] prefix;
+		delete[] packet;
 
 		delete[] colortable;
 
