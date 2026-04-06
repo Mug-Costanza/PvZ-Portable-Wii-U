@@ -57,7 +57,7 @@ void SexyAppBase::InitInput()
 
 bool SexyAppBase::StartTextInput(std::string& theInput)
 {
-	char buf[512];
+	char buf[512] = {0};
 
 	SwkbdConfig kbd;
 	swkbdCreate(&kbd, 0);
@@ -117,7 +117,7 @@ bool SexyAppBase::ProcessDeferredMessages(bool singleMessage)
 
 		for (auto& k : keyMaps)
 		{
-			if (kDown & k.first)
+			if (kUp & k.first)
 				mWidgetManager->KeyUp(k.second);
 		}
 	}
