@@ -240,7 +240,7 @@ std::string Sexy::GetFullPath(const std::string& theRelPath)
 std::string Sexy::GetPathFrom(const std::string& theRelPath, const std::string& theDir)
 {
 	std::filesystem::path relPath = PathFromU8(theRelPath);
-	if (relPath.is_absolute() || relPath.has_root_name())
+	if (IsPathRooted(theRelPath))
 		return PathToU8(relPath.lexically_normal());
 
 	std::filesystem::path baseDir;
@@ -255,6 +255,37 @@ std::string Sexy::GetPathFrom(const std::string& theRelPath, const std::string& 
 	}
 
 	return PathToU8((baseDir / relPath).lexically_normal());
+}
+
+bool Sexy::IsPathRooted(std::string_view thePath)
+{
+	if (thePath.empty())
+		return false;
+
+	const std::filesystem::path aPath = PathFromU8(std::string(thePath));
+	if (aPath.has_root_path())
+		return true;
+
+#if defined(__SWITCH__) || defined(__3DS__)
+	const size_t aColonPos = thePath.find(':');
+	if (aColonPos == std::string_view::npos || aColonPos == 0 || aColonPos + 1 >= thePath.size())
+		return false;
+
+	const char aSeparator = thePath[aColonPos + 1];
+	if (aSeparator != '/' && aSeparator != '\\')
+		return false;
+
+	for (size_t i = 0; i < aColonPos; i++)
+	{
+		const unsigned char aChar = static_cast<unsigned char>(thePath[i]);
+		if (!std::isalnum(aChar) && aChar != '_')
+			return false;
+	}
+
+	return true;
+#else
+	return false;
+#endif
 }
 
 bool Sexy::AllowAllAccess(const std::string& theFileName)

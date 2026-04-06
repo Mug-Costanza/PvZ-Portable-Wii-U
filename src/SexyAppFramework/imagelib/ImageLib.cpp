@@ -1325,8 +1325,7 @@ static bool CheckSinglePath(std::string_view thePath)
 	}
 
 	const std::string aPathString(thePath);
-	const std::filesystem::path aFilePath = Sexy::PathFromU8(aPathString);
-	if (!aFilePath.has_root_path())
+	if (!Sexy::IsPathRooted(aPathString))
 	{
 		const auto& aResourceBase = Sexy::GetResourceFolder();
 		if (!aResourceBase.empty())
