@@ -283,9 +283,9 @@ bool Sexy::IsPathRooted(std::string_view thePath)
 	}
 
 	return true;
-#else
-	return false;
 #endif
+
+	return false;
 }
 
 bool Sexy::AllowAllAccess(const std::string& theFileName)
