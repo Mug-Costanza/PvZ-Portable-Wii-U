@@ -294,8 +294,7 @@ inline bool IsAutoBreakChar(char32_t theChar)
 #ifdef _WIN32
 inline std::filesystem::path PathFromU8(std::string_view s)
 {
-	const auto* u8 = reinterpret_cast<const char8_t*>(s.data());
-	return std::filesystem::path(std::u8string(u8, u8 + s.size()));
+	return std::filesystem::path(std::u8string_view(reinterpret_cast<const char8_t*>(s.data()), s.size()));
 }
 
 inline std::string PathToU8(const std::filesystem::path& p)
