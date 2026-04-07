@@ -377,8 +377,8 @@ void Graphics::PolyFill(const Point *theVertexList, int theNumVertices, bool con
 
 	mDestImage->FillScanLines(aSpans, aSpanPos, mColor, mDrawMode);
 
-	delete ind;
-	delete mPFActiveEdgeList;
+	delete[] ind;
+	delete[] mPFActiveEdgeList;
 }
 
 void Graphics::PolyFillAA(const Point *theVertexList, int theNumVertices, bool convex)

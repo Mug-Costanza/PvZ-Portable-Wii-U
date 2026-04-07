@@ -52,14 +52,14 @@ std::string PakInterface::NormalizePakPath(std::string_view theFileName)
 {
 	std::filesystem::path aFilePath = Sexy::PathFromU8(std::string(theFileName));
 
-	// Make absolute paths relative to resource folder.
-	if (aFilePath.has_root_directory())
+	// Make rooted paths relative to resource folder.
+	if (Sexy::IsPathRooted(theFileName))
 	{
 		const std::string& aResourceFolder = Sexy::GetResourceFolder();
 		if (!aResourceFolder.empty())
 		{
 			std::filesystem::path aResPath = Sexy::PathFromU8(aResourceFolder);
-			auto [aResEnd, aFileIt] = std::mismatch(aResPath.begin(), aResPath.end(), 
+			auto [aResEnd, aFileIt] = std::mismatch(aResPath.begin(), aResPath.end(),
 			                                       aFilePath.begin(), aFilePath.end());
 			if (aResEnd == aResPath.end())
 			{
@@ -72,7 +72,7 @@ std::string PakInterface::NormalizePakPath(std::string_view theFileName)
 	}
 
 	std::string aResult = Sexy::PathToU8(aFilePath.lexically_normal());
-	
+
 	if (aResult.size() >= 2 && aResult[0] == '.' && aResult[1] == '/')
 		aResult = aResult.substr(2);
 	
@@ -205,7 +205,7 @@ PFILE* PakInterface::FOpen(const char* theFileName, const char* anAccess)
 
 	const std::string& aResourceBase = Sexy::GetResourceFolder();
 	FILE* aFP = nullptr;
-	if (!aResourceBase.empty() && !Sexy::PathFromU8(theFileName).has_root_directory())
+	if (!aResourceBase.empty() && !Sexy::IsPathRooted(theFileName))
 	{
 		aFP = fcaseopenat(aResourceBase.c_str(), theFileName, anAccess);
 	}

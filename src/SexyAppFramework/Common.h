@@ -33,6 +33,7 @@
 #include <cstdint>
 #include <ctime>
 #include <filesystem>
+#include <string_view>
 #include <type_traits>
 #include <bit>
 
@@ -161,6 +162,7 @@ std::string			RemoveTrailingSlash(const std::string& theDirectory);
 std::string			GetCurDir();
 std::string			GetFullPath(const std::string& theRelPath);
 std::string			GetPathFrom(const std::string& theRelPath, const std::string& theDir);
+bool				IsPathRooted(std::string_view thePath);
 bool				AllowAllAccess(const std::string& theFileName);
 
 // Read memory and then move the pointer
