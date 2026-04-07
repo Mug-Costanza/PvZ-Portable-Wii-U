@@ -50,7 +50,7 @@ PakInterface::~PakInterface()
 // Normalize path for pak lookup.
 std::string PakInterface::NormalizePakPath(std::string_view theFileName)
 {
-	std::filesystem::path aFilePath = Sexy::PathFromU8(std::string(theFileName));
+	std::filesystem::path aFilePath = Sexy::PathFromU8(theFileName);
 
 	// Make rooted paths relative to resource folder.
 	if (Sexy::IsPathRooted(theFileName))

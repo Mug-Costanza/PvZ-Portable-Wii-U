@@ -1362,7 +1362,7 @@ static bool FastFileExists(std::string_view thePath)
 	if (thePath.empty())
 		return false;
 
-	const auto aFilePath = Sexy::PathFromU8(std::string(thePath));
+	const auto aFilePath = Sexy::PathFromU8(thePath);
 	if (aFilePath.has_extension())
 		return CheckSinglePath(thePath);
 

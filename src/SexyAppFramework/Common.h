@@ -292,7 +292,7 @@ inline bool IsAutoBreakChar(char32_t theChar)
 
 // UTF-8 path conversion helpers for Windows Unicode path support
 #ifdef _WIN32
-inline std::filesystem::path PathFromU8(const std::string& s)
+inline std::filesystem::path PathFromU8(std::string_view s)
 {
 	const auto* u8 = reinterpret_cast<const char8_t*>(s.data());
 	return std::filesystem::path(std::u8string(u8, u8 + s.size()));
@@ -304,7 +304,7 @@ inline std::string PathToU8(const std::filesystem::path& p)
 	return std::string(u8.begin(), u8.end());
 }
 #else
-inline std::filesystem::path PathFromU8(const std::string& s) { return std::filesystem::path(s); }
+inline std::filesystem::path PathFromU8(std::string_view s) { return std::filesystem::path(s); }
 inline std::string PathToU8(const std::filesystem::path& p) { return p.string(); }
 #endif
 

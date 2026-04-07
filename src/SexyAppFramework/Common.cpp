@@ -262,7 +262,7 @@ bool Sexy::IsPathRooted(std::string_view thePath)
 	if (thePath.empty())
 		return false;
 
-	const std::filesystem::path aPath = PathFromU8(std::string(thePath));
+	const std::filesystem::path aPath = PathFromU8(thePath);
 	if (aPath.has_root_path())
 		return true;
 
