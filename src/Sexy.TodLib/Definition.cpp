@@ -612,7 +612,7 @@ bool DefinitionReadCompiledFile(const std::string& theCompiledFilePath, DefMap* 
     bool aReadCompressedFailed = !aFileStream || (size_t)aFileStream.gcount() != aCompressedSize;
     if (aReadCompressedFailed) { // 判断是否读取成功
         TodTrace("Failed to read compiled file: %s\n", theCompiledFilePath.c_str());
-        free(aCompressedBuffer);
+        delete[] (char *)aCompressedBuffer;
         return false;
     }
 

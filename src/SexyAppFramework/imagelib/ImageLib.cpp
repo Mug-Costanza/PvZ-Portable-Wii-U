@@ -861,7 +861,7 @@ bool ImageLib::WriteJPEGImage(const std::string& theFileName, Image* theImage)
 	if ((fp = fopen(theFileName.c_str(), "wb")) == nullptr)
 		return false;
 
-	struct jpeg_compress_struct cinfo;
+	struct jpeg_compress_struct cinfo{};
 	struct my_error_mgr jerr;
 
 	cinfo.err = jpeg_std_error(&jerr.pub);
@@ -1175,7 +1175,7 @@ Image* GetJPEGImage(const std::string& theFileName)
 	if ((fp = p_fopen(theFileName.c_str(), "rb")) == nullptr)
 		return nullptr;
 
-	struct jpeg_decompress_struct cinfo;
+	struct jpeg_decompress_struct cinfo{};
 	struct my_error_mgr jerr;
 
 	cinfo.err = jpeg_std_error(&jerr.pub);
