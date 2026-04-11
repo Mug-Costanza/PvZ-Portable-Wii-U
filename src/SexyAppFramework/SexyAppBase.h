@@ -38,6 +38,8 @@
 #include "misc/Ratio.h"
 #include <atomic>
 
+struct SDL_Cursor;
+
 namespace ImageLib
 {
 	class Image;
@@ -254,9 +256,11 @@ public:
 	int						mStepMode;  // 0 = off, 1 = step, 2 = waiting for step
 
 	int						mCursorNum;
+	SDL_Cursor*				mSysCursors[NUM_CURSORS];
+	SDL_Cursor*				mCustomCursor;
+	Image*					mCustomCursorImage;
+	int						mCustomCursorImageNum;
 	SoundManager*			mSoundManager;
-	//HCURSOR				mHandCursor;
-	//HCURSOR				mDraggingCursor;
 	WidgetSafeDeleteList	mSafeDeleteList;
 	bool					mMouseIn;	
 	bool					mRunning;
@@ -357,6 +361,7 @@ protected:
 	virtual void			DoUpdateFramesF(float theFrac);
 	virtual void			MakeWindow();
 	virtual void			EnforceCursor();
+	void					ResetCustomCursorCache();
 	virtual void			ReInitImages();
 	virtual void			DeleteNativeImageData();	
 	virtual void			DeleteExtraImageData();

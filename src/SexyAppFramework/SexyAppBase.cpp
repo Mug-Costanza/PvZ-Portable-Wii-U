@@ -33,6 +33,7 @@
 #include <vector>
 #include <algorithm>
 #include <cstdlib>
+#include <cstring>
 #include <filesystem>
 
 #include <SDL.h>
@@ -91,6 +92,62 @@ static bool gScreenSaverActive = false;
 #endif
 
 static GLImage* gFPSImage = nullptr;
+
+static SDL_SystemCursor CursorNumToSystemCursor(int theCursorNum)
+{
+	switch (theCursorNum)
+	{
+		case CURSOR_HAND:
+			return SDL_SYSTEM_CURSOR_HAND;
+		case CURSOR_TEXT:
+			return SDL_SYSTEM_CURSOR_IBEAM;
+		case CURSOR_CIRCLE_SLASH:
+			return SDL_SYSTEM_CURSOR_NO;
+		case CURSOR_SIZEALL:
+			return SDL_SYSTEM_CURSOR_SIZEALL;
+		case CURSOR_SIZENESW:
+			return SDL_SYSTEM_CURSOR_SIZENESW;
+		case CURSOR_SIZENS:
+			return SDL_SYSTEM_CURSOR_SIZENS;
+		case CURSOR_SIZENWSE:
+			return SDL_SYSTEM_CURSOR_SIZENWSE;
+		case CURSOR_SIZEWE:
+			return SDL_SYSTEM_CURSOR_SIZEWE;
+		case CURSOR_WAIT:
+			return SDL_SYSTEM_CURSOR_WAIT;
+		case CURSOR_DRAGGING:
+		case CURSOR_POINTER:
+		case CURSOR_NONE:
+		case CURSOR_CUSTOM:
+		default:
+			return SDL_SYSTEM_CURSOR_ARROW;
+	}
+}
+
+static SDL_Cursor* CreateCursorFromMemoryImage(MemoryImage* theImage)
+{
+	if (theImage == nullptr || theImage->mBits == nullptr)
+		return nullptr;
+
+	const int aWidth = theImage->GetWidth();
+	const int aHeight = theImage->GetHeight();
+	if (aWidth <= 0 || aHeight <= 0)
+		return nullptr;
+
+	SDL_Surface* aSurface = SDL_CreateRGBSurfaceWithFormatFrom(
+		theImage->mBits,
+		aWidth,
+		aHeight,
+		32,
+		aWidth * static_cast<int>(sizeof(uint32_t)),
+		SDL_PIXELFORMAT_BGRA32);
+	if (aSurface == nullptr)
+		return nullptr;
+
+	SDL_Cursor* aCursor = SDL_CreateColorCursor(aSurface, 0, 0);
+	SDL_FreeSurface(aSurface);
+	return aCursor;
+}
 
 #ifdef __EMSCRIPTEN__
 static void EmscriptenDeferredDoExit(void* arg)
@@ -201,6 +258,9 @@ SexyAppBase::SexyAppBase()
 	mFastForwardToUpdateNum = 0;
 	mFastForwardToMarker = false;
 	mFastForwardStep = false;
+	mCustomCursor = nullptr;
+	mCustomCursorImage = nullptr;
+	mCustomCursorImageNum = -1;
 	mSoundManager = nullptr;
 	mCursorNum = CURSOR_POINTER;		
 	mMouseIn = false;
@@ -298,7 +358,10 @@ SexyAppBase::SexyAppBase()
 	int i;
 
 	for (i = 0; i < NUM_CURSORS; i++)
+	{
 		mCursorImages[i] = nullptr;
+		mSysCursors[i] = nullptr;
+	}
 
 	for (i = 0; i < 256; i++)
 		mAdd8BitMaxTable[i] = i;
@@ -372,6 +435,17 @@ SexyAppBase::~SexyAppBase()
 	delete mGLInterface;
 	delete mMusicInterface;
 	delete mSoundManager;			
+
+	ResetCustomCursorCache();
+
+	for (int aCursorIdx = 0; aCursorIdx < NUM_CURSORS; aCursorIdx++)
+	{
+		if (mSysCursors[aCursorIdx] != nullptr)
+		{
+			SDL_FreeCursor(mSysCursors[aCursorIdx]);
+			mSysCursors[aCursorIdx] = nullptr;
+		}
+	}
 
 	WaitForLoadingThread();	
 
@@ -857,6 +931,9 @@ void SexyAppBase::SetCursorImage(int theCursorNum, Image* theImage)
 {
 	if ((theCursorNum >= 0) && (theCursorNum < NUM_CURSORS))
 	{
+		if (mCustomCursorImageNum == theCursorNum && mCursorImages[theCursorNum] != theImage)
+			ResetCustomCursorCache();
+
 		mCursorImages[theCursorNum] = theImage;
 		EnforceCursor();
 	}
@@ -2293,9 +2370,73 @@ void SexyAppBase::SetAlphaDisabled(bool isDisabled)
 	}
 }
 
+void SexyAppBase::ResetCustomCursorCache()
+{
+	if (mCustomCursor != nullptr)
+	{
+		SDL_FreeCursor(mCustomCursor);
+		mCustomCursor = nullptr;
+	}
+
+	mCustomCursorImage = nullptr;
+	mCustomCursorImageNum = -1;
+}
+
 void SexyAppBase::EnforceCursor()
 {
-	// Cursor enforcement not implemented
+	int aCursorNum = mSEHOccured ? CURSOR_POINTER : mCursorNum;
+	if (aCursorNum < 0 || aCursorNum >= NUM_CURSORS)
+		aCursorNum = CURSOR_POINTER;
+
+	if (aCursorNum == CURSOR_NONE)
+	{
+		SDL_ShowCursor(SDL_DISABLE);
+		return;
+	}
+
+	SDL_Cursor* aCursor = nullptr;
+
+	if (mCustomCursorsEnabled && mCursorImages[aCursorNum] != nullptr)
+	{
+		Image* aCursorImage = mCursorImages[aCursorNum];
+		MemoryImage* aMemoryImage = dynamic_cast<MemoryImage*>(aCursorImage);
+		if (aMemoryImage != nullptr)
+		{
+			if (mCustomCursor != nullptr && mCustomCursorImage == aCursorImage && mCustomCursorImageNum == aCursorNum)
+			{
+				aCursor = mCustomCursor;
+			}
+			else
+			{
+				SDL_Cursor* aNewCursor = CreateCursorFromMemoryImage(aMemoryImage);
+				if (aNewCursor != nullptr)
+				{
+					ResetCustomCursorCache();
+
+					mCustomCursor = aNewCursor;
+					mCustomCursorImage = aCursorImage;
+					mCustomCursorImageNum = aCursorNum;
+					aCursor = mCustomCursor;
+				}
+			}
+		}
+	}
+
+	if (aCursor == nullptr)
+	{
+		SDL_Cursor*& aCachedCursor = mSysCursors[aCursorNum];
+		if (aCachedCursor == nullptr)
+			aCachedCursor = SDL_CreateSystemCursor(CursorNumToSystemCursor(aCursorNum));
+
+		aCursor = aCachedCursor;
+		if (aCursor == nullptr)
+			aCursor = SDL_GetDefaultCursor();
+	}
+
+	if (aCursor != nullptr)
+		SDL_SetCursor(aCursor);
+
+	SDL_ShowCursor(SDL_ENABLE);
 }
 
 void SexyAppBase::ProcessSafeDeleteList()
@@ -3357,7 +3498,16 @@ int SexyAppBase::GetCursor()
 
 void SexyAppBase::EnableCustomCursors(bool enabled)
 {
+	if (mCustomCursorsEnabled == enabled)
+	{
+		EnforceCursor();
+		return;
+	}
+
 	mCustomCursorsEnabled = enabled;
+	if (!enabled)
+		ResetCustomCursorCache();
+
 	EnforceCursor();
 }
 
