@@ -7344,7 +7344,7 @@ void Board::DrawUIBottom(Graphics* g)
 {
 	if (mBackground == BackgroundType::BACKGROUND_ZOMBIQUARIUM)
 	{
-		int aWaveTime = abs(mMainCounter / 8 % 22 - 11);
+		int aWaveTime = std::abs(static_cast<int>((mMainCounter / 8) % 22) - 11);
 		g->SetDrawMode(Graphics::DRAWMODE_ADDITIVE);
 		g->DrawImageCel(Sexy::IMAGE_WAVESIDE, 0, 40, aWaveTime);
 		g->DrawImageCel(Sexy::IMAGE_WAVECENTER, 160, 40, aWaveTime);
@@ -7530,8 +7530,10 @@ void Board::DrawFog(Graphics* g)
 			// 本格浓雾横坐标 = 列 * 80 + 浓雾偏移 - 15，纵坐标 = 行 * 85 + 20
 			float aPosX = x * 80 + mFogOffset - 15;
 			float aPosY = y * 85 + 20;
+			// 浓雾动画依赖 900 和 500 两个周期，取最小公倍数 4500 帧后局部取模，避免大数转 float 精度丢失。
+			constexpr uint32_t FOG_ANIM_PERIOD = 4500;
 			// 开始计算周期变化的颜色，aTime 为根据主计时计算的时间
-			float aTime = mMainCounter * PI * 2;
+			float aTime = static_cast<float>(mMainCounter % FOG_ANIM_PERIOD) * PI * 2;
 			// 与行、列有关的初始相位
 			float aPhaseX = 6 * PI * x / MAX_GRID_SIZE_X;
 			float aPhaseY = 6 * PI * y / (MAX_GRID_SIZE_Y + 1);

@@ -106,7 +106,7 @@ public:
 	PlayerInfo*						mPlayerInfo;
 	LevelStats*						mLastLevelStats;
 	bool							mCloseRequest;
-	int								mAppCounter;
+	uint32_t						mAppCounter;
 	Music*							mMusic;
 	ReanimationID					mCrazyDaveReanimID;
 	CrazyDaveState					mCrazyDaveState;

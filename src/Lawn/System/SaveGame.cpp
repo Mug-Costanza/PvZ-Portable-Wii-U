@@ -1608,7 +1608,7 @@ static void SyncBoardBasePortable(PortableSaveContext& theContext, Board* theBoa
 			case BOARD_FIELD_PREV_MOUSE_Y: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mPrevMouseY); }); break;
 			case BOARD_FIELD_SUN_MONEY: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mSunMoney); }); break;
 			case BOARD_FIELD_NUM_WAVES: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mNumWaves); }); break;
-			case BOARD_FIELD_MAIN_COUNTER: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mMainCounter); }); break;
+			case BOARD_FIELD_MAIN_COUNTER: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncUInt32(theBoard->mMainCounter); }); break;
 			case BOARD_FIELD_EFFECT_COUNTER: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mEffectCounter); }); break;
 			case BOARD_FIELD_DRAW_COUNT: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mDrawCount); }); break;
 			case BOARD_FIELD_RISE_FROM_GRAVE_COUNTER: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mRiseFromGraveCounter); }); break;
@@ -1718,7 +1718,7 @@ static void SyncBoardBasePortable(PortableSaveContext& theContext, Board* theBoa
 		AppendFieldWithSync(aBlob, BOARD_FIELD_PREV_MOUSE_Y, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mPrevMouseY); });
 		AppendFieldWithSync(aBlob, BOARD_FIELD_SUN_MONEY, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mSunMoney); });
 		AppendFieldWithSync(aBlob, BOARD_FIELD_NUM_WAVES, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mNumWaves); });
-		AppendFieldWithSync(aBlob, BOARD_FIELD_MAIN_COUNTER, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mMainCounter); });
+		AppendFieldWithSync(aBlob, BOARD_FIELD_MAIN_COUNTER, [&](PortableSaveContext& c){ c.SyncUInt32(theBoard->mMainCounter); });
 		AppendFieldWithSync(aBlob, BOARD_FIELD_EFFECT_COUNTER, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mEffectCounter); });
 		AppendFieldWithSync(aBlob, BOARD_FIELD_DRAW_COUNT, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mDrawCount); });
 		AppendFieldWithSync(aBlob, BOARD_FIELD_RISE_FROM_GRAVE_COUNTER, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mRiseFromGraveCounter); });

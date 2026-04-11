@@ -268,8 +268,10 @@ void GridItem::DrawCrater(Graphics* g)
             aCelCol = 1;
         }
 
+        // 弹坑水波摆动每 200 帧循环一次，局部取模可避免超长运行后的浮点抖动。
+        constexpr uint32_t CRATER_ANIM_PERIOD = 200;
         float aPos = mGridY * PI + mGridX * PI * 0.25f;
-        float aTime = mBoard->mMainCounter * PI * 2.0f / 200.0f;
+        float aTime = static_cast<float>(mBoard->mMainCounter % CRATER_ANIM_PERIOD) * (PI * 2.0f / static_cast<float>(CRATER_ANIM_PERIOD));
         aYPos += sin(aPos + aTime) * 2.0f;
     }
     else if (mBoard->StageHasRoof())

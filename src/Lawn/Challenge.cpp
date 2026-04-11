@@ -2338,8 +2338,11 @@ void Challenge::DrawBeghouled(Graphics* g)
 			float aPixelX = mBoard->GridToPixelX(mChallengeGridX, mChallengeGridY) + 80;
 			float aPixelY = mBoard->GridToPixelY(mChallengeGridX, mChallengeGridY) + 100;
 
+			// Rotation speed coefficient is 2*PI*0.001, which means one full rotation every 1000 frames. Modulus is to avoid large angle float precision cliffs.
+			constexpr uint32_t BEGHOULED_TWIST_ROTATION_PERIOD = 1000;
+			float aRotation = -static_cast<float>(mBoard->mMainCounter % BEGHOULED_TWIST_ROTATION_PERIOD) * (2 * PI * 0.001f);
 			SexyTransform2D aTransform;
-			TodScaleRotateTransformMatrix(aTransform, aPixelX, aPixelY, -mBoard->mMainCounter * 2 * PI * 0.001f, 1, 1);
+			TodScaleRotateTransformMatrix(aTransform, aPixelX, aPixelY, aRotation, 1, 1);
 
 			Image* aImageOverlay = Sexy::IMAGE_BEGHOULED_TWIST_OVERLAY;
 			Rect aSrcRect = Rect(0, 0, aImageOverlay->mWidth, aImageOverlay->mHeight);

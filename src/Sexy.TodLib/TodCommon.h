@@ -168,7 +168,7 @@ inline float			FloatLerp(float theStart, float theEnd, float theFactor)	{ return
 inline int				FloatRoundToInt(float theFloatValue)						{ return theFloatValue > 0 ? theFloatValue + 0.5f : theFloatValue - 0.5f; }
 inline bool				FloatApproxEqual(float theFloatVal1, float theFloatVal2)	{ return fabs(theFloatVal1 - theFloatVal2) < FLT_EPSILON; }
 
-Color					GetFlashingColor(int theCounter, int theFlashTime);
+Color					GetFlashingColor(uint32_t theCounter, int theFlashTime);
 /*inline*/ int			ColorComponentMultiply(int theColor1, int theColor2);
 Color					ColorsMultiply(const Color& theColor1, const Color& theColor2);
 Color					ColorAdd(const Color& theColor1, const Color& theColor2);

@@ -1008,9 +1008,9 @@ void SexyMatrix3Multiply(SexyMatrix3& m, const SexyMatrix3& l, const SexyMatrix3
 }
 
 // GOTY @Patoke: 0x51D2C0
-Color GetFlashingColor(int theCounter, int theFlashTime)
+Color GetFlashingColor(uint32_t theCounter, int theFlashTime)
 {
-	int aTimeAge = theCounter % theFlashTime;
+	int aTimeAge = static_cast<int>(theCounter % static_cast<uint32_t>(theFlashTime));
 	int aTimeInf = theFlashTime / 2;
 	//int aTimeDel = abs(aTimeInf - aTimeAge) / aTimeInf;
 	// @Patoke: order wasn't like in binaries

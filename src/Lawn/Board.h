@@ -175,7 +175,7 @@ public:
 	int32_t							mPrevMouseY;
 	int32_t							mSunMoney;
 	int32_t							mNumWaves;
-	int32_t							mMainCounter;
+	uint32_t						mMainCounter;
 	int32_t							mEffectCounter;
 	int32_t							mDrawCount;
 	int32_t							mRiseFromGraveCounter;
