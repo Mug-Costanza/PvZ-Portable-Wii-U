@@ -36,6 +36,7 @@ void PoolEffect::PoolEffectInitialize()
     TodHesitationBracket aHesitation("PoolEffectInitialize");
 
     mApp = gLawnApp;
+    mPoolCounter = 0;
 
     mCausticImage = new MemoryImage(gSexyAppBase);
     mCausticImage->mWidth = CAUSTIC_IMAGE_WIDTH;
@@ -91,16 +92,16 @@ void PoolEffect::UpdateWaterEffect()
     int idx = 0;
     for (int y = 0; y < CAUSTIC_IMAGE_HEIGHT; y++)
     {
-        int timeV1 = (256 - y) << 17;
-        int timeV0 = y << 17;
+        unsigned int timeV1 = (256 - y) << 17;
+        unsigned int timeV0 = y << 17;
 
         for (int x = 0; x < CAUSTIC_IMAGE_WIDTH; x++)
         {
             uint32_t* pix = &mCausticImage->mBits[idx];
 
-            int timeU = x << 17;
-            int timePool0 = mPoolCounter << 16;
-            int timePool1 = ((mPoolCounter & 65535) + 1) << 16;
+            unsigned int timeU = x << 17;
+            unsigned int timePool0 = mPoolCounter << 16;
+            unsigned int timePool1 = ((mPoolCounter & 65535u) + 1u) << 16;
             int a1 = static_cast<unsigned char>(BilinearLookupFixedPoint(timeU - timePool1 / 6, timeV1 + timePool0 / 8)); //scroll speed
             int a0 = static_cast<unsigned char>(BilinearLookupFixedPoint(timeU + timePool0 / 10, timeV0)); //scroll speed
             unsigned char a = static_cast<unsigned char>((a0 + a1) / 2);
@@ -155,7 +156,8 @@ void PoolEffect::PoolEffectDraw(Sexy::Graphics* g, bool theIsNight)
             aOffsetArray[2][x][y][1] = y / 50.0f; //5
             if (x != 0 && x != 15 && y != 0 && y != 5)
             {
-                float aPoolPhase = mPoolCounter * 1 * PI; //speed, * 2 is default
+                constexpr unsigned int POOL_PHASE_PERIOD = 316800u; // LCM of all sin wave effective periods (1600, 300, 1800, 220, 3200/3, 200, 720, 640, 88)
+                float aPoolPhase = (mPoolCounter % POOL_PHASE_PERIOD) * PI; //speed, * 2 is default
                 float aWaveTime1 = aPoolPhase / 800.0;
                 float aWaveTime2 = aPoolPhase / 150.0;
                 float aWaveTime3 = aPoolPhase / 900.0;
@@ -260,5 +262,5 @@ void PoolEffect::PoolEffectDraw(Sexy::Graphics* g, bool theIsNight)
 
 void PoolEffect::PoolEffectUpdate()
 {
-    ++mPoolCounter; //wonder if this stops after 4.5 years.
+    ++mPoolCounter;
 }

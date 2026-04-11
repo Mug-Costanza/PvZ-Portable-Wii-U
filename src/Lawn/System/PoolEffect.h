@@ -40,7 +40,7 @@ public:
 	unsigned char*		mCausticGrayscaleImage;
 	Sexy::MemoryImage*	mCausticImage;
 	LawnApp*			mApp;
-	int					mPoolCounter;
+	unsigned int		mPoolCounter;
 
 public:
 	void				PoolEffectInitialize();
