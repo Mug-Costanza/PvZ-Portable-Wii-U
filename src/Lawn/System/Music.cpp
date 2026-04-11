@@ -637,10 +637,13 @@ void Music::StartGameMusic()
 		StopAllMusic();
 	else if (mApp->IsScaryPotterLevel() || mApp->IsIZombieLevel())
 		MakeSureMusicIsPlaying(MusicTune::MUSIC_TUNE_PUZZLE_CEREBRAWL);
-	else if (mApp->mBoard->StageHasFog())
-		MakeSureMusicIsPlaying(MusicTune::MUSIC_TUNE_FOG_RIGORMORMIST);
 	else if (mApp->mBoard->StageIsNight())
-		MakeSureMusicIsPlaying(MusicTune::MUSIC_TUNE_NIGHT_MOONGRAINS);
+	{
+		if (mApp->mBoard->StageHasPool())
+			MakeSureMusicIsPlaying(MusicTune::MUSIC_TUNE_FOG_RIGORMORMIST);
+		else
+			MakeSureMusicIsPlaying(MusicTune::MUSIC_TUNE_NIGHT_MOONGRAINS);
+	}
 	else if (mApp->mBoard->StageHas6Rows())
 		MakeSureMusicIsPlaying(MusicTune::MUSIC_TUNE_POOL_WATERYGRAVES);
 	else if (mApp->mBoard->StageHasRoof())
