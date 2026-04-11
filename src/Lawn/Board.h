@@ -176,8 +176,8 @@ public:
 	int32_t							mSunMoney;
 	int32_t							mNumWaves;
 	uint32_t						mMainCounter;
-	int32_t							mEffectCounter;
-	int32_t							mDrawCount;
+	uint32_t						mEffectCounter;
+	uint32_t						mDrawCount;
 	int32_t							mRiseFromGraveCounter;
 	int32_t							mOutOfMoneyCounter;
 	int32_t							mCurrentWave;
@@ -230,7 +230,7 @@ public:
 	int32_t							mMaxSunPlants;
 	int64_t							mStartDrawTime;
 	int64_t							mIntervalDrawTime;
-	int32_t							mIntervalDrawCountStart;
+	uint32_t						mIntervalDrawCountStart;
 	float							mMinFPS;
 	int32_t							mPreloadTime;
 	intptr_t						mGameID;

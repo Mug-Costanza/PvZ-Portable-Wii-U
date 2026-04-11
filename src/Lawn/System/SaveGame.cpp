@@ -1609,8 +1609,8 @@ static void SyncBoardBasePortable(PortableSaveContext& theContext, Board* theBoa
 			case BOARD_FIELD_SUN_MONEY: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mSunMoney); }); break;
 			case BOARD_FIELD_NUM_WAVES: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mNumWaves); }); break;
 			case BOARD_FIELD_MAIN_COUNTER: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncUInt32(theBoard->mMainCounter); }); break;
-			case BOARD_FIELD_EFFECT_COUNTER: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mEffectCounter); }); break;
-			case BOARD_FIELD_DRAW_COUNT: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mDrawCount); }); break;
+			case BOARD_FIELD_EFFECT_COUNTER: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncUInt32(theBoard->mEffectCounter); }); break;
+			case BOARD_FIELD_DRAW_COUNT: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncUInt32(theBoard->mDrawCount); }); break;
 			case BOARD_FIELD_RISE_FROM_GRAVE_COUNTER: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mRiseFromGraveCounter); }); break;
 			case BOARD_FIELD_OUT_OF_MONEY_COUNTER: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mOutOfMoneyCounter); }); break;
 			case BOARD_FIELD_CURRENT_WAVE: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mCurrentWave); }); break;
@@ -1663,7 +1663,7 @@ static void SyncBoardBasePortable(PortableSaveContext& theContext, Board* theBoa
 			case BOARD_FIELD_MAX_SUN_PLANTS: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mMaxSunPlants); }); break;
 			case BOARD_FIELD_START_DRAW_TIME: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncInt64(theBoard->mStartDrawTime); }); break;
 			case BOARD_FIELD_INTERVAL_DRAW_TIME: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncInt64(theBoard->mIntervalDrawTime); }); break;
-			case BOARD_FIELD_INTERVAL_DRAW_COUNT_START: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mIntervalDrawCountStart); }); break;
+			case BOARD_FIELD_INTERVAL_DRAW_COUNT_START: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncUInt32(theBoard->mIntervalDrawCountStart); }); break;
 			case BOARD_FIELD_MIN_FPS: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncFloat(theBoard->mMinFPS); }); break;
 			case BOARD_FIELD_PRELOAD_TIME: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mPreloadTime); }); break;
 			case BOARD_FIELD_GAME_ID: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ int64_t aGameId = static_cast<int64_t>(theBoard->mGameID); c.SyncInt64(aGameId); if (c.mReading) theBoard->mGameID = static_cast<intptr_t>(aGameId); }); break;
@@ -1719,8 +1719,8 @@ static void SyncBoardBasePortable(PortableSaveContext& theContext, Board* theBoa
 		AppendFieldWithSync(aBlob, BOARD_FIELD_SUN_MONEY, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mSunMoney); });
 		AppendFieldWithSync(aBlob, BOARD_FIELD_NUM_WAVES, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mNumWaves); });
 		AppendFieldWithSync(aBlob, BOARD_FIELD_MAIN_COUNTER, [&](PortableSaveContext& c){ c.SyncUInt32(theBoard->mMainCounter); });
-		AppendFieldWithSync(aBlob, BOARD_FIELD_EFFECT_COUNTER, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mEffectCounter); });
-		AppendFieldWithSync(aBlob, BOARD_FIELD_DRAW_COUNT, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mDrawCount); });
+		AppendFieldWithSync(aBlob, BOARD_FIELD_EFFECT_COUNTER, [&](PortableSaveContext& c){ c.SyncUInt32(theBoard->mEffectCounter); });
+		AppendFieldWithSync(aBlob, BOARD_FIELD_DRAW_COUNT, [&](PortableSaveContext& c){ c.SyncUInt32(theBoard->mDrawCount); });
 		AppendFieldWithSync(aBlob, BOARD_FIELD_RISE_FROM_GRAVE_COUNTER, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mRiseFromGraveCounter); });
 		AppendFieldWithSync(aBlob, BOARD_FIELD_OUT_OF_MONEY_COUNTER, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mOutOfMoneyCounter); });
 		AppendFieldWithSync(aBlob, BOARD_FIELD_CURRENT_WAVE, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mCurrentWave); });
@@ -1773,7 +1773,7 @@ static void SyncBoardBasePortable(PortableSaveContext& theContext, Board* theBoa
 		AppendFieldWithSync(aBlob, BOARD_FIELD_MAX_SUN_PLANTS, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mMaxSunPlants); });
 		AppendFieldWithSync(aBlob, BOARD_FIELD_START_DRAW_TIME, [&](PortableSaveContext& c){ c.SyncInt64(theBoard->mStartDrawTime); });
 		AppendFieldWithSync(aBlob, BOARD_FIELD_INTERVAL_DRAW_TIME, [&](PortableSaveContext& c){ c.SyncInt64(theBoard->mIntervalDrawTime); });
-		AppendFieldWithSync(aBlob, BOARD_FIELD_INTERVAL_DRAW_COUNT_START, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mIntervalDrawCountStart); });
+		AppendFieldWithSync(aBlob, BOARD_FIELD_INTERVAL_DRAW_COUNT_START, [&](PortableSaveContext& c){ c.SyncUInt32(theBoard->mIntervalDrawCountStart); });
 		AppendFieldWithSync(aBlob, BOARD_FIELD_MIN_FPS, [&](PortableSaveContext& c){ c.SyncFloat(theBoard->mMinFPS); });
 		AppendFieldWithSync(aBlob, BOARD_FIELD_PRELOAD_TIME, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mPreloadTime); });
 		AppendFieldWithSync(aBlob, BOARD_FIELD_GAME_ID, [&](PortableSaveContext& c){ int64_t aGameId = static_cast<int64_t>(theBoard->mGameID); c.SyncInt64(aGameId); if (c.mReading) theBoard->mGameID = static_cast<intptr_t>(aGameId); });

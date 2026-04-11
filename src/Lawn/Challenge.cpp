@@ -3046,9 +3046,9 @@ void Challenge::DrawRain(Graphics* g)
 
 	aBoardOffsetX = mBoard->mX / 100 * -100;
 
-	int aTime = mBoard->mEffectCounter;
-	int aTimeOffsetXEst = TodAnimateCurve(0, 100, aTime % 100, 0, -100, CURVE_LINEAR);
-	int aTimeOffsetYEst = TodAnimateCurve(0, 20, aTime % 20, -100, 0, CURVE_LINEAR);
+	const uint32_t aTime = mBoard->mEffectCounter;
+	int aTimeOffsetXEst = TodAnimateCurve(0, 100, static_cast<int>(aTime % 100u), 0, -100, CURVE_LINEAR);
+	int aTimeOffsetYEst = TodAnimateCurve(0, 20, static_cast<int>(aTime % 20u), -100, 0, CURVE_LINEAR);
 
 	// 绘制远景的雨
 	for (int aHorCnt = 9; aHorCnt > 0; aHorCnt--)
@@ -3061,9 +3061,8 @@ void Challenge::DrawRain(Graphics* g)
 		}
 	}
 
-	aTime = mBoard->mEffectCounter;
-	float aTimeOffsetXCls = TodAnimateCurve(0, 161, aTime % 161, 0, -100, CURVE_LINEAR);
-	float aTimeOffsetYCls = TodAnimateCurve(0, 33, aTime % 33, -100, 0, CURVE_LINEAR);
+	float aTimeOffsetXCls = TodAnimateCurve(0, 161, static_cast<int>(aTime % 161u), 0, -100, CURVE_LINEAR);
+	float aTimeOffsetYCls = TodAnimateCurve(0, 33, static_cast<int>(aTime % 33u), -100, 0, CURVE_LINEAR);
 	// 绘制近景的雨
 	for (int aHorCnt = 0; aHorCnt < 9; aHorCnt++)
 	{
