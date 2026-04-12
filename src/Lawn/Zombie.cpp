@@ -1118,7 +1118,11 @@ void Zombie::BungeeDropZombie(Zombie* theDroppedZombie, int theGridX, int theGri
 // GOTY @Patoke: 0x535110
 void Zombie::PickRandomSpeed()
 {
-    if (mZombiePhase == ZombiePhase::PHASE_DOLPHIN_WALKING_IN_POOL)
+    if (mZombiePhase == ZombiePhase::PHASE_SNORKEL_WALKING_IN_POOL)
+    {
+        mVelX = 0.3f;
+    }
+    else if (mZombiePhase == ZombiePhase::PHASE_DOLPHIN_WALKING_IN_POOL)
     {
         mVelX = 0.3f;
     }
