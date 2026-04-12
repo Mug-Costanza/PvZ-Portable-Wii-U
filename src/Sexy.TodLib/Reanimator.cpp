@@ -680,6 +680,16 @@ bool Reanimation::DrawTrack(Graphics* g, int theTrackIndex, int theRenderGroup, 
 
 	Image* aImage = aTransform.mImage;
 	ReanimAtlasImage* aAtlasImage = nullptr;
+	// Extract pivot info from the original track image before any override / cleanup logic.
+	Image* aPivotImage = aImage;
+	ReanimAtlasImage* aPivotAtlasImage = nullptr;
+	if (mDefinition->mReanimAtlas != nullptr && aPivotImage != nullptr)
+	{
+		aPivotAtlasImage = mDefinition->mReanimAtlas->GetEncodedReanimAtlas(aPivotImage);
+		if (aPivotAtlasImage == nullptr && reinterpret_cast<uintptr_t>(aPivotImage) <= 1000)
+			aPivotImage = nullptr;  // Invalid encoded handle.
+	}
+
 	if (mDefinition->mReanimAtlas != nullptr && aImage != nullptr)
 	{
 		aAtlasImage = mDefinition->mReanimAtlas->GetEncodedReanimAtlas(aImage);  // Decode atlas handle from transform image.
@@ -697,12 +707,20 @@ bool Reanimation::DrawTrack(Graphics* g, int theTrackIndex, int theRenderGroup, 
 	{
 		aImage = aTrackInstance->mImageOverride;
 	}
+
 	SexyMatrix3 aMatrix;
 	bool aFullScreen = false;
-	if (aAtlasImage != nullptr)
+	if (aPivotAtlasImage != nullptr)
 	{
 		aMatrix.LoadIdentity();
-		SexyMatrix3Translation(aMatrix, aAtlasImage->mWidth * 0.5f, aAtlasImage->mHeight * 0.5f);  // Use atlas metadata for pivot sizing.
+		SexyMatrix3Translation(aMatrix, aPivotAtlasImage->mWidth * 0.5f, aPivotAtlasImage->mHeight * 0.5f);  // Use original atlas metadata for pivot sizing.
+	}
+	else if (aPivotImage != nullptr)
+	{
+		int aCelWidth = aPivotImage->GetCelWidth();
+		int aCelHeight = aPivotImage->GetCelHeight();
+		aMatrix.LoadIdentity();
+		SexyMatrix3Translation(aMatrix, aCelWidth * 0.5f, aCelHeight * 0.5f);
 	}
 	else if (aImage != nullptr)
 	{
@@ -825,6 +843,16 @@ void Reanimation::GetTrackMatrix(int theTrackIndex, SexyTransform2D& theMatrix)
 	int aImageFrame = FloatRoundToInt(aTransform.mFrame);
 	Image* aImage = aTransform.mImage;
 	ReanimAtlasImage* aAtlasImage = nullptr;
+	// Extract pivot info from the original track image before any override / cleanup logic.
+	Image* aPivotImage = aImage;
+	ReanimAtlasImage* aPivotAtlasImage = nullptr;
+	if (mDefinition->mReanimAtlas != nullptr && aPivotImage != nullptr)
+	{
+		aPivotAtlasImage = mDefinition->mReanimAtlas->GetEncodedReanimAtlas(aPivotImage);
+		if (aPivotAtlasImage == nullptr && reinterpret_cast<uintptr_t>(aPivotImage) <= 1000)
+			aPivotImage = nullptr;  // Invalid encoded handle.
+	}
+
 	if (mDefinition->mReanimAtlas != nullptr && aImage != nullptr)
 	{
 		aAtlasImage = mDefinition->mReanimAtlas->GetEncodedReanimAtlas(aImage);  // Decode atlas handle from transform image.
@@ -838,9 +866,15 @@ void Reanimation::GetTrackMatrix(int theTrackIndex, SexyTransform2D& theMatrix)
 	}
 
 	theMatrix.LoadIdentity();
-	if (aAtlasImage != nullptr && aImageFrame >= 0)
+	if (aPivotAtlasImage != nullptr && aImageFrame >= 0)
 	{
-		SexyMatrix3Translation(theMatrix, aAtlasImage->mWidth * 0.5f, aAtlasImage->mHeight * 0.5f);
+		SexyMatrix3Translation(theMatrix, aPivotAtlasImage->mWidth * 0.5f, aPivotAtlasImage->mHeight * 0.5f);
+	}
+	else if (aPivotImage != nullptr && aImageFrame >= 0)
+	{
+		int aCelWidth = aPivotImage->GetCelWidth();
+		int aCelHeight = aPivotImage->GetCelHeight();
+		SexyMatrix3Translation(theMatrix, aCelWidth * 0.5f, aCelHeight * 0.5f);
 	}
 	else if (aImage != nullptr && aImageFrame >= 0)
 	{
