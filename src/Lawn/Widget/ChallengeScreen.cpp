@@ -495,7 +495,7 @@ void ChallengeScreen::DrawButton(Graphics* g, int theChallengeIndex)
 			// ============================================================================================
 			// ▲ 绘制关卡锁定或关卡完成的贴图以及关卡最高记录的文本等
 			// ============================================================================================
-			int aRecord = mApp->mPlayerInfo->mChallengeRecords[theChallengeIndex];
+			uint32_t aRecord = mApp->mPlayerInfo->mChallengeRecords[theChallengeIndex];
 			if (theChallengeIndex == mUnlockChallengeIndex)
 			{
 				Image* aLockImage = Sexy::IMAGE_LOCK;

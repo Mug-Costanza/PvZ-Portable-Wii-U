@@ -5152,8 +5152,8 @@ void Board::SurvivalSaveScore()
 	if (!mApp->IsSurvivalMode())
 		return;
 
-	int aFlagsCompleted = GetSurvivalFlagsCompleted();
-	int& aFlagsRecord = mApp->mPlayerInfo->mChallengeRecords[mApp->GetCurrentChallengeIndex()];
+	uint32_t aFlagsCompleted = GetSurvivalFlagsCompleted();
+	uint32_t& aFlagsRecord = mApp->mPlayerInfo->mChallengeRecords[mApp->GetCurrentChallengeIndex()];
 	if (aFlagsCompleted > aFlagsRecord)
 	{
 		aFlagsRecord = aFlagsCompleted;
@@ -5166,8 +5166,8 @@ void Board::PuzzleSaveStreak()
 	if (!mApp->IsEndlessIZombie(mApp->mGameMode) && !mApp->IsEndlessScaryPotter(mApp->mGameMode))
 		return;
 
-	int aStreak = mChallenge->mSurvivalStage + 1;
-	int& aRecord = mApp->mPlayerInfo->mChallengeRecords[mApp->GetCurrentChallengeIndex()];
+	uint32_t aStreak = mChallenge->mSurvivalStage + 1;
+	uint32_t& aRecord = mApp->mPlayerInfo->mChallengeRecords[mApp->GetCurrentChallengeIndex()];
 	if (aStreak > aRecord)
 	{
 		aRecord = aStreak;
