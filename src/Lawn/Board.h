@@ -242,7 +242,7 @@ public:
 	bool							mMushroomAndCoffeeBeansOnly;							//+GOTY @Patoke: 0x5790
 	bool							mMushroomsUsed;											//+GOTY @Patoke: 0x5791
 	uint32_t						mLevelCoinsCollected;									//+GOTY @Patoke: 0x5788
-	int32_t							mGargantuarsKillsByCornCob;								//+GOTY @Patoke: 0x578C
+	uint32_t						mGargantuarsKillsByCornCob;								//+GOTY @Patoke: 0x578C
 	uint32_t						mCoinsCollected;										//+GOTY @Patoke: 0x57C8
 	uint32_t						mDiamondsCollected;										//+GOTY @Patoke: 0x57CC
 	uint32_t						mPottedPlantsCollected;

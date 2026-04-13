@@ -152,6 +152,7 @@ Board::Board(LawnApp* theApp)
 	mMushroomAndCoffeeBeansOnly = true; // @Patoke: added construct
 	mMushroomsUsed = false; // @Patoke: added construct
 	mLevelCoinsCollected = 0;
+	mGargantuarsKillsByCornCob = 0;
 	mCoinsCollected = 0;
 	mDiamondsCollected = 0;
 	mPottedPlantsCollected = 0;
