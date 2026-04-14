@@ -1283,10 +1283,11 @@ void Board::FreezeEffectsForCutscene(bool theFreeze)
 	{
 		if (aParticle->mEffectType == ParticleEffect::PARTICLE_GRAVE_BUSTER)
 		{
-			if (aParticle->mEffectType == ParticleEffect::PARTICLE_POOL_SPARKLY && mIceTrapCounter == 0)
-			{
-				aParticle->mDontUpdate = theFreeze;
-			}
+			aParticle->mDontUpdate = theFreeze;
+		}
+		else if (aParticle->mEffectType == ParticleEffect::PARTICLE_POOL_SPARKLY && mIceTrapCounter == 0)
+		{
+			aParticle->mDontUpdate = theFreeze;
 		}
 	}
 
