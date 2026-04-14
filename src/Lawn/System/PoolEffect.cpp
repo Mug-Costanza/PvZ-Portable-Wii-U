@@ -151,9 +151,6 @@ void PoolEffect::PoolEffectDraw(Sexy::Graphics* g, bool theIsNight)
     {
         for (int y = 0; y <= 5; y++) //handles the caustic effect
         {
-			//scales the effect, multiplying by 10 seems to mostly fix it, original at right
-            aOffsetArray[2][x][y][0] = x / 150.0f; //15
-            aOffsetArray[2][x][y][1] = y / 50.0f; //5
             if (x != 0 && x != 15 && y != 0 && y != 5)
             {
                 constexpr unsigned int POOL_PHASE_PERIOD = 316800u; // LCM of all sin wave effective periods (1600, 300, 1800, 220, 3200/3, 200, 720, 640, 88)
@@ -175,11 +172,13 @@ void PoolEffect::PoolEffectDraw(Sexy::Graphics* g, bool theIsNight)
             }
             else
             {
-				//skip animation
+                //skip animation
                 aOffsetArray[0][x][y][0] = 0.0f;
                 aOffsetArray[0][x][y][1] = 0.0f;
                 aOffsetArray[1][x][y][0] = 0.0f;
                 aOffsetArray[1][x][y][1] = 0.0f;
+                aOffsetArray[2][x][y][0] = 0.0f;
+                aOffsetArray[2][x][y][1] = 0.0f;
             }
         }
     }
