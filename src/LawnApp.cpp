@@ -114,6 +114,7 @@ LawnApp::LawnApp()
 	mCreditScreen = nullptr;
 	mTitleScreen = nullptr;
 	mSoundSystem = nullptr;
+	mMusic = nullptr;
 	mKonamiCheck = nullptr;
 	mMustacheCheck = nullptr;
 	mMoustacheCheck = nullptr;
@@ -179,19 +180,19 @@ LawnApp::LawnApp()
 
 LawnApp::~LawnApp()
 {
-	if (mBoard)
+	while (!mDialogMap.empty())
 	{
-		WriteCurrentUserConfig();
+		KillDialog(mDialogMap.begin()->first);
 	}
 
 	if (mBoard)
 	{
 		mBoardResult = BoardResult::BOARDRESULT_QUIT_APP;
 		mBoard->TryToSaveGame();
-		mWidgetManager->RemoveWidget(mBoard);
-		delete mBoard;
-		mBoard = nullptr;
+		WriteCurrentUserConfig();
+		KillBoard();
 	}
+	ProcessSafeDeleteList();
 
 	if (mTitleScreen)
 	{
@@ -269,6 +270,36 @@ LawnApp::~LawnApp()
 		delete mCreditScreen;
 	}
 
+	if (mPoolEffect)
+	{
+		mPoolEffect->PoolEffectDispose();
+		delete mPoolEffect;
+	}
+
+	if (mZenGarden)
+	{
+		delete mZenGarden;
+	}
+
+	if (mEffectSystem)
+	{
+		mEffectSystem->EffectSystemDispose();
+		delete mEffectSystem;
+	}
+
+	if (mReanimatorCache)
+	{
+		mReanimatorCache->ReanimatorCacheDispose();
+		delete mReanimatorCache;
+	}
+
+	FilterEffectDisposeForApp();
+	TodParticleFreeDefinitions();
+	ReanimatorFreeDefinitions();
+	TrailFreeDefinitions();
+	FreeGlobalAllocators();
+	UpdateRegisterInfo();
+
 	delete mProfileMgr;
 	delete mLastLevelStats;
 
@@ -290,54 +321,6 @@ void LawnApp::Shutdown()
 
 	if (!mShutdown)
 	{
-		for (int i = 0; i < Dialogs::NUM_DIALOGS; i++)
-		{
-			KillDialog(i);
-		}
-
-		if (mBoard)
-		{
-			mBoardResult = BoardResult::BOARDRESULT_QUIT_APP;
-			mBoard->TryToSaveGame();
-			KillBoard();
-			WriteCurrentUserConfig();
-		}
-
-		ProcessSafeDeleteList();
-
-		if (mPoolEffect)
-		{
-			mPoolEffect->PoolEffectDispose();
-			delete mPoolEffect;
-			mPoolEffect = nullptr;
-		}
-
-		if (mZenGarden)
-		{
-			delete mZenGarden;
-			mZenGarden = nullptr;
-		}
-
-		if (mEffectSystem)
-		{
-			mEffectSystem->EffectSystemDispose();
-			delete mEffectSystem;
-			mEffectSystem = nullptr;
-		}
-
-		if (mReanimatorCache)
-		{
-			mReanimatorCache->ReanimatorCacheDispose();
-			delete mReanimatorCache;
-			mReanimatorCache = nullptr;
-		}
-
-		FilterEffectDisposeForApp();
-		TodParticleFreeDefinitions();
-		ReanimatorFreeDefinitions();
-		TrailFreeDefinitions();
-		FreeGlobalAllocators();
-		UpdateRegisterInfo();
 		SexyAppBase::Shutdown();
 	}
 }
