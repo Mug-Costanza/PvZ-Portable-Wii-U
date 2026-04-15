@@ -44,6 +44,7 @@ void PoolEffect::PoolEffectInitialize()
     mCausticImage->mBits = new uint32_t[CAUSTIC_IMAGE_WIDTH * CAUSTIC_IMAGE_HEIGHT + 1];
     mCausticImage->mHasTrans = true;
     mCausticImage->mHasAlpha = true;
+    mCausticImage->mRenderFlags |= RenderImageFlag_Repeat;
     memset(mCausticImage->mBits, 0xFF, CAUSTIC_IMAGE_WIDTH * CAUSTIC_IMAGE_HEIGHT * 4); //4
     mCausticImage->mBits[CAUSTIC_IMAGE_WIDTH * CAUSTIC_IMAGE_HEIGHT] = MEMORYCHECK_ID;
 
@@ -151,6 +152,8 @@ void PoolEffect::PoolEffectDraw(Sexy::Graphics* g, bool theIsNight)
     {
         for (int y = 0; y <= 5; y++) //handles the caustic effect
         {
+            aOffsetArray[2][x][y][0] = x / 15.0f;
+            aOffsetArray[2][x][y][1] = y / 5.0f;
             if (x != 0 && x != 15 && y != 0 && y != 5)
             {
                 constexpr unsigned int POOL_PHASE_PERIOD = 316800u; // LCM of all sin wave effective periods (1600, 300, 1800, 220, 3200/3, 200, 720, 640, 88)
@@ -177,8 +180,6 @@ void PoolEffect::PoolEffectDraw(Sexy::Graphics* g, bool theIsNight)
                 aOffsetArray[0][x][y][1] = 0.0f;
                 aOffsetArray[1][x][y][0] = 0.0f;
                 aOffsetArray[1][x][y][1] = 0.0f;
-                aOffsetArray[2][x][y][0] = 0.0f;
-                aOffsetArray[2][x][y][1] = 0.0f;
             }
         }
     }

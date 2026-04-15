@@ -51,7 +51,8 @@ enum RenderImageFlags
 	RenderImageFlag_Use64By64Subdivisions	=			0x0002,		// good to use with image strips so the entire texture isn't pulled in when drawing just a piece
 	RenderImageFlag_UseA4R4G4B4				=			0x0004,		// images with not too many color gradients work well in this format
 	RenderImageFlag_UseA8R8G8B8				=			0x0008,		// non-alpha images will be stored as R5G6B5 by default so use this option if you want a 32-bit non-alpha image
-	RenderImageFlag_TextureMask				=			0x000F		// mask for flags that affect texture format/layout (excludes transient flags like sanding)
+	RenderImageFlag_Repeat					=			0x0010,		// use repeat sampling for this texture
+	RenderImageFlag_TextureMask				=			0x001F		// mask for flags that affect texture state/layout (excludes transient flags like sanding)
 };
 
 ///////////////////////////////////////////////////////////////////////////////
