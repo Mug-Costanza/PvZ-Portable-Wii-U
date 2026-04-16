@@ -1350,28 +1350,19 @@ void Board::GetZenButtonRect(GameObjectType theObjectType, Rect& theRect)
 	// Rect aButtonRect = GetShovelButtonRect();
 	// GetZenButtonRect(xxx, aButtonRect);
 
-	// @ Minerscale Zen Garden button locations
+	theRect.mX = 30;
 	if (mApp->mGameMode == GameMode::GAMEMODE_TREE_OF_WISDOM)
 	{
-		theRect.mX = 30;
-		/*
-		if (theObjectType == GameObjectType::OBJECT_TYPE_NEXT_GARDEN)
-		{
-			theRect.mX = 30;
-		}
-		//return theRect;
-		*/
-	} else {
-		theRect.mX = 0;
+		return;
 	}
 	
 	bool usable = true;
-	for (int anObject = GameObjectType::OBJECT_TYPE_WATERING_CAN; anObject <= GameObjectType::OBJECT_TYPE_NEXT_GARDEN; anObject++)
+	for (int anObject = GameObjectType::OBJECT_TYPE_WATERING_CAN; anObject <= GameObjectType::OBJECT_TYPE_WHEELBARROW; anObject++)
 	{
-		// 只要有一个按钮不可用，则所有可用按钮排列的起始横坐标为 30
 		if (!CanUseGameObject((GameObjectType)anObject))
 		{
 			usable = false;
+			break;
 		}
 	}
 	if (usable)
@@ -1379,12 +1370,13 @@ void Board::GetZenButtonRect(GameObjectType theObjectType, Rect& theRect)
 		theRect.mX = 0;
 	}
 
+	int aShovelWidth = Sexy::IMAGE_SHOVELBANK->GetWidth();
 	for (int anObject = GameObjectType::OBJECT_TYPE_WATERING_CAN; anObject < theObjectType; anObject++)
 	{
 		// 每存在一个序号小于目标的可用按钮，则目标按钮的横坐标增加 70
 		if (CanUseGameObject((GameObjectType)anObject))
 		{
-			theRect.mX += 70;//Sexy::IMAGE_SHOVELBANK->GetWidth();
+			theRect.mX += aShovelWidth;
 		}
 	}
 	//return theRect;
@@ -7352,7 +7344,7 @@ void Board::DrawUIBottom(Graphics* g)
 		g->DrawImageCel(Sexy::IMAGE_WAVECENTER, 320, 40, aWaveTime);
 		g->DrawImageCel(Sexy::IMAGE_WAVECENTER, 480, 40, aWaveTime);
 		//TodDrawImageCelScaled(g, Sexy::IMAGE_WAVESIDE, 800, 40, 0, aWaveTime, -1.0f, 1.0f);
-		TodDrawImageCelScaledF(
+		TodDrawImageCelScaled(
 			g, Sexy::IMAGE_WAVESIDE, 800, 40, aWaveTime % Sexy::IMAGE_WAVESIDE->mNumCols, 
 			aWaveTime / Sexy::IMAGE_WAVESIDE->mNumCols, -1.0f, 1.0f
 		);	
