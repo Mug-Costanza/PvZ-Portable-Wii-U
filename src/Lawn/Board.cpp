@@ -3397,7 +3397,9 @@ void Board::UpdateToolTip()
 	HitResult aHitResult;
 	MouseHitTest(aMouseX, aMouseY, &aHitResult);
 
-	if (aHitResult.mObjectType == GameObjectType::OBJECT_TYPE_SHOVEL)
+	switch (aHitResult.mObjectType)
+	{
+	case GameObjectType::OBJECT_TYPE_SHOVEL:
 	{
 		mToolTip->SetLabel("[SHOVEL_TOOLTIP]");
 		Rect aShovelButtonRect = GetShovelButtonRect();
@@ -3408,7 +3410,7 @@ void Board::UpdateToolTip()
 		return;
 	}
 
-	if (aHitResult.mObjectType == GameObjectType::OBJECT_TYPE_NEXT_GARDEN)
+	case GameObjectType::OBJECT_TYPE_NEXT_GARDEN:
 	{
 		mToolTip->SetLabel("[NEXT_GARDEN_TOOLTIP]");
 		Rect aButtonRect = GetShovelButtonRect();
@@ -3419,65 +3421,48 @@ void Board::UpdateToolTip()
 		return;
 	}
 
-	if (aHitResult.mObjectType == GameObjectType::OBJECT_TYPE_WATERING_CAN ||
-		aHitResult.mObjectType == GameObjectType::OBJECT_TYPE_FERTILIZER ||
-		aHitResult.mObjectType == GameObjectType::OBJECT_TYPE_BUG_SPRAY ||
-		aHitResult.mObjectType == GameObjectType::OBJECT_TYPE_PHONOGRAPH ||
-		aHitResult.mObjectType == GameObjectType::OBJECT_TYPE_CHOCOLATE ||
-		aHitResult.mObjectType == GameObjectType::OBJECT_TYPE_GLOVE ||
-		aHitResult.mObjectType == GameObjectType::OBJECT_TYPE_MONEY_SIGN ||
-		aHitResult.mObjectType == GameObjectType::OBJECT_TYPE_WHEELBARROW ||
-		aHitResult.mObjectType == GameObjectType::OBJECT_TYPE_TREE_FOOD)
-	{
-		if (aHitResult.mObjectType == GameObjectType::OBJECT_TYPE_WATERING_CAN)
-		{
-			mToolTip->SetLabel("[WATERING_CAN_TOOLTIP]");
-		}
-		else if (aHitResult.mObjectType == GameObjectType::OBJECT_TYPE_FERTILIZER)
-		{
-			mToolTip->SetLabel("[FERTILIZER_TOOLTIP]");
-		}
-		else if (aHitResult.mObjectType == GameObjectType::OBJECT_TYPE_BUG_SPRAY)
-		{
-			mToolTip->SetLabel("[BUG_SPRAY_TOOLTIP]");
-		}
-		else if (aHitResult.mObjectType == GameObjectType::OBJECT_TYPE_PHONOGRAPH)
-		{
-			mToolTip->SetLabel("[PHONOGRAPH_TOOLTIP]");
-		}
-		else if (aHitResult.mObjectType == GameObjectType::OBJECT_TYPE_CHOCOLATE)
-		{
-			mToolTip->SetLabel("[CHOCOLATE_TOOLTIP]");
-		}
-		else if (aHitResult.mObjectType == GameObjectType::OBJECT_TYPE_GLOVE)
-		{
-			mToolTip->SetLabel("[GLOVE_TOOLTIP]");
-		}
-		else if (aHitResult.mObjectType == GameObjectType::OBJECT_TYPE_MONEY_SIGN)
-		{
-			mToolTip->SetLabel("[MONEY_SIGN_TOOLTIP]");
-		}
-		else if (aHitResult.mObjectType == GameObjectType::OBJECT_TYPE_WHEELBARROW)
-		{
-			mToolTip->SetLabel("[WHEELBARROW_TOOLTIP]");
-		}
-		else if (aHitResult.mObjectType == GameObjectType::OBJECT_TYPE_TREE_FOOD)
-		{
-			mToolTip->SetLabel("[TREE_FERTILIZER_TOOLTIP]");
-		}
+	case GameObjectType::OBJECT_TYPE_WATERING_CAN:
+		mToolTip->SetLabel("[WATERING_CAN_TOOLTIP]");
+		break;
+	case GameObjectType::OBJECT_TYPE_FERTILIZER:
+		mToolTip->SetLabel("[FERTILIZER_TOOLTIP]");
+		break;
+	case GameObjectType::OBJECT_TYPE_BUG_SPRAY:
+		mToolTip->SetLabel("[BUG_SPRAY_TOOLTIP]");
+		break;
+	case GameObjectType::OBJECT_TYPE_PHONOGRAPH:
+		mToolTip->SetLabel("[PHONOGRAPH_TOOLTIP]");
+		break;
+	case GameObjectType::OBJECT_TYPE_CHOCOLATE:
+		mToolTip->SetLabel("[CHOCOLATE_TOOLTIP]");
+		break;
+	case GameObjectType::OBJECT_TYPE_GLOVE:
+		mToolTip->SetLabel("[GLOVE_TOOLTIP]");
+		break;
+	case GameObjectType::OBJECT_TYPE_MONEY_SIGN:
+		mToolTip->SetLabel("[MONEY_SIGN_TOOLTIP]");
+		break;
+	case GameObjectType::OBJECT_TYPE_WHEELBARROW:
+		mToolTip->SetLabel("[WHEELBARROW_TOOLTIP]");
+		break;
+	case GameObjectType::OBJECT_TYPE_TREE_FOOD:
+		mToolTip->SetLabel("[TREE_FERTILIZER_TOOLTIP]");
+		break;
+	case GameObjectType::OBJECT_TYPE_SEEDPACKET:
+		break;
+	default:
+		mToolTip->mVisible = false;
+		return;
+	}
 
+	if (aHitResult.mObjectType != GameObjectType::OBJECT_TYPE_SEEDPACKET)
+	{
 		Rect aButtonRect = GetShovelButtonRect();
 		GetZenButtonRect(aHitResult.mObjectType, aButtonRect);
 		this->mToolTip->mX = aButtonRect.mX + 35;
 		this->mToolTip->mY = aButtonRect.mY + 72;
 		this->mToolTip->mCenter = true;
 		this->mToolTip->mVisible = true;
-		return;
-	}
-
-	if (aHitResult.mObjectType != GameObjectType::OBJECT_TYPE_SEEDPACKET)
-	{
-		mToolTip->mVisible = false;
 		return;
 	}
 
@@ -4584,41 +4569,45 @@ void Board::MouseDown(int x, int y, int theClickCount)
 	{
 		MouseDownWithPlant(x, y, theClickCount);
 	}
-	else if (aHitResult.mObjectType == GameObjectType::OBJECT_TYPE_SEEDPACKET)
+	else
 	{
-		if (!mPaused)
+		switch (aHitResult.mObjectType)
 		{
-			((SeedPacket*)aHitResult.mObject)->MouseDown(x, y, theClickCount);
+		case GameObjectType::OBJECT_TYPE_SEEDPACKET:
+			if (!mPaused)
+			{
+				((SeedPacket*)aHitResult.mObject)->MouseDown(x, y, theClickCount);
+			}
+			break;
+		case GameObjectType::OBJECT_TYPE_NEXT_GARDEN:
+			if (mApp->mGameMode == GameMode::GAMEMODE_CHALLENGE_ZEN_GARDEN)
+			{
+				mApp->mZenGarden->GotoNextGarden();
+			}
+			else if (mApp->mGameMode == GameMode::GAMEMODE_TREE_OF_WISDOM)
+			{
+				mChallenge->TreeOfWisdomNextGarden();
+			}
+			mApp->PlaySample(Sexy::SOUND_TAP);
+			break;
+		case GameObjectType::OBJECT_TYPE_SHOVEL:
+		case GameObjectType::OBJECT_TYPE_WATERING_CAN:
+		case GameObjectType::OBJECT_TYPE_FERTILIZER:
+		case GameObjectType::OBJECT_TYPE_BUG_SPRAY:
+		case GameObjectType::OBJECT_TYPE_PHONOGRAPH:
+		case GameObjectType::OBJECT_TYPE_CHOCOLATE:
+		case GameObjectType::OBJECT_TYPE_GLOVE:
+		case GameObjectType::OBJECT_TYPE_MONEY_SIGN:
+		case GameObjectType::OBJECT_TYPE_WHEELBARROW:
+		case GameObjectType::OBJECT_TYPE_TREE_FOOD:
+			PickUpTool(aHitResult.mObjectType);
+			break;
+		case GameObjectType::OBJECT_TYPE_PLANT:
+			((Plant*)aHitResult.mObject)->MouseDown(x, y, theClickCount);
+			break;
+		default:
+			break;
 		}
-	}
-	else if (aHitResult.mObjectType == GameObjectType::OBJECT_TYPE_NEXT_GARDEN)
-	{
-		if (mApp->mGameMode == GameMode::GAMEMODE_CHALLENGE_ZEN_GARDEN)
-		{
-			mApp->mZenGarden->GotoNextGarden();
-		}
-		else if (mApp->mGameMode == GameMode::GAMEMODE_TREE_OF_WISDOM)
-		{
-			mChallenge->TreeOfWisdomNextGarden();
-		}
-		mApp->PlaySample(Sexy::SOUND_TAP);
-	}
-	else if (aHitResult.mObjectType == GameObjectType::OBJECT_TYPE_SHOVEL ||
-		aHitResult.mObjectType == GameObjectType::OBJECT_TYPE_WATERING_CAN ||
-		aHitResult.mObjectType == GameObjectType::OBJECT_TYPE_FERTILIZER ||
-		aHitResult.mObjectType == GameObjectType::OBJECT_TYPE_BUG_SPRAY ||
-		aHitResult.mObjectType == GameObjectType::OBJECT_TYPE_PHONOGRAPH ||
-		aHitResult.mObjectType == GameObjectType::OBJECT_TYPE_CHOCOLATE ||
-		aHitResult.mObjectType == GameObjectType::OBJECT_TYPE_GLOVE ||
-		aHitResult.mObjectType == GameObjectType::OBJECT_TYPE_MONEY_SIGN ||
-		aHitResult.mObjectType == GameObjectType::OBJECT_TYPE_WHEELBARROW ||
-		aHitResult.mObjectType == GameObjectType::OBJECT_TYPE_TREE_FOOD)
-	{
-		PickUpTool(aHitResult.mObjectType);
-	}
-	else if (aHitResult.mObjectType == GameObjectType::OBJECT_TYPE_PLANT)
-	{
-		((Plant*)aHitResult.mObject)->MouseDown(x, y, theClickCount);
 	}
 
 	UpdateCursor();
@@ -6899,8 +6888,9 @@ void Board::DrawZenButtons(Graphics* g)
 				continue;  // 如果工具正在被手持，则跳过绘制
 			}
 
-			if (aTool == GameObjectType::OBJECT_TYPE_WATERING_CAN)
+			switch (aTool)
 			{
+			case GameObjectType::OBJECT_TYPE_WATERING_CAN:
 				if (mApp->mPlayerInfo->mPurchases[StoreItem::STORE_ITEM_GOLD_WATERINGCAN])
 				{
 					g->DrawImage(Sexy::IMAGE_WATERINGCANGOLD, aButtonRect.mX - 2, aButtonRect.mY + aOffsetY - 6);
@@ -6909,8 +6899,8 @@ void Board::DrawZenButtons(Graphics* g)
 				{
 					g->DrawImage(Sexy::IMAGE_WATERINGCAN, aButtonRect.mX - 2, aButtonRect.mY + aOffsetY - 6);
 				}
-			}
-			else if (aTool == GameObjectType::OBJECT_TYPE_FERTILIZER)
+				break;
+			case GameObjectType::OBJECT_TYPE_FERTILIZER:
 			{
 				uint32_t aPurchase = mApp->mPlayerInfo->mPurchases[StoreItem::STORE_ITEM_FERTILIZER];
 				int aCharges = aPurchase > PURCHASE_COUNT_OFFSET ? aPurchase - PURCHASE_COUNT_OFFSET : 0;
@@ -6929,8 +6919,9 @@ void Board::DrawZenButtons(Graphics* g)
 
 				std::string aChargeString = StrFormat("x%d", aCharges);
 				TodDrawString(g, aChargeString, aButtonRect.mX + 64, aButtonRect.mY + aOffsetY + 65, Sexy::FONT_HOUSEOFTERROR16, Color::White, DS_ALIGN_RIGHT);
+				break;
 			}
-			else if (aTool == GameObjectType::OBJECT_TYPE_BUG_SPRAY)
+			case GameObjectType::OBJECT_TYPE_BUG_SPRAY:
 			{
 				uint32_t aPurchase = mApp->mPlayerInfo->mPurchases[StoreItem::STORE_ITEM_BUG_SPRAY];
 				int aCharges = aPurchase > PURCHASE_COUNT_OFFSET ? aPurchase - PURCHASE_COUNT_OFFSET : 0;
@@ -6944,12 +6935,12 @@ void Board::DrawZenButtons(Graphics* g)
 
 				std::string aChargeString = StrFormat("x%d", aCharges);
 				TodDrawString(g, aChargeString, aButtonRect.mX + 64, aButtonRect.mY + aOffsetY + 65, Sexy::FONT_HOUSEOFTERROR16, Color::White, DS_ALIGN_RIGHT);
+				break;
 			}
-			else if (aTool == GameObjectType::OBJECT_TYPE_PHONOGRAPH)
-			{
+			case GameObjectType::OBJECT_TYPE_PHONOGRAPH:
 				g->DrawImage(Sexy::IMAGE_PHONOGRAPH, aButtonRect.mX + 2, aButtonRect.mY + aOffsetY + 2);
-			}
-			else if (aTool == GameObjectType::OBJECT_TYPE_CHOCOLATE)
+				break;
+			case GameObjectType::OBJECT_TYPE_CHOCOLATE:
 			{
 				uint32_t aPurchase = mApp->mPlayerInfo->mPurchases[StoreItem::STORE_ITEM_CHOCOLATE];
 				int aCharges = aPurchase > PURCHASE_COUNT_OFFSET ? aPurchase - PURCHASE_COUNT_OFFSET : 0;
@@ -6963,24 +6954,22 @@ void Board::DrawZenButtons(Graphics* g)
 
 				std::string aChargeString = StrFormat("x%d", aCharges);
 				TodDrawString(g, aChargeString, aButtonRect.mX + 64, aButtonRect.mY + aOffsetY + 65, Sexy::FONT_HOUSEOFTERROR16, Color::White, DS_ALIGN_RIGHT);
+				break;
 			}
-			else if (aTool == GameObjectType::OBJECT_TYPE_GLOVE)
-			{
+			case GameObjectType::OBJECT_TYPE_GLOVE:
 				if (mCursorObject->mCursorType != CursorType::CURSOR_TYPE_PLANT_FROM_GLOVE && 
 					mCursorObject->mCursorType != CursorType::CURSOR_TYPE_PLANT_FROM_WHEEL_BARROW)
 				{
 					g->DrawImage(Sexy::IMAGE_ZEN_GARDENGLOVE, aButtonRect.mX - 6, aButtonRect.mY + aOffsetY - 4);
 				}
-			}
-			else if (aTool == GameObjectType::OBJECT_TYPE_MONEY_SIGN)
-			{
+				break;
+			case GameObjectType::OBJECT_TYPE_MONEY_SIGN:
 				g->DrawImage(Sexy::IMAGE_ZEN_MONEYSIGN, aButtonRect.mX - 5, aButtonRect.mY + aOffsetY - 4);
-			}
-			else if (aTool == GameObjectType::OBJECT_TYPE_WHEELBARROW)
-			{
+				break;
+			case GameObjectType::OBJECT_TYPE_WHEELBARROW:
 				DrawZenWheelBarrowButton(g, aOffsetY);
-			}
-			else if (aTool == GameObjectType::OBJECT_TYPE_TREE_FOOD)
+				break;
+			case GameObjectType::OBJECT_TYPE_TREE_FOOD:
 			{
 				uint32_t aPurchase = mApp->mPlayerInfo->mPurchases[StoreItem::STORE_ITEM_TREE_FOOD];
 				int aCharges = aPurchase > PURCHASE_COUNT_OFFSET ? aPurchase - PURCHASE_COUNT_OFFSET : 0;
@@ -6999,6 +6988,10 @@ void Board::DrawZenButtons(Graphics* g)
 
 				std::string aChargeString = StrFormat("x%d", aCharges);
 				TodDrawString(g, aChargeString, aButtonRect.mX + 64, aButtonRect.mY + aOffsetY + 65, Sexy::FONT_HOUSEOFTERROR16, Color::White, DS_ALIGN_RIGHT);
+				break;
+			}
+			default:
+				break;
 			}
 		}
 	}
@@ -9758,53 +9751,35 @@ bool Board::CanUseGameObject(GameObjectType theGameObject)
 		return false;
 	}
 
-	if (theGameObject == GameObjectType::OBJECT_TYPE_WATERING_CAN)
+	switch (theGameObject)
 	{
+	case GameObjectType::OBJECT_TYPE_WATERING_CAN:
 		return true;
-	}
-	if (theGameObject == GameObjectType::OBJECT_TYPE_NEXT_GARDEN)
-	{
+	case GameObjectType::OBJECT_TYPE_NEXT_GARDEN:
 		return 
 			mApp->mPlayerInfo->mPurchases[StoreItem::STORE_ITEM_MUSHROOM_GARDEN] || 
 			mApp->mPlayerInfo->mPurchases[StoreItem::STORE_ITEM_AQUARIUM_GARDEN] ||
 			mApp->mPlayerInfo->mPurchases[StoreItem::STORE_ITEM_TREE_OF_WISDOM];
-	}
-	if (theGameObject == GameObjectType::OBJECT_TYPE_FERTILIZER)
-	{
+	case GameObjectType::OBJECT_TYPE_FERTILIZER:
 		return mApp->mPlayerInfo->mPurchases[StoreItem::STORE_ITEM_FERTILIZER] > 0;
-	}
-	if (theGameObject == GameObjectType::OBJECT_TYPE_BUG_SPRAY)
-	{
+	case GameObjectType::OBJECT_TYPE_BUG_SPRAY:
 		return mApp->mPlayerInfo->mPurchases[StoreItem::STORE_ITEM_BUG_SPRAY] > 0;
-	}
-	if (theGameObject == GameObjectType::OBJECT_TYPE_PHONOGRAPH)
-	{
+	case GameObjectType::OBJECT_TYPE_PHONOGRAPH:
 		return  mApp->mPlayerInfo->mPurchases[StoreItem::STORE_ITEM_PHONOGRAPH] > 0;
-	}
-	if (theGameObject == GameObjectType::OBJECT_TYPE_CHOCOLATE)
-	{
+	case GameObjectType::OBJECT_TYPE_CHOCOLATE:
 		return mApp->mPlayerInfo->mPurchases[StoreItem::STORE_ITEM_CHOCOLATE] > 0;
-	}
-	if (theGameObject == GameObjectType::OBJECT_TYPE_WHEELBARROW)
-	{
+	case GameObjectType::OBJECT_TYPE_WHEELBARROW:
 		return mApp->mPlayerInfo->mPurchases[StoreItem::STORE_ITEM_WHEEL_BARROW] > 0;
-	}
-	if (theGameObject == GameObjectType::OBJECT_TYPE_GLOVE)
-	{
+	case GameObjectType::OBJECT_TYPE_GLOVE:
 		return mApp->mPlayerInfo->mPurchases[StoreItem::STORE_ITEM_GARDENING_GLOVE] > 0;
-	}
-	if (theGameObject == GameObjectType::OBJECT_TYPE_MONEY_SIGN)
-	{
+	case GameObjectType::OBJECT_TYPE_MONEY_SIGN:
 		return mApp->HasFinishedAdventure();
-	}
-	if (theGameObject == GameObjectType::OBJECT_TYPE_TREE_FOOD)
-	{
+	case GameObjectType::OBJECT_TYPE_TREE_FOOD:
 		return false;
+	default:
+		TOD_ASSERT(false);
+		unreachable();
 	}
-	
-	TOD_ASSERT(false);
-
-	unreachable();
 }
 
 void Board::ShakeBoard(int theShakeAmountX, int theShakeAmountY)
