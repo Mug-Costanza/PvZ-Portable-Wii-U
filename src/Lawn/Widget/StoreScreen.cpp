@@ -517,8 +517,8 @@ void StoreScreen::Draw(Graphics* g)
             }
         }
 
-        std::string aPageString = TodReplaceNumberString(TodReplaceNumberString("[STORE_PAGE]", "{PAGE}", mPage), "{NUM_PAGES}", aNumPages);
-        TodDrawString(g, aPageString, STORESCREEN_PAGESTRING_X, STORESCREEN_COINBANK_Y, Sexy::FONT_BRIANNETOD12, Color(80, 80, 80), DS_ALIGN_CENTER);
+        std::string aPageString = TodReplaceNumberString(TodReplaceNumberString("[STORE_PAGE]", "{PAGE}", mPage + 1), "{NUM_PAGES}", aNumPages);
+        TodDrawString(g, aPageString, STORESCREEN_PAGESTRING_X, STORESCREEN_PAGESTRING_Y, Sexy::FONT_BRIANNETOD12, Color(80, 80, 80), DS_ALIGN_CENTER);
     }
 }
 
