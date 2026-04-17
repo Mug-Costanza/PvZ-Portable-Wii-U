@@ -411,25 +411,25 @@ void GridItem::DrawSquirrel(Graphics* g)
 {
     int aXPos = mBoard->GridToPixelX(mGridX, mGridY);
     int aYPos = mBoard->GridToPixelY(mGridX, mGridY);
-    if (mGridItemState == GridItemState::GRIDITEM_STATE_SQUIRREL_PEEKING)
+    switch (mGridItemState)
     {
+    case GridItemState::GRIDITEM_STATE_SQUIRREL_PEEKING:
         aYPos += TodAnimateCurve(50, 0, mGridItemCounter, 0, -40, TodCurves::CURVE_BOUNCE_SLOW_MIDDLE);
-    }
-    else if (mGridItemState == GridItemState::GRIDITEM_STATE_SQUIRREL_RUNNING_UP)
-    {
+        break;
+    case GridItemState::GRIDITEM_STATE_SQUIRREL_RUNNING_UP:
         aYPos += TodAnimateCurve(50, 0, mGridItemCounter, 100, 0, TodCurves::CURVE_EASE_IN);
-    }
-    else if (mGridItemState == GridItemState::GRIDITEM_STATE_SQUIRREL_RUNNING_DOWN)
-    {
+        break;
+    case GridItemState::GRIDITEM_STATE_SQUIRREL_RUNNING_DOWN:
         aYPos += TodAnimateCurve(50, 0, mGridItemCounter, -100, 0, TodCurves::CURVE_EASE_IN);
-    }
-    else if (mGridItemState == GridItemState::GRIDITEM_STATE_SQUIRREL_RUNNING_LEFT)
-    {
+        break;
+    case GridItemState::GRIDITEM_STATE_SQUIRREL_RUNNING_LEFT:
         aXPos += TodAnimateCurve(50, 0, mGridItemCounter, 80, 0, TodCurves::CURVE_EASE_IN);
-    }
-    else if (mGridItemState == GridItemState::GRIDITEM_STATE_SQUIRREL_RUNNING_RIGHT)
-    {
+        break;
+    case GridItemState::GRIDITEM_STATE_SQUIRREL_RUNNING_RIGHT:
         aXPos += TodAnimateCurve(50, 0, mGridItemCounter, -80, 0, TodCurves::CURVE_EASE_IN);
+        break;
+    default:
+        break;
     }
 
     // @Patoke: assets, removed, perhaps add back?

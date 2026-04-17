@@ -771,41 +771,35 @@ void SeedPacket::MouseDown(int x, int y, int theClickCount)
 		if (!mBoard->PlantingRequirementsMet(aUseSeedType))
 		{
 			mApp->PlaySample(SOUND_BUZZER);
-			if (aUseSeedType == SeedType::SEED_GATLINGPEA)
+			switch (aUseSeedType)
 			{
+			case SeedType::SEED_GATLINGPEA:
 				mBoard->DisplayAdvice("[ADVICE_PLANT_NEEDS_REPEATER]", MessageStyle::MESSAGE_STYLE_HINT_LONG, AdviceType::ADVICE_PLANT_NEEDS_REPEATER);
-			}
-			else if (aUseSeedType == SeedType::SEED_WINTERMELON)
-			{
+				break;
+			case SeedType::SEED_WINTERMELON:
 				mBoard->DisplayAdvice("[ADVICE_PLANT_NEEDS_MELONPULT]", MessageStyle::MESSAGE_STYLE_HINT_LONG, AdviceType::ADVICE_PLANT_NEEDS_MELONPULT);
-			}
-			else if (aUseSeedType == SeedType::SEED_TWINSUNFLOWER)
-			{
+				break;
+			case SeedType::SEED_TWINSUNFLOWER:
 				mBoard->DisplayAdvice("[ADVICE_PLANT_NEEDS_SUNFLOWER]", MessageStyle::MESSAGE_STYLE_HINT_LONG, AdviceType::ADVICE_PLANT_NEEDS_SUNFLOWER);
-			}
-			else if (aUseSeedType == SeedType::SEED_SPIKEROCK)
-			{
+				break;
+			case SeedType::SEED_SPIKEROCK:
 				mBoard->DisplayAdvice("[ADVICE_PLANT_NEEDS_SPIKEWEED]", MessageStyle::MESSAGE_STYLE_HINT_LONG, AdviceType::ADVICE_PLANT_NEEDS_SPIKEWEED);
-			}
-			else if (aUseSeedType == SeedType::SEED_COBCANNON)
-			{
+				break;
+			case SeedType::SEED_COBCANNON:
 				mBoard->DisplayAdvice("[ADVICE_PLANT_NEEDS_KERNELPULT]", MessageStyle::MESSAGE_STYLE_HINT_LONG, AdviceType::ADVICE_PLANT_NEEDS_KERNELPULT);
-			}
-			else if (aUseSeedType == SeedType::SEED_GOLD_MAGNET)
-			{
+				break;
+			case SeedType::SEED_GOLD_MAGNET:
 				mBoard->DisplayAdvice("[ADVICE_PLANT_NEEDS_MAGNETSHROOM]", MessageStyle::MESSAGE_STYLE_HINT_LONG, AdviceType::ADVICE_PLANT_NEEDS_MAGNETSHROOM);
-			}
-			else if (aUseSeedType == SeedType::SEED_GLOOMSHROOM)
-			{
+				break;
+			case SeedType::SEED_GLOOMSHROOM:
 				mBoard->DisplayAdvice("[ADVICE_PLANT_NEEDS_FUMESHROOM]", MessageStyle::MESSAGE_STYLE_HINT_LONG, AdviceType::ADVICE_PLANT_NEEDS_FUMESHROOM);
-			}
-			else if (aUseSeedType == SeedType::SEED_CATTAIL)
-			{
+				break;
+			case SeedType::SEED_CATTAIL:
 				mBoard->DisplayAdvice("[ADVICE_PLANT_NEEDS_LILYPAD]", MessageStyle::MESSAGE_STYLE_HINT_LONG, AdviceType::ADVICE_PLANT_NEEDS_LILYPAD);
-			}
-			else
-			{
+				break;
+			default:
 				TOD_ASSERT(false);
+				break;
 			}
 
 			return;

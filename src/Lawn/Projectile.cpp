@@ -96,54 +96,56 @@ void Projectile::ProjectileInitialize(int theX, int theY, int theRenderOrder, in
 	mClickBackoffCounter = 0;
 	mAnimTicksPerFrame = 0;
 
-	if (mProjectileType == ProjectileType::PROJECTILE_CABBAGE || mProjectileType == ProjectileType::PROJECTILE_BUTTER)
+	switch (mProjectileType)
 	{
+	case ProjectileType::PROJECTILE_CABBAGE:
+	case ProjectileType::PROJECTILE_BUTTER:
 		mRotation = -7 * PI / 25;  // DEG_TO_RAD(-50.4f);
 		mRotationSpeed = RandRangeFloat(-0.08f, -0.02f);
-	}
-	else if (mProjectileType == ProjectileType::PROJECTILE_MELON || mProjectileType == ProjectileType::PROJECTILE_WINTERMELON)
-	{
+		break;
+	case ProjectileType::PROJECTILE_MELON:
+	case ProjectileType::PROJECTILE_WINTERMELON:
 		mRotation = -2 * PI / 5;  // DEG_TO_RAD(-72.0f);
 		mRotationSpeed = RandRangeFloat(-0.08f, -0.02f);
-	}
-	else if (mProjectileType == ProjectileType::PROJECTILE_KERNEL)
-	{
+		break;
+	case ProjectileType::PROJECTILE_KERNEL:
 		mRotation = 0.0f;
 		mRotationSpeed = RandRangeFloat(-0.2f, -0.08f);
-	}
-	else if (mProjectileType == ProjectileType::PROJECTILE_SNOWPEA)
+		break;
+	case ProjectileType::PROJECTILE_SNOWPEA:
 	{
 		TodParticleSystem* aParticle = mApp->AddTodParticle(mPosX + 8.0f, mPosY + 13.0f, 400000, ParticleEffect::PARTICLE_SNOWPEA_TRAIL);
 		AttachParticle(mAttachmentID, aParticle, 8.0f, 13.0f);
+		break;
 	}
-	else if (mProjectileType == ProjectileType::PROJECTILE_FIREBALL)
-	{
+	case ProjectileType::PROJECTILE_FIREBALL:
 		TOD_ASSERT(false);
-	}
-	else if (mProjectileType == ProjectileType::PROJECTILE_COBBIG)
-	{
+		break;
+	case ProjectileType::PROJECTILE_COBBIG:
 		mWidth = IMAGE_REANIM_COBCANNON_COB->GetWidth();
 		mHeight = IMAGE_REANIM_COBCANNON_COB->GetHeight();
 		mRotation = PI / 2;
-	}
-	else if (mProjectileType == ProjectileType::PROJECTILE_PUFF)
+		break;
+	case ProjectileType::PROJECTILE_PUFF:
 	{
 		TodParticleSystem* aParticle = mApp->AddTodParticle(mPosX + 13.0f, mPosY + 13.0f, 400000, ParticleEffect::PARTICLE_PUFFSHROOM_TRAIL);
 		AttachParticle(mAttachmentID, aParticle, 13.0f, 13.0f);
+		break;
 	}
-	else if (mProjectileType == ProjectileType::PROJECTILE_BASKETBALL)
-	{
+	case ProjectileType::PROJECTILE_BASKETBALL:
 		mRotation = RandRangeFloat(0.0f, 2 * PI);
 		mRotationSpeed = RandRangeFloat(0.05f, 0.1f);
-	}
-	else if (mProjectileType == ProjectileType::PROJECTILE_STAR)
-	{
+		break;
+	case ProjectileType::PROJECTILE_STAR:
 		mShadowY += 15.0f;
 		mRotationSpeed = RandRangeFloat(0.05f, 0.1f);
 		if (Rand(2) == 0)
 		{
 			mRotationSpeed = -mRotationSpeed;
 		}
+		break;
+	default:
+		break;
 	}
 
 	mAnimCounter = 0;
@@ -838,33 +840,32 @@ void Projectile::DoImpact(Zombie* theZombie)
 	ParticleEffect aEffect = ParticleEffect::PARTICLE_NONE;
 	float aSplatPosX = mPosX + 12.0f;
 	float aSplatPosY = mPosY + 12.0f;
-	if (mProjectileType == ProjectileType::PROJECTILE_MELON)
+	switch (mProjectileType)
 	{
+	case ProjectileType::PROJECTILE_MELON:
 		mApp->AddTodParticle(aLastPosX + 30.0f, aLastPosY + 30.0f, mRenderOrder + 1, ParticleEffect::PARTICLE_MELONSPLASH);
-	}
-	else if (mProjectileType == ProjectileType::PROJECTILE_WINTERMELON)
-	{
+		break;
+	case ProjectileType::PROJECTILE_WINTERMELON:
 		mApp->AddTodParticle(aLastPosX + 30.0f, aLastPosY + 30.0f, mRenderOrder + 1, ParticleEffect::PARTICLE_WINTERMELON);
-	}
-	else if (mProjectileType == ProjectileType::PROJECTILE_COBBIG)
+		break;
+	case ProjectileType::PROJECTILE_COBBIG:
 	{
 		int aRenderOrder = Board::MakeRenderOrder(RenderLayer::RENDER_LAYER_GROUND, mCobTargetRow, 2);
 		mApp->AddTodParticle(mPosX + 80.0f, mPosY + 40.0f, aRenderOrder, ParticleEffect::PARTICLE_BLASTMARK);
 		mApp->AddTodParticle(mPosX + 80.0f, mPosY + 40.0f, mRenderOrder + 1, ParticleEffect::PARTICLE_POPCORNSPLASH);
 		mApp->PlaySample(SOUND_DOOMSHROOM);
 		mBoard->ShakeBoard(3, -4);
+		break;
 	}
-	else if (mProjectileType == ProjectileType::PROJECTILE_PEA)
-	{
+	case ProjectileType::PROJECTILE_PEA:
 		aSplatPosX -= 15.0f;
 		aEffect = ParticleEffect::PARTICLE_PEA_SPLAT;
-	}
-	else if (mProjectileType == ProjectileType::PROJECTILE_SNOWPEA)
-	{
+		break;
+	case ProjectileType::PROJECTILE_SNOWPEA:
 		aSplatPosX -= 15.0f;
 		aEffect = ParticleEffect::PARTICLE_SNOWPEA_SPLAT;
-	}
-	else if (mProjectileType == ProjectileType::PROJECTILE_FIREBALL)
+		break;
+	case ProjectileType::PROJECTILE_FIREBALL:
 	{
 		if (IsSplashDamage(theZombie))
 		{
@@ -873,24 +874,21 @@ void Projectile::DoImpact(Zombie* theZombie)
 			aFireReanim->mAnimRate = 24.0f;
 			aFireReanim->OverrideScale(0.7f, 0.4f);
 		}
+		break;
 	}
-	else if (mProjectileType == ProjectileType::PROJECTILE_STAR)
-	{
+	case ProjectileType::PROJECTILE_STAR:
 		aEffect = ParticleEffect::PARTICLE_STAR_SPLAT;
-	}
-	else if (mProjectileType == ProjectileType::PROJECTILE_PUFF)
-	{
+		break;
+	case ProjectileType::PROJECTILE_PUFF:
 		aSplatPosX -= 20.0f;
 		aEffect = ParticleEffect::PARTICLE_PUFF_SPLAT;
-	}
-	else if (mProjectileType == ProjectileType::PROJECTILE_CABBAGE)
-	{
+		break;
+	case ProjectileType::PROJECTILE_CABBAGE:
 		aSplatPosX = aLastPosX - 38.0f;
 		aSplatPosY = aLastPosY + 23.0f;
 		aEffect = ParticleEffect::PARTICLE_CABBAGE_SPLAT;
-	}
-	else if (mProjectileType == ProjectileType::PROJECTILE_BUTTER)
-	{
+		break;
+	case ProjectileType::PROJECTILE_BUTTER:
 		aSplatPosX = aLastPosX - 20.0f;
 		aSplatPosY = aLastPosY + 63.0f;
 		aEffect = ParticleEffect::PARTICLE_BUTTER_SPLAT;
@@ -899,6 +897,9 @@ void Projectile::DoImpact(Zombie* theZombie)
 		{
 			theZombie->ApplyButter();
 		}
+		break;
+	default:
+		break;
 	}
 
 	if (aEffect != ParticleEffect::PARTICLE_NONE)
@@ -973,69 +974,59 @@ void Projectile::Draw(Graphics* g)
 
 	Image* aImage = nullptr;
 	float aScale = 1.0f;
-	if (mProjectileType == ProjectileType::PROJECTILE_COBBIG)
+	switch (mProjectileType)
 	{
+	case ProjectileType::PROJECTILE_COBBIG:
 		aImage = IMAGE_REANIM_COBCANNON_COB;
 		aScale = 0.9f;
-	}
-	else if (mProjectileType == ProjectileType::PROJECTILE_PEA || mProjectileType == ProjectileType::PROJECTILE_ZOMBIE_PEA)
-	{
+		break;
+	case ProjectileType::PROJECTILE_PEA:
+	case ProjectileType::PROJECTILE_ZOMBIE_PEA:
 		aImage = IMAGE_PROJECTILEPEA;
-	}
-	else if (mProjectileType == ProjectileType::PROJECTILE_SNOWPEA)
-	{
+		break;
+	case ProjectileType::PROJECTILE_SNOWPEA:
 		aImage = IMAGE_PROJECTILESNOWPEA;
-	}
-	else if (mProjectileType == ProjectileType::PROJECTILE_FIREBALL)
-	{
+		break;
+	case ProjectileType::PROJECTILE_FIREBALL:
 		aImage = nullptr;
-	}
-	else if (mProjectileType == ProjectileType::PROJECTILE_SPIKE)
-	{
+		break;
+	case ProjectileType::PROJECTILE_SPIKE:
 		aImage = IMAGE_PROJECTILECACTUS;
-	}
-	else if (mProjectileType == ProjectileType::PROJECTILE_STAR)
-	{
+		break;
+	case ProjectileType::PROJECTILE_STAR:
 		aImage = IMAGE_PROJECTILE_STAR;
-	}
-	else if (mProjectileType == ProjectileType::PROJECTILE_PUFF)
-	{
+		break;
+	case ProjectileType::PROJECTILE_PUFF:
 		aImage = IMAGE_PUFFSHROOM_PUFF1;
 		aScale = TodAnimateCurveFloat(0, 30, mProjectileAge, 0.3f, 1.0f, TodCurves::CURVE_LINEAR);
-	}
-	else if (mProjectileType == ProjectileType::PROJECTILE_BASKETBALL)
-	{
+		break;
+	case ProjectileType::PROJECTILE_BASKETBALL:
 		aImage = IMAGE_REANIM_ZOMBIE_CATAPULT_BASKETBALL;
 		aScale = 1.1f;
-	}
-	else if (mProjectileType == ProjectileType::PROJECTILE_CABBAGE)
-	{
+		break;
+	case ProjectileType::PROJECTILE_CABBAGE:
 		aImage = IMAGE_REANIM_CABBAGEPULT_CABBAGE;
 		aScale = 1.0f;
-	}
-	else if (mProjectileType == ProjectileType::PROJECTILE_KERNEL)
-	{
+		break;
+	case ProjectileType::PROJECTILE_KERNEL:
 		aImage = IMAGE_REANIM_CORNPULT_KERNAL;
 		aScale = 0.95f;
-	}
-	else if (mProjectileType == ProjectileType::PROJECTILE_BUTTER)
-	{
+		break;
+	case ProjectileType::PROJECTILE_BUTTER:
 		aImage = IMAGE_REANIM_CORNPULT_BUTTER;
 		aScale = 0.8f;
-	}
-	else if (mProjectileType == ProjectileType::PROJECTILE_MELON)
-	{
+		break;
+	case ProjectileType::PROJECTILE_MELON:
 		aImage = IMAGE_REANIM_MELONPULT_MELON;
 		aScale = 1.0f;
-	}
-	else if (mProjectileType == ProjectileType::PROJECTILE_WINTERMELON)
-	{
+		break;
+	case ProjectileType::PROJECTILE_WINTERMELON:
 		aImage = IMAGE_REANIM_WINTERMELON_PROJECTILE;
 		aScale = 1.0f;
-	}
-	else
-	{
+		break;
+	default:
 		TOD_ASSERT(false);
+		break;
 	}
 
 	bool aMirror = false;

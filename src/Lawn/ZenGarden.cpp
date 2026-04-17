@@ -1169,85 +1169,76 @@ float ZenGarden::PlantPottedDrawHeightOffset(SeedType theSeedType, float theScal
 {
     float aScaleOffsetFix = 0.0f;
     float aHeightOffset = 0.0f;
-    if (theSeedType == SeedType::SEED_GRAVEBUSTER)
+    switch (theSeedType)
     {
+    case SeedType::SEED_GRAVEBUSTER:
         aHeightOffset += 50.0f;
         aScaleOffsetFix += 15.0f;
-    }
-    else if (theSeedType == SeedType::SEED_PUFFSHROOM)
-    {
+        break;
+    case SeedType::SEED_PUFFSHROOM:
         aHeightOffset += 10.0f;
         aScaleOffsetFix += 24.0f;
-    }
-    else if (theSeedType == SeedType::SEED_SUNSHROOM)
-    {
+        break;
+    case SeedType::SEED_SUNSHROOM:
         aHeightOffset += 10.0f;
         aScaleOffsetFix += 17.0f;
-    }
-    else if (theSeedType == SeedType::SEED_SCAREDYSHROOM)
-    {
+        break;
+    case SeedType::SEED_SCAREDYSHROOM:
         aHeightOffset += 5.0f;
         aScaleOffsetFix += 5.0f;
-    }
-    else if (theSeedType == SeedType::SEED_TANGLEKELP)
-    {
+        break;
+    case SeedType::SEED_TANGLEKELP:
         aHeightOffset -= 18.0f;
         aScaleOffsetFix += 20.0f;
-    }
-    else if (theSeedType == SeedType::SEED_SEASHROOM)
-    {
+        break;
+    case SeedType::SEED_SEASHROOM:
         aHeightOffset -= 20.0f;
         aScaleOffsetFix += 15.0f;
-    }
-    else if (theSeedType == SeedType::SEED_LILYPAD)
-    {
+        break;
+    case SeedType::SEED_LILYPAD:
         aHeightOffset -= 10.0f;
         aScaleOffsetFix += 30.0f;
-    }
-    else if (theSeedType == SeedType::SEED_CHOMPER)
-    {
-        aScaleOffsetFix += 0.0f;
-    }
-    else if (theSeedType == SeedType::SEED_HYPNOSHROOM || theSeedType == SeedType::SEED_MARIGOLD || theSeedType == SeedType::SEED_PEASHOOTER || 
-        theSeedType == SeedType::SEED_REPEATER || theSeedType == SeedType::SEED_LEFTPEATER || theSeedType == SeedType::SEED_SNOWPEA || 
-        theSeedType == SeedType::SEED_THREEPEATER || theSeedType == SeedType::SEED_SUNFLOWER || theSeedType == SeedType::SEED_MARIGOLD)
-    {
+        break;
+    case SeedType::SEED_HYPNOSHROOM:
+    case SeedType::SEED_MARIGOLD:
+    case SeedType::SEED_PEASHOOTER:
+    case SeedType::SEED_REPEATER:
+    case SeedType::SEED_LEFTPEATER:
+    case SeedType::SEED_SNOWPEA:
+    case SeedType::SEED_THREEPEATER:
+    case SeedType::SEED_SUNFLOWER:
         aScaleOffsetFix += 10.0f;
-    }
-    else if (theSeedType == SeedType::SEED_STARFRUIT)
-    {
+        break;
+    case SeedType::SEED_STARFRUIT:
         aHeightOffset += 10.0f;
         aScaleOffsetFix += 24.0f;
-    }
-    else if (theSeedType == SeedType::SEED_CABBAGEPULT || theSeedType == SeedType::SEED_MELONPULT)
-    {
+        break;
+    case SeedType::SEED_CABBAGEPULT:
+    case SeedType::SEED_MELONPULT:
         aScaleOffsetFix += 10.0f;
         aHeightOffset += 3.0f;
-    }
-    else if (theSeedType == SeedType::SEED_POTATOMINE)
-    {
+        break;
+    case SeedType::SEED_POTATOMINE:
         aScaleOffsetFix += 5.0f;
-    }
-    else if (theSeedType == SeedType::SEED_TORCHWOOD)
-    {
+        break;
+    case SeedType::SEED_TORCHWOOD:
         aScaleOffsetFix += 3.0f;
-    }
-    else if (theSeedType == SeedType::SEED_SPIKEWEED)
-    {
+        break;
+    case SeedType::SEED_SPIKEWEED:
         aScaleOffsetFix += 10.0f;
         aHeightOffset -= 13.0f;
-    }
-    else if (theSeedType == SeedType::SEED_BLOVER)
-    {
+        break;
+    case SeedType::SEED_BLOVER:
         aScaleOffsetFix += 10.0f;
-    }
-    else if (theSeedType == SeedType::SEED_PUMPKINSHELL)
-    {
+        break;
+    case SeedType::SEED_PUMPKINSHELL:
         aScaleOffsetFix += 20.0f;
-    }
-    else if (theSeedType == SeedType::SEED_PLANTERN)
-    {
+        break;
+    case SeedType::SEED_PLANTERN:
         aScaleOffsetFix -= 1.0f;
+        break;
+    default:
+        break;
     }
 
     return aHeightOffset + (aScaleOffsetFix * theScale - aScaleOffsetFix);
