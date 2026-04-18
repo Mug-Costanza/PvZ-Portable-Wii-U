@@ -225,8 +225,8 @@ public:
 	bool							mSukhbirMode;
 	BoardResult						mPrevBoardResult;
 	int32_t							mTriggeredLawnMowers;
-	int32_t							mPlayTimeActiveLevel;
-	int32_t							mPlayTimeInactiveLevel;
+	uint32_t						mPlayTimeActiveLevel;
+	uint32_t						mPlayTimeInactiveLevel;
 	int32_t							mMaxSunPlants;
 	int64_t							mStartDrawTime;
 	int64_t							mIntervalDrawTime;
@@ -234,19 +234,19 @@ public:
 	float							mMinFPS;
 	int32_t							mPreloadTime;
 	intptr_t						mGameID;
-	int32_t							mGravesCleared;
-	int32_t							mPlantsEaten;
-	int32_t							mPlantsShoveled;
+	uint32_t						mGravesCleared;
+	uint32_t						mPlantsEaten;
+	uint32_t						mPlantsShoveled;
 	bool							mPeaShooterUsed;										//+GOTY @Patoke: 0x5784
 	bool							mCatapultPlantsUsed;									//+GOTY @Patoke: 0x5785
 	bool							mMushroomAndCoffeeBeansOnly;							//+GOTY @Patoke: 0x5790
 	bool							mMushroomsUsed;											//+GOTY @Patoke: 0x5791
-	int32_t							mLevelCoinsCollected;									//+GOTY @Patoke: 0x5788
-	int32_t							mGargantuarsKillsByCornCob;								//+GOTY @Patoke: 0x578C
-	int32_t							mCoinsCollected;										//+GOTY @Patoke: 0x57C8
-	int32_t							mDiamondsCollected;										//+GOTY @Patoke: 0x57CC
-	int32_t							mPottedPlantsCollected;
-	int32_t							mChocolateCollected;
+	uint32_t						mLevelCoinsCollected;									//+GOTY @Patoke: 0x5788
+	uint32_t						mGargantuarsKillsByCornCob;								//+GOTY @Patoke: 0x578C
+	uint32_t						mCoinsCollected;										//+GOTY @Patoke: 0x57C8
+	uint32_t						mDiamondsCollected;										//+GOTY @Patoke: 0x57CC
+	uint32_t						mPottedPlantsCollected;
+	uint32_t						mChocolateCollected;
 
 public:
 	Board(LawnApp* theApp);

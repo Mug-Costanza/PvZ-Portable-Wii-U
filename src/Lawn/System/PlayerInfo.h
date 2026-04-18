@@ -72,11 +72,11 @@ public:
     uint32_t            mId;                                //+0x20
     int32_t             mLevel;                             //+0x24
     int32_t             mCoins;                             //+0x28
-    int32_t             mFinishedAdventure;                 //+0x2C
-    int32_t             mChallengeRecords[100];             //+0x30
+    uint32_t            mFinishedAdventure;                 //+0x2C
+    uint32_t            mChallengeRecords[100];             //+0x30
     uint32_t            mPurchases[80];                     //+0x1C0
-    int32_t             mPlayTimeActivePlayer;              //+0x300
-    int32_t             mPlayTimeInactivePlayer;            //+0x304
+    uint32_t            mPlayTimeActivePlayer;              //+0x300
+    uint32_t            mPlayTimeInactivePlayer;            //+0x304
     int32_t             mHasUsedCheatKeys;                  //+0x308
     int32_t             mHasWokenStinky;                    //+0x30C
     int32_t             mDidntPurchasePacketUpgrade;        //+0x310

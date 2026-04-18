@@ -1658,8 +1658,8 @@ static void SyncBoardBasePortable(PortableSaveContext& theContext, Board* theBoa
 			case BOARD_FIELD_SUKHBIR_MODE: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncBool(theBoard->mSukhbirMode); }); break;
 			case BOARD_FIELD_PREV_BOARD_RESULT: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ SyncEnum32(c, theBoard->mPrevBoardResult); }); break;
 			case BOARD_FIELD_TRIGGERED_LAWN_MOWERS: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mTriggeredLawnMowers); }); break;
-			case BOARD_FIELD_PLAY_TIME_ACTIVE_LEVEL: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mPlayTimeActiveLevel); }); break;
-			case BOARD_FIELD_PLAY_TIME_INACTIVE_LEVEL: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mPlayTimeInactiveLevel); }); break;
+			case BOARD_FIELD_PLAY_TIME_ACTIVE_LEVEL: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncUInt32(theBoard->mPlayTimeActiveLevel); }); break;
+			case BOARD_FIELD_PLAY_TIME_INACTIVE_LEVEL: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncUInt32(theBoard->mPlayTimeInactiveLevel); }); break;
 			case BOARD_FIELD_MAX_SUN_PLANTS: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mMaxSunPlants); }); break;
 			case BOARD_FIELD_START_DRAW_TIME: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncInt64(theBoard->mStartDrawTime); }); break;
 			case BOARD_FIELD_INTERVAL_DRAW_TIME: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncInt64(theBoard->mIntervalDrawTime); }); break;
@@ -1667,19 +1667,19 @@ static void SyncBoardBasePortable(PortableSaveContext& theContext, Board* theBoa
 			case BOARD_FIELD_MIN_FPS: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncFloat(theBoard->mMinFPS); }); break;
 			case BOARD_FIELD_PRELOAD_TIME: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mPreloadTime); }); break;
 			case BOARD_FIELD_GAME_ID: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ int64_t aGameId = static_cast<int64_t>(theBoard->mGameID); c.SyncInt64(aGameId); if (c.mReading) theBoard->mGameID = static_cast<intptr_t>(aGameId); }); break;
-			case BOARD_FIELD_GRAVES_CLEARED: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mGravesCleared); }); break;
-			case BOARD_FIELD_PLANTS_EATEN: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mPlantsEaten); }); break;
-			case BOARD_FIELD_PLANTS_SHOVELED: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mPlantsShoveled); }); break;
+			case BOARD_FIELD_GRAVES_CLEARED: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncUInt32(theBoard->mGravesCleared); }); break;
+			case BOARD_FIELD_PLANTS_EATEN: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncUInt32(theBoard->mPlantsEaten); }); break;
+			case BOARD_FIELD_PLANTS_SHOVELED: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncUInt32(theBoard->mPlantsShoveled); }); break;
 			case BOARD_FIELD_PEA_SHOOTER_USED: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncBool(theBoard->mPeaShooterUsed); }); break;
 			case BOARD_FIELD_CATAPULT_PLANTS_USED: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncBool(theBoard->mCatapultPlantsUsed); }); break;
 			case BOARD_FIELD_MUSHROOM_AND_COFFEE_BEANS_ONLY: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncBool(theBoard->mMushroomAndCoffeeBeansOnly); }); break;
 			case BOARD_FIELD_MUSHROOMS_USED: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncBool(theBoard->mMushroomsUsed); }); break;
-			case BOARD_FIELD_LEVEL_COINS_COLLECTED: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mLevelCoinsCollected); }); break;
-			case BOARD_FIELD_GARGANTUARS_KILLS_BY_CORN_COB: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mGargantuarsKillsByCornCob); }); break;
-			case BOARD_FIELD_COINS_COLLECTED: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mCoinsCollected); }); break;
-			case BOARD_FIELD_DIAMONDS_COLLECTED: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mDiamondsCollected); }); break;
-			case BOARD_FIELD_POTTED_PLANTS_COLLECTED: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mPottedPlantsCollected); }); break;
-			case BOARD_FIELD_CHOCOLATE_COLLECTED: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mChocolateCollected); }); break;
+			case BOARD_FIELD_LEVEL_COINS_COLLECTED: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncUInt32(theBoard->mLevelCoinsCollected); }); break;
+			case BOARD_FIELD_GARGANTUARS_KILLS_BY_CORN_COB: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncUInt32(theBoard->mGargantuarsKillsByCornCob); }); break;
+			case BOARD_FIELD_COINS_COLLECTED: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncUInt32(theBoard->mCoinsCollected); }); break;
+			case BOARD_FIELD_DIAMONDS_COLLECTED: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncUInt32(theBoard->mDiamondsCollected); }); break;
+			case BOARD_FIELD_POTTED_PLANTS_COLLECTED: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncUInt32(theBoard->mPottedPlantsCollected); }); break;
+			case BOARD_FIELD_CHOCOLATE_COLLECTED: ApplyFieldWithSync(aFieldData, aFieldSize, [&](PortableSaveContext& c){ c.SyncUInt32(theBoard->mChocolateCollected); }); break;
 			default: break;
 			}
 		}
@@ -1768,8 +1768,8 @@ static void SyncBoardBasePortable(PortableSaveContext& theContext, Board* theBoa
 		AppendFieldWithSync(aBlob, BOARD_FIELD_SUKHBIR_MODE, [&](PortableSaveContext& c){ c.SyncBool(theBoard->mSukhbirMode); });
 		AppendFieldWithSync(aBlob, BOARD_FIELD_PREV_BOARD_RESULT, [&](PortableSaveContext& c){ SyncEnum32(c, theBoard->mPrevBoardResult); });
 		AppendFieldWithSync(aBlob, BOARD_FIELD_TRIGGERED_LAWN_MOWERS, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mTriggeredLawnMowers); });
-		AppendFieldWithSync(aBlob, BOARD_FIELD_PLAY_TIME_ACTIVE_LEVEL, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mPlayTimeActiveLevel); });
-		AppendFieldWithSync(aBlob, BOARD_FIELD_PLAY_TIME_INACTIVE_LEVEL, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mPlayTimeInactiveLevel); });
+		AppendFieldWithSync(aBlob, BOARD_FIELD_PLAY_TIME_ACTIVE_LEVEL, [&](PortableSaveContext& c){ c.SyncUInt32(theBoard->mPlayTimeActiveLevel); });
+		AppendFieldWithSync(aBlob, BOARD_FIELD_PLAY_TIME_INACTIVE_LEVEL, [&](PortableSaveContext& c){ c.SyncUInt32(theBoard->mPlayTimeInactiveLevel); });
 		AppendFieldWithSync(aBlob, BOARD_FIELD_MAX_SUN_PLANTS, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mMaxSunPlants); });
 		AppendFieldWithSync(aBlob, BOARD_FIELD_START_DRAW_TIME, [&](PortableSaveContext& c){ c.SyncInt64(theBoard->mStartDrawTime); });
 		AppendFieldWithSync(aBlob, BOARD_FIELD_INTERVAL_DRAW_TIME, [&](PortableSaveContext& c){ c.SyncInt64(theBoard->mIntervalDrawTime); });
@@ -1777,19 +1777,19 @@ static void SyncBoardBasePortable(PortableSaveContext& theContext, Board* theBoa
 		AppendFieldWithSync(aBlob, BOARD_FIELD_MIN_FPS, [&](PortableSaveContext& c){ c.SyncFloat(theBoard->mMinFPS); });
 		AppendFieldWithSync(aBlob, BOARD_FIELD_PRELOAD_TIME, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mPreloadTime); });
 		AppendFieldWithSync(aBlob, BOARD_FIELD_GAME_ID, [&](PortableSaveContext& c){ int64_t aGameId = static_cast<int64_t>(theBoard->mGameID); c.SyncInt64(aGameId); if (c.mReading) theBoard->mGameID = static_cast<intptr_t>(aGameId); });
-		AppendFieldWithSync(aBlob, BOARD_FIELD_GRAVES_CLEARED, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mGravesCleared); });
-		AppendFieldWithSync(aBlob, BOARD_FIELD_PLANTS_EATEN, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mPlantsEaten); });
-		AppendFieldWithSync(aBlob, BOARD_FIELD_PLANTS_SHOVELED, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mPlantsShoveled); });
+		AppendFieldWithSync(aBlob, BOARD_FIELD_GRAVES_CLEARED, [&](PortableSaveContext& c){ c.SyncUInt32(theBoard->mGravesCleared); });
+		AppendFieldWithSync(aBlob, BOARD_FIELD_PLANTS_EATEN, [&](PortableSaveContext& c){ c.SyncUInt32(theBoard->mPlantsEaten); });
+		AppendFieldWithSync(aBlob, BOARD_FIELD_PLANTS_SHOVELED, [&](PortableSaveContext& c){ c.SyncUInt32(theBoard->mPlantsShoveled); });
 		AppendFieldWithSync(aBlob, BOARD_FIELD_PEA_SHOOTER_USED, [&](PortableSaveContext& c){ c.SyncBool(theBoard->mPeaShooterUsed); });
 		AppendFieldWithSync(aBlob, BOARD_FIELD_CATAPULT_PLANTS_USED, [&](PortableSaveContext& c){ c.SyncBool(theBoard->mCatapultPlantsUsed); });
 		AppendFieldWithSync(aBlob, BOARD_FIELD_MUSHROOM_AND_COFFEE_BEANS_ONLY, [&](PortableSaveContext& c){ c.SyncBool(theBoard->mMushroomAndCoffeeBeansOnly); });
 		AppendFieldWithSync(aBlob, BOARD_FIELD_MUSHROOMS_USED, [&](PortableSaveContext& c){ c.SyncBool(theBoard->mMushroomsUsed); });
-		AppendFieldWithSync(aBlob, BOARD_FIELD_LEVEL_COINS_COLLECTED, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mLevelCoinsCollected); });
-		AppendFieldWithSync(aBlob, BOARD_FIELD_GARGANTUARS_KILLS_BY_CORN_COB, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mGargantuarsKillsByCornCob); });
-		AppendFieldWithSync(aBlob, BOARD_FIELD_COINS_COLLECTED, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mCoinsCollected); });
-		AppendFieldWithSync(aBlob, BOARD_FIELD_DIAMONDS_COLLECTED, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mDiamondsCollected); });
-		AppendFieldWithSync(aBlob, BOARD_FIELD_POTTED_PLANTS_COLLECTED, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mPottedPlantsCollected); });
-		AppendFieldWithSync(aBlob, BOARD_FIELD_CHOCOLATE_COLLECTED, [&](PortableSaveContext& c){ c.SyncInt32(theBoard->mChocolateCollected); });
+		AppendFieldWithSync(aBlob, BOARD_FIELD_LEVEL_COINS_COLLECTED, [&](PortableSaveContext& c){ c.SyncUInt32(theBoard->mLevelCoinsCollected); });
+		AppendFieldWithSync(aBlob, BOARD_FIELD_GARGANTUARS_KILLS_BY_CORN_COB, [&](PortableSaveContext& c){ c.SyncUInt32(theBoard->mGargantuarsKillsByCornCob); });
+		AppendFieldWithSync(aBlob, BOARD_FIELD_COINS_COLLECTED, [&](PortableSaveContext& c){ c.SyncUInt32(theBoard->mCoinsCollected); });
+		AppendFieldWithSync(aBlob, BOARD_FIELD_DIAMONDS_COLLECTED, [&](PortableSaveContext& c){ c.SyncUInt32(theBoard->mDiamondsCollected); });
+		AppendFieldWithSync(aBlob, BOARD_FIELD_POTTED_PLANTS_COLLECTED, [&](PortableSaveContext& c){ c.SyncUInt32(theBoard->mPottedPlantsCollected); });
+		AppendFieldWithSync(aBlob, BOARD_FIELD_CHOCOLATE_COLLECTED, [&](PortableSaveContext& c){ c.SyncUInt32(theBoard->mChocolateCollected); });
 		WriteTLVBlob(theContext, aBlob);
 	}
 }
