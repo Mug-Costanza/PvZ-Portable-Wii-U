@@ -109,7 +109,7 @@ Long-press the app icon on your launcher to access the **Manage Data** shortcut,
 
 ### Special Instructions for iOS / iPadOS
 
-Download the unsigned IPA from the [Releases](https://github.com/wszqkzqk/PvZ-Portable/releases) page or build it yourself with `ios/build-ios.sh`. The IPA must be sideloaded — common methods include [AltStore](https://altstore.io/), [TrollStore](https://github.com/opa334/TrollStore) (iOS 14.0–16.6.1), or deploying directly from Xcode with a free Apple ID.
+Download the unsigned IPA from the [Releases](https://github.com/wszqkzqk/PvZ-Portable/releases) page or build it yourself with `ios/build-ios.sh`. The IPA must be sideloaded — common methods include [AltStore](https://altstore.io/), [TrollStore](https://github.com/opa334/TrollStore), or deploying directly from Xcode with a free Apple ID.
 
 #### Importing Game Resources
 
