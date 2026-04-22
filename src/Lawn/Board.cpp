@@ -4680,6 +4680,10 @@ void Board::ClearCursor()
 
 bool Board::CanInteractWithBoardButtons()
 {
+	// during the process of obtaining a reward, should not interaction with the menu.
+	if (mBoardFadeOutCounter >= 0)
+		return false;
+
 	if (mPaused || mApp->GetDialogCount() > 0)
 		return false;
 
