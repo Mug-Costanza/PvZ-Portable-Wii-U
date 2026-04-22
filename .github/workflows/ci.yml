@@ -11,6 +11,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  VCPKG_BINARY_SOURCES: clear
+
 jobs:
   build-archlinux:
     name: Build for Arch Linux (x86_64)
