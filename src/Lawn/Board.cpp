@@ -2577,7 +2577,7 @@ bool Board::RowCanHaveZombieType(int theRow, ZombieType theZombieType)
 	{
 		return false;  // 无草皮之地关卡，无草皮的行在前 5 波不刷出僵尸
 	}
-	if (mPlantRow[theRow] == PlantRowType::PLANTROW_POOL && !Zombie::ZombieTypeCanGoInPool(theZombieType))
+	if (mPlantRow[theRow] == PlantRowType::PLANTROW_POOL && !Zombie::ZombieTypeCanGoInPool(theZombieType) && theZombieType != ZombieType::ZOMBIE_BALLOON)
 	{
 		return false;  // 水路不会刷出不能进入泳池的僵尸
 	}

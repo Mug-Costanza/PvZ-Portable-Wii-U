@@ -1612,11 +1612,6 @@ void Plant::UpdateBlover()
         aBodyReanim->SetFramesForLayer("anim_loop");
         aBodyReanim->mLoopType = ReanimLoopType::REANIM_LOOP;
     }
-
-    if (mState != PlantState::STATE_DOINGSPECIAL && mStateCountdown == 0)
-    {
-        DoSpecial();
-    }
 }
 
 void Plant::UpdateFlowerPot()
