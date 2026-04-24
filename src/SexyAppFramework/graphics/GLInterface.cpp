@@ -191,7 +191,7 @@ V2F vec2 v_uv;
 	uniform int u_useTexture;
 	uniform vec4 u_uvBounds;
 	void main() {
-		if (u_useTexture == 1)
+		if (u_useTexture != 0)
 			FRAG_OUT = TEX2D(u_texture, clamp(v_uv, u_uvBounds.xy, u_uvBounds.zw)) * v_color;
 		else
 			FRAG_OUT = v_color;
