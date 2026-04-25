@@ -583,7 +583,8 @@ void StoreScreen::UpdateMouse()
                 case STORE_ITEM_WHEEL_BARROW:           aMessageIndex = 2024;                           break;
                 case STORE_ITEM_STINKY_THE_SNAIL:       aMessageIndex = 2025;                           break;
                 case STORE_ITEM_PACKET_UPGRADE:
-                    aMessageIndex = mApp->mPlayerInfo->mPurchases[STORE_ITEM_PACKET_UPGRADE] + 2011;    break;
+                    aMessageIndex = ClampInt(mApp->mPlayerInfo->mPurchases[STORE_ITEM_PACKET_UPGRADE] + 2011, 2011, 2014);
+                    break;
                 case STORE_ITEM_POOL_CLEANER:           aMessageIndex = 2026;                           break;
                 case STORE_ITEM_ROOF_CLEANER:           aMessageIndex = 2027;                           break;
                 case STORE_ITEM_RAKE:                   aMessageIndex = 2028;                           break;
@@ -593,7 +594,7 @@ void StoreScreen::UpdateMouse()
                 case STORE_ITEM_TREE_FOOD:              aMessageIndex = 2031;                           break;
                 case STORE_ITEM_FIRSTAID:               aMessageIndex = 2033;                           break;
                 case STORE_ITEM_PVZ:                    aMessageIndex = 2034;                           break;
-                default:                                TOD_ASSERT(false);                                   break;
+                default:                                TOD_ASSERT(false);                              break;
                 }
                 if (mApp->mCrazyDaveMessageIndex != aMessageIndex)
                     SetBubbleText(aMessageIndex, 100, false);
