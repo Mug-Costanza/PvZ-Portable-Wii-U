@@ -538,7 +538,8 @@ static void CopyImageToTexture(C3D_Tex *theTex, MemoryImage *theImage, int offx,
 {
 	GPU_TEXTURE_FILTER_PARAM filter = (gLinearFilter) ? GPU_LINEAR : GPU_NEAREST;
 	C3D_TexSetFilter(theTex, filter, filter);
-	C3D_TexSetWrap(theTex, GPU_CLAMP_TO_EDGE, GPU_CLAMP_TO_EDGE);
+	auto wrap = (theImage->mRenderFlags & RenderImageFlag_Repeat) ? GPU_REPEAT : GPU_CLAMP_TO_EDGE;
+	C3D_TexSetWrap(theTex, wrap, wrap);
 
 	int aWidth = std::min(texWidth,(theImage->GetWidth()-offx));
 	int aHeight = std::min(texHeight,(theImage->GetHeight()-offy));

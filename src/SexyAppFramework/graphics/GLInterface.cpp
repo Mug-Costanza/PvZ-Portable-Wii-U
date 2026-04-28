@@ -84,7 +84,7 @@ static int gNumVertices;
 static GLenum gVertexMode;
 static GLuint gProgram;
 static GLuint gVbo;
-static GLint gUfViewProjMtx, gUfTexture, gUfUseTexture, gUfUvBounds;
+static GLint gUfViewProjMtx, gUfTexture, gUfUseTexture, gUfUvBounds, gUfClampUvEnabled;
 
 static void GfxBegin(GLenum vertexMode)
 {
@@ -190,9 +190,12 @@ V2F vec2 v_uv;
 	uniform sampler2D u_texture;
 	uniform int u_useTexture;
 	uniform vec4 u_uvBounds;
+	uniform int u_clampUvEnabled;
 	void main() {
-		if (u_useTexture != 0)
-			FRAG_OUT = TEX2D(u_texture, clamp(v_uv, u_uvBounds.xy, u_uvBounds.zw)) * v_color;
+		if (u_useTexture != 0) {
+			vec2 uv = (u_clampUvEnabled != 0) ? clamp(v_uv, u_uvBounds.xy, u_uvBounds.zw) : v_uv;
+			FRAG_OUT = TEX2D(u_texture, uv) * v_color;
+		}
 		else
 			FRAG_OUT = v_color;
 	}
@@ -466,8 +469,9 @@ static void CopyImageToTexturePalette8(MemoryImage *img, int offx, int offy,
 static void CopyImageToTexture(MemoryImage *img, int offx, int offy,
 	int texW, int texH, PixelFormat fmt, bool create)
 {
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	GLint wrap = (img->mRenderFlags & RenderImageFlag_Repeat) ? GL_REPEAT : GL_CLAMP_TO_EDGE;
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
 
 	int w = std::min(texW, img->GetWidth()  - offx);
 	int h = std::min(texH, img->GetHeight() - offy);
@@ -729,12 +733,13 @@ static void SetLinearFilter(bool linear)
 
 static constexpr float kDefaultUvBounds[4] = { 0.f, 0.f, 1.f, 1.f };
 
-static void GfxBindTexture(GLuint tex, const float *uvBounds = kDefaultUvBounds)
+static void GfxBindTexture(GLuint tex, const float *uvBounds = kDefaultUvBounds, bool clampUv = true)
 {
 	glBindTexture(GL_TEXTURE_2D, tex);
 	int f = gLinearFilter ? GL_LINEAR : GL_NEAREST;
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, f);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, f);
+	glUniform1i(gUfClampUvEnabled, clampUv ? 1 : 0);
 	glUniform4fv(gUfUvBounds, 1, uvBounds);
 }
 
@@ -963,7 +968,7 @@ void TextureData::BltTransformed(const SexyMatrix3 &theTrans, const Rect& theSrc
 }
 
 void TextureData::BltTriangles(const TriVertex theVertices[][3], int theNumTriangles,
-                               unsigned int theColor, float tx, float ty)
+                               unsigned int theColor, float tx, float ty, bool clampUv)
 {
 	if (mMaxTotalU <= 1.0 && mMaxTotalV <= 1.0)
 	{
@@ -980,7 +985,7 @@ void TextureData::BltTriangles(const TriVertex theVertices[][3], int theNumTrian
 			std::max(mMaxTotalV - halfV, midV)
 		};
 		glActiveTexture(GL_TEXTURE0);
-		GfxBindTexture(piece.mTexture, uvb);
+		GfxBindTexture(piece.mTexture, uvb, clampUv);
 		glUniform1i(gUfUseTexture, 1);
 
 		GfxBegin(GL_TRIANGLES);
@@ -1041,7 +1046,7 @@ void TextureData::BltTriangles(const TriVertex theVertices[][3], int theNumTrian
 				DoPolyTextureClip(vl);
 				if (vl.size() >= 3)
 				{
-					GfxBindTexture(piece.mTexture, uvb);
+					GfxBindTexture(piece.mTexture, uvb, clampUv);
 					GfxBegin(GL_TRIANGLE_FAN);
 					GfxAddVertices(vl);
 					GfxEnd();
@@ -1158,6 +1163,7 @@ int GLInterface::Init(bool IsWindowed)
 		gUfTexture     = glGetUniformLocation(gProgram, "u_texture");
 		gUfUseTexture  = glGetUniformLocation(gProgram, "u_useTexture");
 		gUfUvBounds    = glGetUniformLocation(gProgram, "u_uvBounds");
+		gUfClampUvEnabled = glGetUniformLocation(gProgram, "u_clampUvEnabled");
 
 		glGenBuffers(1, &gVbo);
 		glBindBuffer(GL_ARRAY_BUFFER, gVbo);
@@ -1184,6 +1190,7 @@ int GLInterface::Init(bool IsWindowed)
 	MakeOrthoMatrix(0, (float)mWidth, (float)mHeight, 0, -10, 10, ortho);
 	glUniformMatrix4fv(gUfViewProjMtx, 1, GL_FALSE, ortho);
 	glUniform1i(gUfTexture, 0);
+	glUniform1i(gUfClampUvEnabled, 1);
 
 	glEnable(GL_BLEND);
 	glDisable(GL_DITHER);
@@ -1531,7 +1538,8 @@ void GLInterface::DrawTrianglesTex(const TriVertex theVertices[][3], int theNumT
 	SetLinearFilter(blend);
 
 	uint32_t c = theColor.ToGLColor();
-	((TextureData*)mem->mRenderData)->BltTriangles(theVertices, theNumTriangles, c, tx, ty);
+	bool clampUv = (mem->mRenderFlags & RenderImageFlag_Repeat) == 0;
+	((TextureData*)mem->mRenderData)->BltTriangles(theVertices, theNumTriangles, c, tx, ty, clampUv);
 }
 
 void GLInterface::DrawTrianglesTexStrip(const TriVertex theVertices[], int theNumTriangles,
