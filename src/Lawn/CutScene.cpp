@@ -1655,8 +1655,8 @@ void CutScene::AdvanceCrazyDaveDialog(bool theJustSkipping)
 	{
 		int aCost = StoreScreen::GetItemCost(StoreItem::STORE_ITEM_PACKET_UPGRADE);
 		int aNumPackets = mApp->mPlayerInfo->mPurchases[StoreItem::STORE_ITEM_PACKET_UPGRADE];
-		std::string aBodyString = TodReplaceNumberString("[UPGRADE_DIALOG_BODY]", "{SLOTS}", aNumPackets + 1);
-		std::string aAmountString = mApp->GetMoneyString(mApp->mPlayerInfo->mCoins);
+		std::string aBodyString = TodReplaceNumberString("[UPGRADE_DIALOG_BODY]", "{SLOTS}", aNumPackets + 7);
+		std::string aAmountString = mApp->GetMoneyString(aCost);
 		// 创建询问是否升级卡槽格数的对话
 		Dialog* aDialog = mApp->DoDialog(Dialogs::DIALOG_PURCHASE_PACKET_SLOT, true, aAmountString, aBodyString, "", Dialog::BUTTONS_YES_NO);
 		aDialog->mX += 120;
@@ -1675,7 +1675,7 @@ void CutScene::AdvanceCrazyDaveDialog(bool theJustSkipping)
 			{
 				mApp->CrazyDaveTalkIndex(1510);
 			}
-			else if (aMessageIndex == 1533)
+			else if (aMessageIndex == 1553)
 			{
 				mApp->CrazyDaveTalkIndex(1560);
 			}
