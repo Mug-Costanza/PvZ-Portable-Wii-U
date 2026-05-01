@@ -3553,6 +3553,10 @@ float PlantDrawHeightOffset(Board* theBoard, Plant* thePlant, SeedType theSeedTy
     {
         doFloating = true;
     }
+    else if (theBoard->mBackground == BackgroundType::BACKGROUND_ZOMBIQUARIUM)
+    {
+        doFloating = true;
+    }
 
     if (doFloating)
     {
