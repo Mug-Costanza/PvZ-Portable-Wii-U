@@ -431,6 +431,14 @@ void Challenge::StartLevel()
 		mBoard->mCursorObject->mCursorType = CURSOR_TYPE_HAMMER;
 		mBoard->mZombieCountDown = 200;
 		mBoard->mZombieCountDownStart = mBoard->mZombieCountDown;
+
+		ReanimatorEnsureDefinitionLoaded(ReanimationType::REANIM_HAMMER, true);
+		mApp->RemoveReanimation(mBoard->mCursorObject->mReanimCursorID);
+		Reanimation* aHammerReanim = mApp->AddReanimation(-25.0f, 16.0f, 0, ReanimationType::REANIM_HAMMER);
+		aHammerReanim->mIsAttachment = true;
+		aHammerReanim->PlayReanim("anim_whack_zombie", ReanimLoopType::REANIM_PLAY_ONCE_AND_HOLD, 0, 24.0f);
+		aHammerReanim->mAnimTime = 1.0f;
+		mBoard->mCursorObject->mReanimCursorID = mApp->ReanimationGetID(aHammerReanim);
 	}
 	if (mApp->IsStormyNightLevel())
 	{
