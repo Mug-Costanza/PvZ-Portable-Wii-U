@@ -2743,7 +2743,7 @@ void Challenge::WhackAZombiePlaceGraves(int theGraveCount)
 				continue;
 
 			TodWeightedGridArray* aPick = &aPicks[aPickCount++];
-			aPick->mWeight = mBoard->GetTopPlantAt(aCol, aRow, TOPPLANT_ANY) ? 100000 : 1;
+			aPick->mWeight = mBoard->GetTopPlantAt(aCol, aRow, TOPPLANT_ANY) ? 1 : 100000;
 			aPick->mX = aCol;
 			aPick->mY = aRow;
 		}
