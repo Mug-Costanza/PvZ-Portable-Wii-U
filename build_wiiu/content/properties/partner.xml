@@ -1,0 +1,9 @@
+<Properties>
+<String id="ProdLanguage">en</String>
+<String id="ProdVersion">1.0.41</String>
+<Boolean id="DontUpdate">true</Boolean>
+<Boolean id="NoReg">true</Boolean>
+<String id="ProdName">PlantsVsZombiesMac</String>
+<Boolean id="DisplayPartnerLogo">false</Boolean>
+<Boolean id="DefaultWindowed">false</Boolean>
+</Properties>
