@@ -54,7 +54,58 @@ list(REMOVE_ITEM SOURCES
 
 set(LOW_MEMORY OFF CACHE BOOL "Enable low memory mode")
 set(DOWNSCALE_COUNT 1 CACHE STRING "Image downscale count")
-if(NINTENDO_SWITCH)
+
+option(WITH_OPENMPT "Enable openmpt for tracker music" ON)
+
+if(WIIU)
+	# Wii U Cross-Compilation Blocks (Bypassing missing openmpt)
+	set(LOW_MEMORY ON)
+	set(DOWNSCALE_COUNT 1)
+	set(OPENMPT_LIB "") 
+	
+	find_library(OGG_LIBRARY NAMES ogg libogg REQUIRED)
+	find_library(VORBIS_LIBRARY NAMES vorbis libvorbis REQUIRED)
+	find_library(VORBISFILE_LIBRARY NAMES vorbisfile libvorbisfile REQUIRED)
+	find_library(MPG123_LIBRARY NAMES mpg123 libmpg123 REQUIRED)
+
+	set(VORBIS_LIB ${VORBISFILE_LIBRARY} ${VORBIS_LIBRARY})
+	set(OGG_LIB ${OGG_LIBRARY})
+	set(MPG123_LIB ${MPG123_LIBRARY})
+
+	list(APPEND SOURCES
+		${CMAKE_CURRENT_SOURCE_DIR}/src/SexyAppFramework/platform/default/Window.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/src/SexyAppFramework/platform/default/Input.cpp
+	)
+	list(APPEND PLAT_INCLUDES
+    		/opt/devkitpro/portlibs/ppc/include
+    		/opt/devkitpro/portlibs/wiiu/include
+    		${CMAKE_CURRENT_SOURCE_DIR}/src/SexyAppFramework/platform/default
+	)	
+elseif(WII)
+	# Dedicated Target Configuration block for original Nintendo Wii Toolchain
+	set(LOW_MEMORY ON)
+	set(DOWNSCALE_COUNT 2) # Force heavy texture downscaling to save 88MB RAM
+	set(OPENMPT_LIB "")
+	set(WITH_OPENMPT OFF)
+
+	find_library(OGG_LIBRARY NAMES ogg libogg REQUIRED)
+	find_library(VORBIS_LIBRARY NAMES vorbis libvorbis REQUIRED)
+	find_library(VORBISFILE_LIBRARY NAMES vorbisfile libvorbisfile REQUIRED)
+
+	set(VORBIS_LIB ${VORBISFILE_LIBRARY} ${VORBIS_LIBRARY})
+	set(OGG_LIB ${OGG_LIBRARY})
+	set(MPG123_LIB "") # Drop mpg123 requirement for Wii framework stability
+
+	list(APPEND SOURCES
+		${CMAKE_CURRENT_SOURCE_DIR}/src/SexyAppFramework/platform/default/Window.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/src/SexyAppFramework/platform/default/Input.cpp
+	)
+	list(APPEND PLAT_INCLUDES
+    		/opt/devkitpro/portlibs/ppc/include
+    		/opt/devkitpro/libogc/include
+    		${CMAKE_CURRENT_SOURCE_DIR}/src/SexyAppFramework/platform/default
+	)
+elseif(NINTENDO_SWITCH)
 	set(VORBIS_LIB vorbisfile vorbis)
 	list(APPEND SOURCES
 		${CMAKE_CURRENT_SOURCE_DIR}/src/SexyAppFramework/platform/switch/Window.cpp
@@ -78,10 +129,6 @@ elseif(NINTENDO_3DS)
 		${CMAKE_CURRENT_SOURCE_DIR}/src/SexyAppFramework/platform/3ds
 	)
 elseif(EMSCRIPTEN)
-	# libopenmpt has no Emscripten port; must be pre-built with emmake.
-	find_library(OPENMPT_LIBRARY NAMES openmpt libopenmpt REQUIRED)
-	set(OPENMPT_LIB ${OPENMPT_LIBRARY})
-
 	list(APPEND SOURCES
 		${CMAKE_CURRENT_SOURCE_DIR}/src/SexyAppFramework/platform/emscripten/Window.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/src/SexyAppFramework/platform/default/Input.cpp
@@ -103,7 +150,9 @@ else()
 		find_library(OGG_LIBRARY NAMES ogg libogg REQUIRED)
 		find_library(VORBIS_LIBRARY NAMES vorbis libvorbis REQUIRED)
 		find_library(VORBISFILE_LIBRARY NAMES vorbisfile libvorbisfile REQUIRED)
-		find_library(OPENMPT_LIBRARY NAMES openmpt libopenmpt REQUIRED)
+		if(WITH_OPENMPT)
+			find_library(OPENMPT_LIBRARY NAMES openmpt libopenmpt REQUIRED)
+		endif()
 		find_library(MPG123_LIBRARY NAMES mpg123 libmpg123 REQUIRED)
 
 		set(VORBIS_LIB ${VORBISFILE_LIBRARY} ${VORBIS_LIBRARY})
@@ -137,6 +186,8 @@ if(EMSCRIPTEN)
 	list(PREPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMake")
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -sUSE_SDL=2 -sUSE_ZLIB=1 -sUSE_LIBPNG=1 -sUSE_LIBJPEG=1 -sUSE_OGG=1 -sUSE_VORBIS=1 -sUSE_MPG123=1")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -sUSE_SDL=2 -sUSE_ZLIB=1 -sUSE_LIBPNG=1 -sUSE_LIBJPEG=1 -sUSE_OGG=1 -sUSE_VORBIS=1 -sUSE_MPG123=1")
+elseif(WIIU OR WII)
+	# Handled natively by devkitPro portlibs system headers
 else()
 	find_package(Threads REQUIRED)
 	find_package(ZLIB REQUIRED)
@@ -180,12 +231,10 @@ set(USE_DRFLAC OFF CACHE BOOL "SDL Mixer X flac")
 set(USE_PXTONE OFF CACHE BOOL "SDL Mixer X pxtone")
 add_subdirectory(src/SexyAppFramework/sound/SDL-Mixer-X)
 
-# Patch SDL-Mixer-X's transitive SDL2 dep without touching vendored CMake files
 if(BUILD_STATIC AND TARGET SDL2::SDL2-static)
 	_pvz_patch_sdl2_iface_libs(SDL2_mixer_ext_Static)
 endif()
 
-# Android requires a shared library loaded by SDLActivity; other platforms use an executable.
 if(ANDROID)
 	add_library(pvz-portable SHARED ${SOURCES})
 elseif(IOS)
@@ -199,8 +248,9 @@ target_include_directories(pvz-portable PRIVATE
 	${PROJECT_SOURCE_DIR}/src
 	${PROJECT_SOURCE_DIR}/src/SexyAppFramework
 	${PROJECT_SOURCE_DIR}/src/SexyAppFramework/sound/SDL-Mixer-X/include
-	${SDL2_INCLUDE_DIRS}
 )
+target_include_directories(pvz-portable PUBLIC /opt/devkitpro/portlibs/ppc/include)
+
 target_compile_definitions(pvz-portable PRIVATE
 	$<$<BOOL:${PVZ_DEBUG}>:_PVZ_DEBUG>
 	$<$<BOOL:${LIMBO_PAGE}>:_PVZ_LIMBO_PAGE>
@@ -214,7 +264,45 @@ if (LOW_MEMORY)
 endif()
 target_compile_definitions(pvz-portable PRIVATE IMG_DOWNSCALE=${DOWNSCALE_COUNT})
 
-if(EMSCRIPTEN)
+if(WIIU)
+	# Dedicated Target Configuration block for Wii U Toolchain (.rpx creation)
+	target_link_libraries(pvz-portable PRIVATE
+		SDL2_mixer_ext_Static
+		wut
+		sdl2
+		SDL2_mixer
+		SDL2_ttf
+		z
+		png
+		jpeg
+		${MPG123_LIB} 
+		${VORBIS_LIB} 
+		${OGG_LIB}
+	)
+	wut_create_rpx(pvz-portable)
+elseif(WII)
+	# Dedicated Linker and Packaging configuration for generating a valid Wii executable
+	target_link_libraries(pvz-portable PRIVATE
+		SDL2_mixer_ext_Static
+		sdl2
+		SDL2_mixer
+		SDL2_ttf
+		z
+		png
+		jpeg
+		wiiuse
+		bte
+		ogc
+		m
+		${VORBIS_LIB} 
+		${OGG_LIB}
+	)
+	# Instruct devkitPro to pipe the final ELF compilation output into a production .dol container
+	add_custom_command(TARGET pvz-portable POST_BUILD
+		COMMAND /opt/devkitpro/devkitPPC/bin/powerpc-eabi-elf2dol $<TARGET_FILE:pvz-portable> ${CMAKE_CURRENT_BINARY_DIR}/pvz-portable.dol
+		COMMENT "Converting executable output to native Nintendo Wii .dol format..."
+	)
+elseif(EMSCRIPTEN)
 	set_property(TARGET pvz-portable APPEND PROPERTY LINK_DEPENDS
 		"${CMAKE_CURRENT_SOURCE_DIR}/wasm/shell.html"
 	)
@@ -260,19 +348,15 @@ if (WIN32)
 	if(MSVC)
 		target_compile_options(pvz-portable PRIVATE /utf-8)
 	endif()
-
 	target_sources(pvz-portable PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/SexyAppFramework/LawnProject.rc)
-
 	set_source_files_properties(
 		${CMAKE_CURRENT_SOURCE_DIR}/src/SexyAppFramework/LawnProject.rc
 		PROPERTIES
 			COMPILE_DEFINITIONS "APP_ICON_PATH=\"${CMAKE_CURRENT_SOURCE_DIR}/icon.ico\""
 			OBJECT_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/icon.ico"
 	)
-
 	target_link_libraries(pvz-portable PRIVATE ws2_32 user32 gdi32 winmm imm32 shlwapi)
 	target_compile_definitions(pvz-portable PRIVATE WINDOWS)
-
 	if(NOT CONSOLE)
 		if(MSVC)
 			set_target_properties(pvz-portable PROPERTIES WIN32_EXECUTABLE TRUE)
@@ -282,73 +366,19 @@ if (WIN32)
 	endif()
 elseif (NINTENDO_SWITCH)
 	target_link_libraries(pvz-portable PRIVATE GLESv2 EGL glapi drm_nouveau)
-
-	nx_generate_nacp(pvz-portable.nacp
-		NAME "PvZ Portable"
-		AUTHOR "wszqkzqk, etc., a community-driven port"
-		VERSION "0.1"
-	)
-
-	nx_create_nro(pvz-portable
-		NACP pvz-portable.nacp
-		ICON ${CMAKE_CURRENT_SOURCE_DIR}/icon-switch.jpg
-	)
+	nx_generate_nacp(pvz-portable.nacp NAME "PvZ Portable" AUTHOR "wszqkzqk, etc." VERSION "0.1")
+	nx_create_nro(pvz-portable NACP pvz-portable.nacp ICON ${CMAKE_CURRENT_SOURCE_DIR}/icon-switch.jpg)
 elseif (NINTENDO_3DS)
 	target_link_libraries(pvz-portable PRIVATE citro3d shaders)
-
-	ctr_generate_smdh(pvz-portable.smdh
-		NAME "PvZ Portable"
-		DESCRIPTION "A community-driven re-implementation of Plants vs. Zombies GOTY Edition"
-		AUTHOR "wszqkzqk, etc., a community-driven port"
-		VERSION "0.1"
-		ICON "${CMAKE_CURRENT_SOURCE_DIR}/icon-3ds.png"
-	)
-
-	ctr_create_3dsx(pvz-portable
-		SMDH pvz-portable.smdh
-	)
+	ctr_generate_smdh(pvz-portable.smdh NAME "PvZ Portable" DESCRIPTION "PvZ GOTY" AUTHOR "wszqkzqk" VERSION "0.1" ICON "${CMAKE_CURRENT_SOURCE_DIR}/icon-3ds.png")
+	ctr_create_3dsx(pvz-portable SMDH pvz-portable.smdh)
 elseif (ANDROID)
 	target_link_libraries(pvz-portable PRIVATE GLESv2 EGL android log)
 	set_target_properties(pvz-portable PROPERTIES OUTPUT_NAME "main")
 elseif (IOS)
 	target_link_libraries(pvz-portable PRIVATE
-		"-framework Foundation"
-		"-framework UIKit"
-		"-framework OpenGLES"
-		"-framework QuartzCore"
-		"-framework CoreGraphics"
-		"-framework CoreMotion"
-		"-framework GameController"
-		"-framework AVFoundation"
-		"-framework AudioToolbox"
-		"-framework Metal"
+		"-framework Foundation" "-framework UIKit" "-framework OpenGLES" "-framework QuartzCore"
+		"-framework CoreGraphics" "-framework CoreMotion" "-framework GameController"
+		"-framework AVFoundation" "-framework AudioToolbox" "-framework Metal"
 	)
-
-	set_target_properties(pvz-portable PROPERTIES
-		MACOSX_BUNDLE TRUE
-		MACOSX_BUNDLE_GUI_IDENTIFIER "io.github.wszqkzqk.pvz-portable"
-		MACOSX_BUNDLE_BUNDLE_NAME "PvZ Portable"
-		MACOSX_BUNDLE_BUNDLE_VERSION "0.1"
-		MACOSX_BUNDLE_SHORT_VERSION_STRING "0.1"
-		MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/ios/Info.plist.in"
-		XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2"
-		XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET "15.0"
-		XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "io.github.wszqkzqk.pvz-portable"
-		XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "-"
-		XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon"
-	)
-
-	# Add launch storyboard to the bundle
-	if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/ios/LaunchScreen.storyboard")
-		target_sources(pvz-portable PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/ios/LaunchScreen.storyboard")
-		set_source_files_properties("${CMAKE_CURRENT_SOURCE_DIR}/ios/LaunchScreen.storyboard"
-			PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
-	endif()
-
-	# Add asset catalog (app icon)
-	if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/ios/Assets.xcassets")
-		target_sources(pvz-portable PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/ios/Assets.xcassets")
-		set_source_files_properties("${CMAKE_CURRENT_SOURCE_DIR}/ios/Assets.xcassets"
-			PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
-	endif()
 endif()
