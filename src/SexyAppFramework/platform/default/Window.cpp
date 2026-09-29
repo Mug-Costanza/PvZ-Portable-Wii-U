@@ -24,6 +24,10 @@
 
 #include <SDL.h>
 
+#ifdef __wii__
+#include "../wii/OgxShader.h"
+#endif
+
 #include "SexyAppBase.h"
 #include "graphics/GLInterface.h"
 #include "graphics/GLImage.h"
@@ -111,6 +115,13 @@ void SexyAppBase::MakeWindow()
 
 			gDesktopGLFallback = true;
 		}
+#endif
+
+#ifdef __wii__
+		// OpenGX can't compile GLSL on its own; GLInterface's shader has to
+		// be described to it before the first glCompileShader(). (SDL's
+		// CreateContext already calls ogx_initialize().)
+		WiiRegisterOgxShaderProcessor();
 #endif
 
 		SDL_GL_SetSwapInterval(1);

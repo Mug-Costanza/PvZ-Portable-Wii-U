@@ -60,7 +60,11 @@ GameSelectorOverlay::GameSelectorOverlay(GameSelector* theGameSelector)
 GameSelector::GameSelector(LawnApp* theApp)
 {
 	TodHesitationTrace("pregameselector");
+#ifndef __wii__
+	// Zombatar isn't implemented yet (see the commented-out ZombatarWidget
+	// below), so nothing uses these 220 images; on Wii they cost ~5 MB.
 	mLoadedResourceNames.push_back("DelayLoad_Zombatar");
+#endif
 
 	for (std::string& resource : mLoadedResourceNames)
 		TodLoadResources(resource.c_str());

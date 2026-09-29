@@ -61,8 +61,8 @@ if(WIIU)
 	# Wii U Cross-Compilation Blocks (Bypassing missing openmpt)
 	set(LOW_MEMORY ON)
 	set(DOWNSCALE_COUNT 1)
-	set(OPENMPT_LIB "") 
-	
+	set(OPENMPT_LIB "")
+
 	find_library(OGG_LIBRARY NAMES ogg libogg REQUIRED)
 	find_library(VORBIS_LIBRARY NAMES vorbis libvorbis REQUIRED)
 	find_library(VORBISFILE_LIBRARY NAMES vorbisfile libvorbisfile REQUIRED)
@@ -72,19 +72,34 @@ if(WIIU)
 	set(OGG_LIB ${OGG_LIBRARY})
 	set(MPG123_LIB ${MPG123_LIBRARY})
 
+	# The desktop GL backend (globbed in above from src/SexyAppFramework/graphics/)
+	# doesn't work on Wii U: there is no OpenGL driver on this hardware (GX2 is
+	# an unrelated API), so SDL_GL_CreateContext always fails here. Wii U gets
+	# its own GLInterface implementation instead, built on SDL_Renderer, which
+	# already has a working native GX2 backend on this platform. It must fully
+	# replace (not coexist with) the desktop one, since both define the same
+	# Sexy::GLInterface/Sexy::TextureData symbols.
+	list(REMOVE_ITEM SOURCES
+		${CMAKE_CURRENT_SOURCE_DIR}/src/SexyAppFramework/graphics/GLInterface.cpp
+	)
 	list(APPEND SOURCES
-		${CMAKE_CURRENT_SOURCE_DIR}/src/SexyAppFramework/platform/default/Window.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/src/SexyAppFramework/platform/default/Input.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/src/SexyAppFramework/platform/wiiu/graphics/Window.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/src/SexyAppFramework/platform/wiiu/graphics/GLInterface.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/src/SexyAppFramework/platform/wiiu/Input.cpp
 	)
 	list(APPEND PLAT_INCLUDES
     		/opt/devkitpro/portlibs/ppc/include
     		/opt/devkitpro/portlibs/wiiu/include
-    		${CMAKE_CURRENT_SOURCE_DIR}/src/SexyAppFramework/platform/default
-	)	
+    		${CMAKE_CURRENT_SOURCE_DIR}/src/SexyAppFramework/platform/wiiu
+	)
 elseif(WII)
 	# Dedicated Target Configuration block for original Nintendo Wii Toolchain
 	set(LOW_MEMORY ON)
-	set(DOWNSCALE_COUNT 2) # Force heavy texture downscaling to save 88MB RAM
+	# Full resolution: the downscale mode is unfinished upstream (images are
+	# halved but game code still draws with full-size coordinates and source
+	# rects). Memory is kept in check instead by 16-bit/CMPR textures, freeing
+	# CPU-side pixels after upload, streaming main.pak and 22 kHz mono audio.
+	set(DOWNSCALE_COUNT 1)
 	set(OPENMPT_LIB "")
 	set(WITH_OPENMPT OFF)
 
@@ -99,6 +114,9 @@ elseif(WII)
 	list(APPEND SOURCES
 		${CMAKE_CURRENT_SOURCE_DIR}/src/SexyAppFramework/platform/default/Window.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/src/SexyAppFramework/platform/default/Input.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/src/SexyAppFramework/platform/wii/OgxShader.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/src/SexyAppFramework/platform/wii/OgxTexture.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/src/SexyAppFramework/platform/wii/WiiPointer.cpp
 	)
 	list(APPEND PLAT_INCLUDES
     		/opt/devkitpro/portlibs/ppc/include
@@ -265,6 +283,11 @@ endif()
 target_compile_definitions(pvz-portable PRIVATE IMG_DOWNSCALE=${DOWNSCALE_COUNT})
 
 if(WIIU)
+	# devkitPPC only predefines __WIIU__/__WUT__ for ASM (see CMAKE_ASM_FLAGS);
+	# C/C++ code needs it too, e.g. to guard Wii U-only branches in files
+	# shared with other platforms.
+	target_compile_definitions(pvz-portable PRIVATE __WIIU__ __WUT__)
+
 	# Dedicated Target Configuration block for Wii U Toolchain (.rpx creation)
 	target_link_libraries(pvz-portable PRIVATE
 		SDL2_mixer_ext_Static
@@ -280,7 +303,49 @@ if(WIIU)
 		${OGG_LIB}
 	)
 	wut_create_rpx(pvz-portable)
+
+	# Package as a .wuhb when game data is available locally (this project
+	# doesn't ship or require the proprietary main.pak/properties/ - see
+	# README). A .wuhb bundles them so the game's content mounts at
+	# fs:/vol/content/ at runtime, the path this port's resource loading
+	# expects; a bare .rpx has no such mount and can't find its own data.
+	set(WIIU_CONTENT_DIR "${CMAKE_CURRENT_BINARY_DIR}/content")
+	if(EXISTS "${WIIU_CONTENT_DIR}/main.pak")
+		wut_create_wuhb(pvz-portable
+			CONTENT "${WIIU_CONTENT_DIR}"
+			NAME "PvZ Portable"
+			SHORTNAME "PvZ Portable"
+			AUTHOR "wszqkzqk"
+			ICON "${CMAKE_CURRENT_SOURCE_DIR}/icon-wiiu.png"
+		)
+	else()
+		message(STATUS "Wii U: skipping .wuhb packaging - place main.pak and properties/ in ${WIIU_CONTENT_DIR} first")
+	endif()
 elseif(WII)
+	# Vendored OpenGX 0.17.0 (third_party/opengx), patched to support GX's
+	# 16-bit RGB5A3 format for textures with alpha; stock OpenGX stores all of
+	# them as 32-bit RGBA8, twice the memory. Its headers are kept PRIVATE on
+	# purpose: generic names like debug.h/types.h would otherwise be visible
+	# to the game's sources (and match Debug.h on case-insensitive disks).
+	file(GLOB PVZ_OPENGX_SOURCES
+		${CMAKE_CURRENT_SOURCE_DIR}/third_party/opengx/src/*.c
+		${CMAKE_CURRENT_SOURCE_DIR}/third_party/opengx/src/*.cpp
+	)
+	add_library(pvz_opengx STATIC ${PVZ_OPENGX_SOURCES})
+	target_include_directories(pvz_opengx PRIVATE
+		${CMAKE_CURRENT_SOURCE_DIR}/third_party/opengx/src
+		${CMAKE_CURRENT_SOURCE_DIR}/third_party/opengx/include
+	)
+	set_target_properties(pvz_opengx PROPERTIES C_STANDARD 11 CXX_STANDARD 17)
+	target_compile_options(pvz_opengx PRIVATE
+		$<$<COMPILE_LANGUAGE:CXX>:-fno-rtti -fno-exceptions>
+		-w
+	)
+
+	# main.pak is ~40 MB, nearly half of the Wii's RAM; read it from the SD
+	# card on demand instead of loading it whole (see PakInterface).
+	target_compile_definitions(pvz-portable PRIVATE PAK_STREAMING)
+
 	# Dedicated Linker and Packaging configuration for generating a valid Wii executable
 	target_link_libraries(pvz-portable PRIVATE
 		SDL2_mixer_ext_Static
@@ -290,16 +355,27 @@ elseif(WII)
 		z
 		png
 		jpeg
+		fat
 		wiiuse
 		bte
+		# libSDL2.a ships weak no-op stubs of ogx_initialize/ogx_get_proc_address
+		# (so SDL links without OpenGX). Those already satisfy the references,
+		# so the linker would never pull the real objects out of the archive
+		# and every GL proc lookup would return NULL. Force the whole archive
+		# in so its strong definitions override the stubs.
+		# (SDL2's CMake package also adds the stock -lopengx; with ours linked
+		# whole, every symbol it provides is already defined and nothing is
+		# pulled from it.)
+		-Wl,--whole-archive $<TARGET_FILE:pvz_opengx> -Wl,--no-whole-archive
 		ogc
 		m
-		${VORBIS_LIB} 
+		${VORBIS_LIB}
 		${OGG_LIB}
 	)
+	add_dependencies(pvz-portable pvz_opengx)
 	# Instruct devkitPro to pipe the final ELF compilation output into a production .dol container
 	add_custom_command(TARGET pvz-portable POST_BUILD
-		COMMAND /opt/devkitpro/devkitPPC/bin/powerpc-eabi-elf2dol $<TARGET_FILE:pvz-portable> ${CMAKE_CURRENT_BINARY_DIR}/pvz-portable.dol
+		COMMAND /opt/devkitpro/tools/bin/elf2dol $<TARGET_FILE:pvz-portable> ${CMAKE_CURRENT_BINARY_DIR}/pvz-portable.dol
 		COMMENT "Converting executable output to native Nintendo Wii .dol format..."
 	)
 elseif(EMSCRIPTEN)

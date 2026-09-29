@@ -119,7 +119,14 @@ void ResourceManager::ReleaseTrackedResources(std::vector<std::string>& theNames
 {
 #ifdef LOW_MEMORY
 	for (const std::string& aName : theNames)
+	{
+		auto anItr = mGroupUseCounts.find(aName);
+		if (anItr != mGroupUseCounts.end() && --anItr->second > 0)
+			continue; // still used by someone else
+		if (anItr != mGroupUseCounts.end())
+			mGroupUseCounts.erase(anItr);
 		DeleteResources(aName);
+	}
 #endif
 	theNames.clear();
 }
@@ -734,6 +741,12 @@ bool ResourceManager::DoLoadImage(ImageRes *theRes)
 	aGLImage->CommitBits();
 	theRes->mImage = aSharedImageRef;
 	aGLImage->mPurgeBits = theRes->mPurgeBits;
+#ifdef __wii__
+	// Textures live in main RAM on Wii, so keeping the CPU-side pixels too
+	// would store every image twice. Drop them once the texture is uploaded;
+	// GetBits() rebuilds them from the texture if anything needs them again.
+	aGLImage->mPurgeBits = true;
+#endif
 
 	if (theRes->mDDSurface)
 	{

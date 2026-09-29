@@ -132,6 +132,12 @@ public: // @Patoke todo: revert to protected
 	typedef std::map<std::string,ResList,StringLessNoCase> ResGroupMap;
 
 	std::set<std::string,StringLessNoCase> mLoadedGroups;
+	// LOW_MEMORY: how many live users (TodLoadResources calls not yet matched
+	// by ReleaseTrackedResources) each group has, so a group is only deleted
+	// once nobody uses it. Widget deletion is deferred, so e.g. when a level
+	// restarts the new Board loads its background group before the old
+	// Board's destructor releases that same group.
+	std::map<std::string,int,StringLessNoCase> mGroupUseCounts;
 
 	ResMap					mImageMap;
 	ResMap					mSoundMap;

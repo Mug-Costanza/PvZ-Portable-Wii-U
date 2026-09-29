@@ -28,6 +28,9 @@
 #include "SexyAppBase.h"
 #include "MemoryImage.h"
 #include "graphics/GLImage.h"
+#ifdef __wii__
+#include "graphics/GLInterface.h"
+#endif
 #include <algorithm>
 #include <mutex>
 #include "fcaseopen/fcaseopen.h"
@@ -619,7 +622,15 @@ bool FontData::HandleCommand(const ListDataElement& theParams)
 				if ((Image*)anImage != nullptr)
 				{
 					if (isNew)
+					{
 						anImage->Palletize();
+#ifdef __wii__
+						// Store font images once, as textures, like resource
+						// images (see TodResourceManager::TodLoadResources).
+						anImage->mPurgeBits = true;
+						GLInterface::QueueTextureUpload(anImage);
+#endif
+					}
 					aLayer->mImage = anImage;
 				}
 				else
@@ -1355,6 +1366,9 @@ void ImageFont::GenerateActiveFontLayers()
 					}
 
 					aMemoryImage->Palletize();
+#ifdef __wii__
+					aMemoryImage->mPurgeBits = true; // dropped after its first upload
+#endif
 				}
 
 				int aLayerAscent = (aFontLayer->mAscent * aPointSize) / aLayerPointSize;

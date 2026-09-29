@@ -354,6 +354,14 @@ void Reanimation::ReanimationInitializeType(float theX, float theY, ReanimationT
 
 void ReanimationCreateAtlas(ReanimatorDefinition* theDefinition, ReanimationType theReanimationType)
 {
+#ifdef __wii__
+	// An atlas is a second full copy of the animation's part images (built by
+	// software-drawing them into one big image), which also forces the parts
+	// to keep their CPU pixels. On Wii that's too much memory; drawing the
+	// parts directly is fully supported (every atlas use is null-checked).
+	(void)theDefinition; (void)theReanimationType;
+	return;
+#endif
 	ReanimationParams& aParam = gReanimationParamArray[theReanimationType];
 	if (theDefinition->mReanimAtlas != nullptr || TestBit(aParam.mReanimParamFlags, ReanimFlags::REANIM_NO_ATLAS))
 		return;  // 当动画已存在 Atlas 或无需 Atlas 时，直接退出

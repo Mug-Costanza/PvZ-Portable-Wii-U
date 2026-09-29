@@ -44,7 +44,15 @@ SDLSoundManager::SDLSoundManager()
 		mSourceSounds[i] = nullptr;
 		mBaseVolumes[i] = 1;
 		mBasePans[i] = 0;
+#ifdef __wii__
+		mSoundDeferred[i] = false;
+		mSoundLastUse[i] = 0;
+#endif
 	}
+#ifdef __wii__
+	mSoundUseCounter = 0;
+	mDecodedSoundBytes = 0;
+#endif
 
 	for (i = 0; i < MAX_CHANNELS; i++)
 		mPlayingSounds[i] = nullptr;
@@ -55,7 +63,17 @@ SDLSoundManager::SDLSoundManager()
 		return;
     }
 
+#ifdef __wii__
+	// Every sound is fully decoded and converted to the device format at
+	// load time, and all of them load at startup: at 44.1 kHz stereo that's
+	// ~76 MB, more than the Wii has. 22.05 kHz mono cuts it to ~19 MB. Mono
+	// costs nothing here, since panning isn't applied (see RehupPan), and the
+	// Wii's audio driver takes any rate natively (the DSP resamples).
+	// Buffer halved to keep the same latency at half the rate.
+	if (Mix_OpenAudio(22050, AUDIO_S16SYS, 1, 1024))
+#else
 	if (Mix_OpenAudio(44100, AUDIO_S16SYS, 2, 2048))
+#endif
 	{
 		printf("Failed to initialize SDL mixer\n");
 		return;
@@ -264,6 +282,26 @@ bool SDLSoundManager::LoadSound(intptr_t theSfxID, const std::string& theFilenam
 		return true;
 
 	mSourceFileNames[theSfxID] = theFilename;
+#ifdef __wii__
+	// Just register it (checking the file exists, so callers still get an
+	// accurate result); it's decoded on first play, in GetSoundInstance.
+	for (const char* anExt : {".wav", ".mp3", ".ogg", ".au"})
+	{
+		if (PFILE* fp = p_fopen((theFilename + anExt).c_str(), "rb"))
+		{
+			p_fclose(fp);
+			mSoundDeferred[theSfxID] = true;
+			return true;
+		}
+	}
+	mSourceFileNames[theSfxID] = "";
+	return false;
+}
+
+bool SDLSoundManager::DecodeSound(intptr_t theSfxID)
+{
+	const std::string& theFilename = mSourceFileNames[theSfxID];
+#endif
 	const char* formats[] = {".wav", ".mp3", ".ogg"};
 	for (int i=0; i<3; i++)
 	{
@@ -301,6 +339,10 @@ intptr_t SDLSoundManager::LoadSound(const std::string& theFilename)
 
 	for (i = MAX_SOURCE_SOUNDS-1; i >= 0; i--)
 	{		
+#ifdef __wii__
+		if (mSoundDeferred[i])
+			continue;
+#endif
 		if (mSourceSounds[i] == nullptr)
 		{
 			if (!LoadSound(i, theFilename))
@@ -318,6 +360,15 @@ void SDLSoundManager::ReleaseSound(intptr_t theSfxID)
 	if ((theSfxID < 0) || (theSfxID >= MAX_SOURCE_SOUNDS))
 		return;
 
+#ifdef __wii__
+	if (mSourceSounds[theSfxID] != nullptr)
+		mDecodedSoundBytes -= mSourceSounds[theSfxID]->alen;
+	if (mSoundDeferred[theSfxID])
+	{
+		mSoundDeferred[theSfxID] = false;
+		mSourceFileNames[theSfxID] = "";
+	}
+#endif
 	if (mSourceSounds[theSfxID] != nullptr)
 	{
 		Mix_FreeChunk(mSourceSounds[theSfxID]);
@@ -362,6 +413,17 @@ SoundInstance* SDLSoundManager::GetSoundInstance(intptr_t theSfxID)
 	if (aFreeChannel < 0)
 		return nullptr;
 
+#ifdef __wii__
+	if (mSourceSounds[theSfxID] == nullptr && mSoundDeferred[theSfxID])
+	{
+		if (!DecodeSound(theSfxID))
+			return nullptr;
+		mDecodedSoundBytes += mSourceSounds[theSfxID]->alen;
+		EvictSoundsOverBudget(theSfxID);
+	}
+	mSoundLastUse[theSfxID] = ++mSoundUseCounter;
+#endif
+
 	if (mSourceSounds[theSfxID] == nullptr)
 		return nullptr;
 
@@ -377,13 +439,47 @@ void SDLSoundManager::ReleaseSounds()
 {
 	for (int i = 0; i < MAX_SOURCE_SOUNDS; i++)
 	{
+#ifdef __wii__
+		mSoundDeferred[i] = false;
+#endif
 		if (mSourceSounds[i] != nullptr)
 		{
 			Mix_FreeChunk(mSourceSounds[i]);
 			mSourceSounds[i] = nullptr;
 		}
 	}
+#ifdef __wii__
+	mDecodedSoundBytes = 0;
+#endif
 }
+
+#ifdef __wii__
+void SDLSoundManager::EvictSoundsOverBudget(intptr_t theKeepID)
+{
+	constexpr size_t kDecodedSoundBudget = 4 * 1024 * 1024;
+	while (mDecodedSoundBytes > kDecodedSoundBudget)
+	{
+		// Least recently played decoded sound that no instance still points
+		// at (instances hold the raw Mix_Chunk* until they're deleted).
+		intptr_t aVictim = -1;
+		for (intptr_t i = 0; i < MAX_SOURCE_SOUNDS; i++)
+		{
+			if (i == theKeepID || mSourceSounds[i] == nullptr || !mSoundDeferred[i])
+				continue;
+			bool anInUse = false;
+			for (int c = 0; c < MAX_CHANNELS && !anInUse; c++)
+				anInUse = mPlayingSounds[c] != nullptr && mPlayingSounds[c]->mMixChunk == mSourceSounds[i];
+			if (!anInUse && (aVictim < 0 || mSoundLastUse[i] < mSoundLastUse[aVictim]))
+				aVictim = i;
+		}
+		if (aVictim < 0)
+			return; // everything decoded is in use; go over budget for now
+		mDecodedSoundBytes -= mSourceSounds[aVictim]->alen;
+		Mix_FreeChunk(mSourceSounds[aVictim]); // stays registered (mSoundDeferred) for re-decoding
+		mSourceSounds[aVictim] = nullptr;
+	}
+}
+#endif
 
 void SDLSoundManager::ReleaseChannels()
 {
@@ -429,6 +525,10 @@ intptr_t SDLSoundManager::GetFreeSoundId()
 {
 	for (intptr_t i=0; i<MAX_SOURCE_SOUNDS; i++)
 	{
+#ifdef __wii__
+		if (mSoundDeferred[i])
+			continue;
+#endif
 		if (mSourceSounds[i]==nullptr)
 			return i;
 	}
@@ -443,6 +543,10 @@ int SDLSoundManager::GetNumSounds()
 	{
 		if (mSourceSounds[i]!=nullptr)
 			aCount++;
+#ifdef __wii__
+		else if (mSoundDeferred[i])
+			aCount++;
+#endif
 	}
 
 	return aCount;
@@ -484,3 +588,18 @@ void SDLSoundManager::ReleaseFreeChannels()
 		}
 	}
 }
+
+#ifdef __wii__
+size_t SDLSoundManager::DebugTotalSoundBytes(int* theCount)
+{
+	size_t aBytes = 0;
+	*theCount = 0;
+	for (int i = 0; i < MAX_SOURCE_SOUNDS; i++)
+		if (mSourceSounds[i] != nullptr)
+		{
+			aBytes += mSourceSounds[i]->alen;
+			(*theCount)++;
+		}
+	return aBytes;
+}
+#endif

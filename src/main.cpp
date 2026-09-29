@@ -49,6 +49,136 @@ extern "C" {
 #include <emscripten.h>
 #endif
 
+#ifdef __wii__
+#include <ogc/system.h>
+#include <malloc.h>
+#include <exception>
+
+#include <csignal>
+#include <unistd.h>
+#include <ogc/lwp.h>
+#include <tuxedo/thread.h>
+#include <new>
+#include "graphics/GLInterface.h"
+
+// [wii-debug] temporary diagnostics for the silent-reset during loading
+
+void WiiDebugMemoryBreakdown(const char* theWhen, bool theTryLock); // SexyAppBase.cpp
+
+// Real free memory: what sbrk hasn't handed out yet in each RAM bank, plus
+// free blocks inside the heap. (mallinfo's arena/in-use figures span the
+// ~240 MB hole between MEM1 and MEM2, so they're not usable directly.)
+static void WiiDebugMemLine(const char* theWhat)
+{
+	struct mallinfo mi = mallinfo();
+	unsigned aMem1 = SYS_GetArena1Size(), aMem2 = SYS_GetArena2Size();
+	printf("[wii-debug] mem %s: free %u KB (MEM1 unallocated %u KB, MEM2 unallocated %u KB, heap free blocks %u KB), uploads pending %u\n",
+		theWhat, (aMem1 + aMem2 + (unsigned)mi.fordblks) / 1024, aMem1 / 1024, aMem2 / 1024,
+		(unsigned)mi.fordblks / 1024, (unsigned)Sexy::GLInterface::PendingTextureUploads());
+}
+
+// Prints the return addresses up the PowerPC stack back-chain (each frame
+// starts with a pointer to the caller's frame; the caller's saved LR sits
+// 4 bytes after it). Symbolize with powerpc-eabi-addr2line -f -C -e the .elf.
+static void WiiDebugBacktrace(const char* theWhat)
+{
+	struct mallinfo mi = mallinfo();
+	printf("[wii-debug] %s on thread %p (heap arena %d, in use %d)\n",
+		theWhat, (void*)LWP_GetSelf(), mi.arena, mi.uordblks);
+	uint32_t* aFrame = (uint32_t*)__builtin_frame_address(0);
+	for (int i = 0; i < 24 && aFrame != nullptr; i++)
+	{
+		uint32_t aAddr = (uint32_t)aFrame;
+		if (aAddr < 0x80000000u || aAddr >= 0x94000000u || (aAddr & 3))
+			break;
+		uint32_t* aCaller = (uint32_t*)aFrame[0];
+		if ((uint32_t)aCaller < 0x80000000u || (uint32_t)aCaller >= 0x94000000u)
+			break;
+		printf("[wii-debug]   #%d 0x%08x\n", i, (unsigned)aCaller[1]);
+		aFrame = aCaller;
+	}
+}
+
+static void WiiDebugTerminate()
+{
+	if (std::exception_ptr anEx = std::current_exception())
+	{
+		try { std::rethrow_exception(anEx); }
+		catch (const std::bad_alloc&) { printf("[wii-debug] uncaught std::bad_alloc (out of memory)\n"); }
+		catch (const std::exception& e) { printf("[wii-debug] uncaught exception: %s\n", e.what()); }
+		catch (...) { printf("[wii-debug] uncaught non-std exception\n"); }
+	}
+	WiiDebugMemLine("at terminate");
+	WiiDebugMemoryBreakdown("at terminate", true);
+	WiiDebugBacktrace("std::terminate called");
+	abort();
+}
+
+static void WiiDebugAbort(int)
+{
+	WiiDebugBacktrace("abort() called");
+}
+
+static void WiiDebugAtExit()
+{
+	WiiDebugBacktrace("exit() called");
+}
+
+// Hang detector: the main loop bumps this every iteration (SexyAppBase::UpdateApp).
+volatile unsigned gWiiDebugHeartbeat = 0;
+static KThread* gWiiDebugMainThread = nullptr;
+
+// Walks a (saved) PowerPC stack back-chain starting at theSP.
+static void WiiDebugWalkStack(uint32_t theSP)
+{
+	uint32_t* aFrame = (uint32_t*)theSP;
+	for (int i = 0; i < 24; i++)
+	{
+		uint32_t aAddr = (uint32_t)aFrame;
+		if (aAddr < 0x80000000u || aAddr >= 0x94000000u || (aAddr & 3))
+			break;
+		uint32_t* aCaller = (uint32_t*)aFrame[0];
+		if (aCaller == nullptr || (uint32_t)aCaller < 0x80000000u || (uint32_t)aCaller >= 0x94000000u)
+			break;
+		printf("[wii-debug]   #%d 0x%08x\n", i, (unsigned)aCaller[1]);
+		aFrame = aCaller;
+	}
+}
+
+// Runs above the main thread's priority. When the main loop stops making
+// progress for 3s, the main thread has been preempted by this one, so its
+// registers are sitting in its KThread context: print where it's stuck.
+static void* WiiDebugWatchdog(void*)
+{
+	unsigned aLast = gWiiDebugHeartbeat;
+	int aStalledMs = 0;
+	int aReports = 0;
+	for (int aTick = 0;; aTick++)
+	{
+		usleep(500 * 1000);
+		if (aTick % 4 == 0)
+			WiiDebugMemLine("periodic");
+		unsigned aNow = gWiiDebugHeartbeat;
+		if (aNow != aLast)
+		{
+			aLast = aNow;
+			aStalledMs = 0;
+			aReports = 0;
+			continue;
+		}
+		aStalledMs += 500;
+		if (aStalledMs < 3000 || aReports >= 3)
+			continue;
+		aReports++;
+		const PPCContext& c = gWiiDebugMainThread->ctx;
+		printf("[wii-debug] main loop stalled %d ms (sample %d, thread state %d): pc 0x%08x lr 0x%08x sp 0x%08x\n",
+			aStalledMs, aReports, gWiiDebugMainThread->state, (unsigned)c.pc, (unsigned)c.lr, (unsigned)c.gpr[1]);
+		WiiDebugWalkStack(c.gpr[1]);
+	}
+	return nullptr;
+}
+#endif
+
 bool (*gAppCloseRequest)();
 bool (*gAppHasUsedCheatKeys)();
 std::string (*gGetCurrentLevelName)();
@@ -102,6 +232,21 @@ int main(int argc, char** argv)
 	osSetSpeedupEnable(true);
 #endif
 
+#ifdef __wii__
+	// Route stdout/stderr to Dolphin's OSReport log (View > Show Log, enable
+	// the "OSReport EXI" type); without this printf output goes nowhere.
+	SYS_STDIO_Report(true);
+	setvbuf(stdout, nullptr, _IONBF, 0);
+	std::set_terminate(WiiDebugTerminate);
+	signal(SIGABRT, WiiDebugAbort);
+	atexit(WiiDebugAtExit);
+	{
+		gWiiDebugMainThread = KThreadGetSelf();
+		static lwp_t sWatchdog;
+		LWP_CreateThread(&sWatchdog, WiiDebugWatchdog, nullptr, nullptr, 64 * 1024, 120);
+	}
+#endif
+
 #ifdef _WIN32
 	BuildUtf8ArgsFromWin32(argc, argv);
 #endif
@@ -149,10 +294,22 @@ int main(int argc, char** argv)
 	gLawnApp->SetArgs(argc, argv);
 	gLawnApp->Init();
 	gLawnApp->Start();
+#ifdef __wii__
+	printf("[wii-debug] Start() returned (mShutdown=%d)\n", (int)gLawnApp->mShutdown);
+#endif
 #ifndef __EMSCRIPTEN__
 	gLawnApp->Shutdown();
 	if (gLawnApp)
 		delete gLawnApp;
+#endif
+
+#ifdef __wii__
+	// Returning from main makes libogc jump to the loader stub the Homebrew
+	// Channel leaves at 0x80001800. Launched any other way (a forwarder
+	// channel, or Dolphin booting the .dol directly) there's no stub and it
+	// jumps into empty memory, so go back to the Wii Menu instead.
+	if (memcmp((const void*)0x80001804, "STUBHAXX", 8) != 0)
+		SYS_ResetSystem(SYS_RETURNTOMENU, 0, 0);
 #endif
 
 	return 0;

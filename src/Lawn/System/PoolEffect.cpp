@@ -27,6 +27,10 @@
 #include "graphics/GLImage.h"
 #include "graphics/Graphics.h"
 #include "graphics/GLInterface.h"
+#ifdef __wii__
+#include "imagelib/ImageLib.h"
+#include "misc/ResourceManager.h"
+#endif
 
 //effect documentation by @windowslover1234
 
@@ -49,16 +53,32 @@ void PoolEffect::PoolEffectInitialize()
     mCausticImage->mBits[CAUSTIC_IMAGE_WIDTH * CAUSTIC_IMAGE_HEIGHT] = MEMORYCHECK_ID;
 
     mCausticGrayscaleImage = new unsigned char[256 * 256];
-    MemoryImage* aCausticGrayscaleImage = reinterpret_cast<MemoryImage*>(IMAGE_POOL_CAUSTIC_EFFECT);
+#ifdef __wii__
+    // On Wii, resource images drop their CPU pixels once uploaded (see
+    // TodResourceManager::TodLoadResources), so IMAGE_POOL_CAUSTIC_EFFECT's
+    // mBits may already be gone. Decode a private copy of the file instead:
+    // exact (no readback from the 16-bit texture), and no race with the main
+    // thread's uploads since this runs on the loading thread.
+    ImageLib::Image* aDecoded = nullptr;
+    auto aRes = mApp->mResourceManager->mImageMap.find("IMAGE_POOL_CAUSTIC_EFFECT");
+    if (aRes != mApp->mResourceManager->mImageMap.end())
+        aDecoded = ImageLib::GetImage(aRes->second->mPath, false);
+    const uint32_t* aSrcBits = aDecoded ? aDecoded->mBits : nullptr;
+#else
+    const uint32_t* aSrcBits = reinterpret_cast<MemoryImage*>(IMAGE_POOL_CAUSTIC_EFFECT)->mBits;
+#endif
     int index = 0;
     for (int x = 0; x < 256; x++)
     {
         for (int y = 0; y < 256; y++)
         {
-            mCausticGrayscaleImage[index] = static_cast<unsigned char>(aCausticGrayscaleImage->mBits[index]);
+            mCausticGrayscaleImage[index] = aSrcBits ? static_cast<unsigned char>(aSrcBits[index]) : 0;
             index++;
         }
     }
+#ifdef __wii__
+    delete aDecoded;
+#endif
 }
 
 void PoolEffect::PoolEffectDispose()

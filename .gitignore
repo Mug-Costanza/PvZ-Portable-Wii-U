@@ -415,3 +415,7 @@ tools/read-compiled/target
 *.sublime-workspace
 
 build-*/
+
+# Copyrighted files
+./properties
+./main.pak

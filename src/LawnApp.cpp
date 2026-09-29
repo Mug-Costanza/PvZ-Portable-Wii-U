@@ -21,6 +21,9 @@
 
 //#include <corecrt.h>
 #include <time.h>
+#if defined(__WIIU__) || defined(__wii__)
+#include <unistd.h>
+#endif
 #include "LawnApp.h"
 #include "Lawn/Board.h"
 #include "Lawn/Plant.h"
@@ -853,12 +856,28 @@ void LawnApp::FinishUserDialog(bool isYes)
 	}
 }
 
+#ifdef __wii__
+// There's usually no keyboard on a Wii, and the create-user dialog won't take
+// an empty name, so offer a default: "Player", or "Player 2", "Player 3"...
+// if that's taken (the profile map compares names case-insensitively).
+static std::string WiiDefaultProfileName(ProfileMgr* theProfileMgr)
+{
+	std::string aName = "Player";
+	for (int i = 2; theProfileMgr->GetProfileMap().count(aName) != 0; i++)
+		aName = "Player " + std::to_string(i);
+	return aName;
+}
+#endif
+
 // GOTY @Patoke: 0x453DE0
 void LawnApp::DoCreateUserDialog()
 {
 	KillDialog(Dialogs::DIALOG_CREATEUSER);
 
 	NewUserDialog* aDialog = new NewUserDialog(this, false);
+#ifdef __wii__
+	aDialog->mNameEditWidget->SetText(WiiDefaultProfileName(mProfileMgr));
+#endif
 	CenterDialog(aDialog, aDialog->mWidth, aDialog->mHeight);
 	AddDialog(Dialogs::DIALOG_CREATEUSER, aDialog);
 }
@@ -870,6 +889,10 @@ void LawnApp::FinishCreateUserDialog(bool isYes)
 		return;
 
 	std::string aName = aNewUserDialog->GetName();
+#ifdef __wii__
+	if (isYes && aName.empty())
+		aName = WiiDefaultProfileName(mProfileMgr);
+#endif
 
 	if (isYes && aName.empty())
 	{
@@ -1355,9 +1378,19 @@ void LawnApp::Init()
 	mTimer.Start();
 }
 
-bool LawnApp::ChangeDirHook(const char* /*theIntendedPath*/)
+bool LawnApp::ChangeDirHook(const char* theIntendedPath)
 {
+#if defined(__WIIU__) || defined(__wii__)
+	// Unlike desktop platforms, nothing guarantees the process starts with
+	// its working directory anywhere near the game's data, so files opened
+	// by a bare relative path (e.g. "properties/resources.xml", which never
+	// goes through GetResourcePath()) need a real chdir() into the content
+	// mount first.
+	return chdir(theIntendedPath) == 0;
+#else
+	(void)theIntendedPath;
 	return false;
+#endif
 }
 
 void LawnApp::Start()
@@ -1737,8 +1770,19 @@ void LawnApp::LoadGroup(const char* theGroupName, int theGroupAveMsToLoad)
 
 void LawnApp::LoadingThreadProc()
 {
+#ifdef __wii__
+	printf("[wii-debug] loading thread started, resource dir '%s'\n", mResourceDir.c_str());
+#endif
 	if (!TodLoadResources("LoaderBar"))
+	{
+#ifdef __wii__
+		printf("[wii-debug] TodLoadResources(LoaderBar) failed\n");
+#endif
 		return;
+	}
+#ifdef __wii__
+	printf("[wii-debug] LoaderBar loaded\n");
+#endif
 
 	TodStringListLoad("Properties/LawnStrings.txt");
 

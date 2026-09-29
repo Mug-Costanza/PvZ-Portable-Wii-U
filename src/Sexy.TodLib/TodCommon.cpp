@@ -1054,6 +1054,9 @@ bool TodLoadResources(const std::string& theGroup)
 // GOTY @Patoke: 0x51D4C0
 bool TodResourceManager::TodLoadResources(const std::string& theGroup)
 {
+#ifdef LOW_MEMORY
+	mGroupUseCounts[theGroup]++; // see ResourceManager::ReleaseTrackedResources
+#endif
 	if (IsGroupLoaded(theGroup))
 		return true;
 
@@ -1168,6 +1171,13 @@ bool TodResourceManager::TodLoadNextResource()
 			if (aImage != nullptr)
 			{
 				TodMarkImageForSanding(aImage);
+#ifdef __wii__
+				// Sand now, while the CPU pixels still exist (sanding at first
+				// draw would read them back from the 16-bit texture), then hand
+				// the image to the main thread for upload + purge.
+				TodSandImageIfNeeded(aImage);
+				gSexyAppBase->mGLInterface->QueueTextureUpload(anImageRes->mImage);
+#endif
 			}
 		}
 

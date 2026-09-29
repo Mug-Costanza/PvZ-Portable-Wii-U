@@ -175,6 +175,16 @@ MemoryImage* FilterEffectCreateImage(Image* theImage, FilterEffect theFilterEffe
 	}
 
 	aImage->mBitsChangedCount++;
+#ifdef __wii__
+	// Filtered copies (e.g. the white flash on hit zombies) are made on the
+	// main thread while drawing. Store them once, as textures, and drop the
+	// source's pixels again: drawing from a purged image read them back from
+	// its texture, and nothing would purge them a second time.
+	aImage->mPurgeBits = true;
+	MemoryImage* aSource = (MemoryImage*)theImage;
+	if (aSource->mPurgeBits && aSource->mRenderData != nullptr && aSource->mBits != nullptr)
+		aSource->PurgeBits();
+#endif
 	aImage->mNumCols = theImage->mNumCols;
 	aImage->mNumRows = theImage->mNumRows;
 	return aImage;

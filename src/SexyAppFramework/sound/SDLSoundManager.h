@@ -51,6 +51,19 @@ protected:
 	uint16_t				mMixerFormat;
 	int						mMixerChannels;
 
+#ifdef __wii__
+	// Decoded sounds are loaded on first play and kept under a byte budget
+	// (least recently played evicted first) instead of all living in RAM:
+	// decoded, the game's sound effects are ~12 MB of the Wii's ~88 MB.
+	bool					mSoundDeferred[MAX_SOURCE_SOUNDS];	// registered, not decoded yet (or evicted)
+	uint32_t				mSoundLastUse[MAX_SOURCE_SOUNDS];
+	uint32_t				mSoundUseCounter;
+	size_t					mDecodedSoundBytes;
+
+	bool					DecodeSound(intptr_t theSfxID);
+	void					EvictSoundsOverBudget(intptr_t theKeepID);
+#endif
+
 protected:
 	int						FindFreeChannel();
 	bool					LoadAUSound(intptr_t theSfxID, const std::string& theFilename);
@@ -82,6 +95,11 @@ public:
 	virtual void			StopAllSounds();
 	virtual intptr_t		GetFreeSoundId();
 	virtual int				GetNumSounds();
+#ifdef __wii__
+public:
+	// [wii-debug] total decoded sample bytes held, and how many sounds
+	size_t					DebugTotalSoundBytes(int* theCount);
+#endif
 };
 
 }

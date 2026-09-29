@@ -144,15 +144,12 @@ Image* GetPNGImage(const std::string& theFileName)
        nullptr, nullptr, nullptr);
 
 	png_set_expand(png_ptr);
-	if constexpr (std::endian::native == std::endian::big)
-	{
-		png_set_filler(png_ptr, 0xff, PNG_FILLER_BEFORE);
-	}
-	else
-	{
-		png_set_filler(png_ptr, 0xff, PNG_FILLER_AFTER);
-		png_set_bgr(png_ptr);
-	}
+	// Decode to B,G,R,A bytes, i.e. ARGB as a little-endian uint32, on every
+	// platform; big-endian hosts byteswap afterwards (below). A filler-only
+	// BE path used to handle RGB PNGs but not ones that already have alpha,
+	// which came out as RGBA words (alpha read from blue, channels shifted).
+	png_set_filler(png_ptr, 0xff, PNG_FILLER_AFTER);
+	png_set_bgr(png_ptr);
 	png_set_palette_to_rgb(png_ptr);
 	png_set_gray_to_rgb(png_ptr);
 
@@ -174,6 +171,12 @@ Image* GetPNGImage(const std::string& theFileName)
 	/* close the file */
 	p_fclose(fp);
 	delete[] row_pointers;
+
+	if constexpr (std::endian::native == std::endian::big)
+	{
+		for (uint32_t i = 0; i < width * height; i++)
+			aBits[i] = Sexy::ByteSwap32(aBits[i]);
+	}
 
 	Image* anImage = new Image();
 	anImage->mWidth = width;

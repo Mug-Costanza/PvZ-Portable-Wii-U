@@ -37,7 +37,23 @@
 #include <mutex>
 #include <vector>
 
+#ifdef __wii__
+#include <deque>
+#include <thread>
+#include "graphics/SharedImage.h"
+#include "../platform/wii/OgxTexture.h"
+#endif
+
 #define MAX_VERTICES 16384
+
+#ifdef __wii__
+// Internal format for textures with alpha. The vendored OpenGX is patched to
+// map GL_RGB5_A1 to GX's 16-bit RGB5A3; stock OpenGX stores all alpha
+// textures as 32-bit RGBA8, and on Wii texture memory is main RAM.
+#define TEX_INTERNAL_RGBA 0x8057 // GL_RGB5_A1
+#else
+#define TEX_INTERNAL_RGBA GL_RGBA
+#endif
 
 #ifndef GL_FRAMEBUFFER_SRGB
 #define GL_FRAMEBUFFER_SRGB 0x8DB9 // Not in GLES 2.0 headers, but needed to disable sRGB on Windows.
@@ -319,7 +335,7 @@ static void CopyImageToTexture8888(MemoryImage *img, int offx, int offy,
 	}
 
 	if (create)
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, pitch, dstH, 0, GL_RGBA, GL_UNSIGNED_BYTE, dst);
+		glTexImage2D(GL_TEXTURE_2D, 0, TEX_INTERNAL_RGBA, pitch, dstH, 0, GL_RGBA, GL_UNSIGNED_BYTE, dst);
 	else
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, pitch, dstH, GL_RGBA, GL_UNSIGNED_BYTE, dst);
 	delete[] dst;
@@ -374,7 +390,7 @@ static void CopyImageToTexture4444(MemoryImage *img, int offx, int offy,
 	}
 
 	if (create)
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, pitch, dstH, 0, GL_RGBA, GL_UNSIGNED_SHORT_4_4_4_4, dst);
+		glTexImage2D(GL_TEXTURE_2D, 0, TEX_INTERNAL_RGBA, pitch, dstH, 0, GL_RGBA, GL_UNSIGNED_SHORT_4_4_4_4, dst);
 	else
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, pitch, dstH, GL_RGBA, GL_UNSIGNED_SHORT_4_4_4_4, dst);
 	delete[] dst;
@@ -434,6 +450,59 @@ static void CopyImageToTexture565(MemoryImage *img, int offx, int offy,
 	delete[] dst;
 }
 
+#ifdef __wii__
+// Opaque images on Wii go to GX's 4bpp CMPR (DXT1) format instead of RGB565,
+// a 4x saving: texture memory is main RAM there. OpenGX picks CMPR for any
+// internal format it doesn't recognize, and its encoder only accepts packed
+// RGB888 (ignoring the type argument) with dimensions that are multiples of 8.
+#define WII_GL_COMPRESSED_RGB 0x84ED
+
+static bool CanUseCMPR(int texW, int texH)
+{
+	return texW % 8 == 0 && texH % 8 == 0;
+}
+
+static void CopyImageToTextureCMPR(MemoryImage *img, int offx, int offy,
+	int w, int h, int pitch, int dstH, bool padR, bool padB, bool create)
+{
+	uint8_t *dst = new uint8_t[pitch * dstH * 3]();
+
+	auto put = [](uint8_t *d, uint32_t argb) {
+		d[0] = (argb >> 16) & 0xFF;
+		d[1] = (argb >> 8) & 0xFF;
+		d[2] = argb & 0xFF;
+	};
+
+	uint32_t *pal = (uint32_t*)img->mColorTable;
+	uint32_t *bits = pal ? nullptr : (uint32_t*)img->GetBits();
+	for (int y = 0; y < h; y++)
+	{
+		int srcIdx = (offy + y) * img->GetWidth() + offx;
+		uint8_t *d = dst + y * pitch * 3;
+		for (int x = 0; x < w; x++, srcIdx++, d += 3)
+			put(d, pal ? pal[img->mColorIndices[srcIdx]] : bits[srcIdx]);
+		// Pad the whole right edge (not just one column like the other
+		// formats): DXT1 blocks straddle it, and garbage there would skew
+		// the endpoint colors of the visible texels in those blocks.
+		for (int x = w; padR && x < pitch; x++, d += 3)
+			memcpy(d, d - 3, 3);
+	}
+
+	if (padB)
+	{
+		uint8_t *lastRow = dst + pitch * 3 * (h - 1);
+		for (int y = h; y < dstH; y++)
+			memcpy(dst + pitch * 3 * y, lastRow, pitch * 3);
+	}
+
+	if (create)
+		glTexImage2D(GL_TEXTURE_2D, 0, WII_GL_COMPRESSED_RGB, pitch, dstH, 0, GL_RGB, GL_UNSIGNED_BYTE, dst);
+	else
+		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, pitch, dstH, GL_RGB, GL_UNSIGNED_BYTE, dst);
+	delete[] dst;
+}
+#endif
+
 static void CopyImageToTexturePalette8(MemoryImage *img, int offx, int offy,
 	int w, int h, int pitch, int dstH, bool padR, bool padB, bool create)
 {
@@ -460,7 +529,7 @@ static void CopyImageToTexturePalette8(MemoryImage *img, int offx, int offy,
 	}
 
 	if (create)
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, pitch, dstH, 0, GL_RGBA, GL_UNSIGNED_BYTE, dst);
+		glTexImage2D(GL_TEXTURE_2D, 0, TEX_INTERNAL_RGBA, pitch, dstH, 0, GL_RGBA, GL_UNSIGNED_BYTE, dst);
 	else
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, pitch, dstH, GL_RGBA, GL_UNSIGNED_BYTE, dst);
 	delete[] dst;
@@ -483,7 +552,16 @@ static void CopyImageToTexture(MemoryImage *img, int offx, int offy,
 		{
 		case PixelFormat_A8R8G8B8: CopyImageToTexture8888    (img, offx, offy, w, h, texW, texH, padR, padB, create); break;
 		case PixelFormat_A4R4G4B4: CopyImageToTexture4444    (img, offx, offy, w, h, texW, texH, padR, padB, create); break;
-		case PixelFormat_R5G6B5:   CopyImageToTexture565     (img, offx, offy, w, h, texW, texH, padR, padB, create); break;
+		case PixelFormat_R5G6B5:
+#ifdef __wii__
+			if (CanUseCMPR(texW, texH))
+			{
+				CopyImageToTextureCMPR(img, offx, offy, w, h, texW, texH, padR, padB, create);
+				break;
+			}
+#endif
+			CopyImageToTexture565(img, offx, offy, w, h, texW, texH, padR, padB, create);
+			break;
 		case PixelFormat_Palette8: CopyImageToTexturePalette8(img, offx, offy, w, h, texW, texH, padR, padB, create); break;
 		case PixelFormat_Unknown:  break;
 		}
@@ -505,6 +583,19 @@ static bool IsPowerOf2(int n)
 static void GetBestTextureDimensions(int &w, int &h, bool isEdge, bool usePow2, uint32_t flags)
 {
 	if (flags & RenderImageFlag_Use64By64Subdivisions) { w = h = 64; return; }
+
+#ifdef __wii__
+	// GX has no power-of-two requirement except for repeat wrapping, and it
+	// only pads to its 4x4/8x8 tiles itself. Rounding pieces up to powers of
+	// two instead cost ~19% of all texture memory, which is main RAM here.
+	// Round to multiples of 8 so opaque pieces still qualify for CMPR.
+	if (!(flags & RenderImageFlag_Repeat))
+	{
+		w = std::min(std::max((w + 7) & ~7, gMinTextureWidth), gMaxTextureWidth);
+		h = std::min(std::max((h + 7) & ~7, gMinTextureHeight), gMaxTextureHeight);
+		return;
+	}
+#endif
 
 	static int* sGoodSizes = nullptr;
 	if (!sGoodSizes)
@@ -916,8 +1007,15 @@ void TextureData::BltTransformed(const SexyMatrix3 &theTrans, const Rect& theSrc
 		srcX = srcLeft; dstX = startx;
 		while (srcX < srcRight)
 		{
+			// A source rect extending past the image would index past the
+			// texture pieces and yield an empty piece, and the loop would
+			// never advance.
+			if (srcX < 0 || srcY < 0 || srcX >= mWidth || srcY >= mHeight)
+				return;
 			w = srcRight - srcX; h = srcBottom - srcY;
 			GLuint &tex = GetTexture(srcX, srcY, w, h, u1, v1, u2, v2, uvb);
+			if (w <= 0 || h <= 0)
+				return;
 
 			float x = dstX, y = dstY;
 			SexyVector2 p[4] = { {x, y}, {x, y+h}, {x+w, y}, {x+w, y+h} };
@@ -1155,6 +1253,14 @@ int GLInterface::Init(bool IsWindowed)
 	{
 		inited = true;
 		PlatformGLInit();
+#ifdef __wii__
+		// OpenGX reports GL_VERSION "1.5" even though it implements the ES 2.0
+		// entry points we use, so glad's version check skips loading all of
+		// them and every gl* call would jump to a null pointer. Force it.
+		GLAD_GL_ES_VERSION_2_0 = 1;
+		glad_gl_load_GL_ES_VERSION_2_0(glad_gl_get_proc_from_userptr,
+			GLAD_GNUC_EXTENSION (void*) SDL_GL_GetProcAddress);
+#endif
 
 		gProgram = shaderLoad(SHADER_CODE);
 		if (gProgram == 0)
@@ -1245,10 +1351,16 @@ void GLInterface::Flush()
 #else
 	SDL_GL_SwapWindow((SDL_Window*)mApp->mWindow);
 #endif
-#ifndef __EMSCRIPTEN__
+#if !defined(__EMSCRIPTEN__) && !defined(__wii__)
 	// Clear back buffer after swap (content undefined)
 	glClear(GL_COLOR_BUFFER_BIT);
 #endif // Emscripten: browser composites after rAF, no clear needed
+	// Wii: the EFB is a single persistent buffer (SDL copies it out without
+	// clearing), so its contents are well-defined after a swap. Keeping them
+	// matters: when the game polls input more often than it presents, SDL's
+	// Wii backend starts presenting frames on its own to animate the pointer,
+	// showing whatever the EFB holds plus a patch it saved from under the
+	// cursor - a cleared EFB made those frames black except around the cursor.
 }
 
 bool GLInterface::CreateImageTexture(MemoryImage *theImage)
@@ -1270,6 +1382,63 @@ bool GLInterface::CreateImageTexture(MemoryImage *theImage)
 	return data->mPixelFormat != PixelFormat_Unknown;
 }
 
+#ifdef __wii__
+static std::mutex gUploadQueueMutex;
+static std::deque<SharedImageRef> gUploadQueue; // the refs keep images alive until uploaded
+
+void GLInterface::QueueTextureUpload(const SharedImageRef& theImage)
+{
+	// Loaded on the main thread (e.g. a screen's delay-load group, or a
+	// reanim's images mid-level): it owns the GL state, so upload right away.
+	if (std::this_thread::get_id() == gSexyAppBase->mPrimaryThreadId)
+	{
+		MemoryImage* anImage = const_cast<SharedImageRef&>(theImage);
+		if (anImage != nullptr && anImage->mRenderData == nullptr)
+			gSexyAppBase->mGLInterface->CreateImageTexture(anImage);
+		return;
+	}
+
+	{
+		std::scoped_lock lk(gUploadQueueMutex);
+		gUploadQueue.push_back(theImage);
+	}
+	// Backpressure: don't let the loading thread get far ahead of the main
+	// thread's uploads, or the not-yet-purged CPU pixels pile up. Bounded so
+	// it can't deadlock if the main thread stops draining (e.g. shutdown).
+	for (int aWaitedMs = 0; aWaitedMs < 2000 && !gSexyAppBase->mShutdown; aWaitedMs += 5)
+	{
+		if (PendingTextureUploads() <= 8)
+			break;
+		SDL_Delay(5);
+	}
+}
+
+size_t GLInterface::PendingTextureUploads()
+{
+	std::scoped_lock lk(gUploadQueueMutex);
+	return gUploadQueue.size();
+}
+
+void GLInterface::ProcessQueuedTextureUploads(uint32_t theBudgetMs)
+{
+	uint32_t aStart = SDL_GetTicks();
+	do
+	{
+		SharedImageRef aRef;
+		{
+			std::scoped_lock lk(gUploadQueueMutex);
+			if (gUploadQueue.empty())
+				return;
+			aRef = gUploadQueue.front();
+			gUploadQueue.pop_front();
+		}
+		MemoryImage* anImage = aRef;
+		if (anImage != nullptr && anImage->mRenderData == nullptr)
+			CreateImageTexture(anImage); // purges the CPU copy when mPurgeBits is set
+	} while (SDL_GetTicks() - aStart < theBudgetMs);
+}
+#endif
+
 bool GLInterface::RecoverBits(MemoryImage* theImage)
 {
 	if (!theImage->mRenderData) return false;
@@ -1286,6 +1455,16 @@ bool GLInterface::RecoverBits(MemoryImage* theImage)
 			int offy = row * data->mTexPieceHeight;
 			int w = std::min(theImage->mWidth  - offx, piece.mWidth);
 			int h = std::min(theImage->mHeight - offy, piece.mHeight);
+
+#ifdef __wii__
+			// OpenGX can't read textures back through an FBO; decode the GX
+			// texel buffer directly instead.
+			if (!WiiReadTexturePixels(piece.mTexture,
+					theImage->GetBits() + offy * theImage->GetWidth() + offx,
+					theImage->GetWidth(), w, h))
+				return false;
+			continue;
+#endif
 
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, piece.mTexture);

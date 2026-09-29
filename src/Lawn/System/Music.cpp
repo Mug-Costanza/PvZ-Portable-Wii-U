@@ -28,6 +28,15 @@
 #include "../../Sexy.TodLib/TodCommon.h"
 #include "sound/SDLMusicInterface.h"
 
+#ifdef __wii__
+// libopenmpt would need ~31 MB to play mainmusic.mo3 (all 198 samples are
+// decoded up front), so the Wii build plays one pre-rendered Ogg per tune
+// instead, streamed from sd:/apps/PvZPortable/sounds/prerendered/ (made by
+// tools/wii-music/render.sh from the game's own main.pak). Single track
+// only: the drum/hi-hat "burst" layers aren't rendered, so they're skipped.
+#define PVZ_PRERENDERED_MUSIC 1
+#endif
+
 using namespace Sexy;
 
 Music::Music()
@@ -54,6 +63,88 @@ Music::Music()
 
 MusicFileData gMusicFileData[MusicFile::NUM_MUSIC_FILES];
 
+#ifdef PVZ_PRERENDERED_MUSIC
+// SDL_RWops over the game's file layer (main.pak or the SD card), so SDL
+// streams music from storage instead of needing it all in RAM. Reads happen
+// on SDL's audio thread; each stream has its own PFILE, and pak access is
+// locked (see PakInterface), so that's safe.
+static SDL_RWops* RWFromGameFile(const std::string& theFileName)
+{
+	PFILE* aFile = p_fopen(theFileName.c_str(), "rb");
+	if (aFile == nullptr)
+		return nullptr;
+	SDL_RWops* aRW = SDL_AllocRW();
+	if (aRW == nullptr)
+	{
+		p_fclose(aFile);
+		return nullptr;
+	}
+	aRW->type = SDL_RWOPS_UNKNOWN;
+	aRW->hidden.unknown.data1 = aFile;
+	aRW->size = [](SDL_RWops* rw) -> Sint64 {
+		PFILE* f = (PFILE*)rw->hidden.unknown.data1;
+		long aPos = p_ftell(f);
+		p_fseek(f, 0, SEEK_END);
+		long aSize = p_ftell(f);
+		p_fseek(f, aPos, SEEK_SET);
+		return aSize;
+	};
+	aRW->seek = [](SDL_RWops* rw, Sint64 offset, int whence) -> Sint64 {
+		PFILE* f = (PFILE*)rw->hidden.unknown.data1;
+		// Resolve to an absolute position ourselves: the pak layer's
+		// SEEK_END treats the offset as a distance back from the end.
+		Sint64 aBase = 0;
+		if (whence == RW_SEEK_CUR)
+			aBase = p_ftell(f);
+		else if (whence == RW_SEEK_END)
+			aBase = rw->size(rw);
+		if (p_fseek(f, (long)(aBase + offset), SEEK_SET) != 0)
+			return -1;
+		return p_ftell(f);
+	};
+	aRW->read = [](SDL_RWops* rw, void* ptr, size_t size, size_t maxnum) -> size_t {
+		return p_fread(ptr, (int)size, (int)maxnum, (PFILE*)rw->hidden.unknown.data1);
+	};
+	aRW->write = [](SDL_RWops*, const void*, size_t, size_t) -> size_t { return 0; };
+	aRW->close = [](SDL_RWops* rw) -> int {
+		p_fclose((PFILE*)rw->hidden.unknown.data1);
+		SDL_FreeRW(rw);
+		return 0;
+	};
+	return aRW;
+}
+
+// Keep in sync with tools/wii-music/render_music.cpp.
+static const char* PrerenderedTuneFile(MusicTune theMusicTune)
+{
+	switch (theMusicTune)
+	{
+	case MusicTune::MUSIC_TUNE_DAY_GRASSWALK:				return "grasswalk";
+	case MusicTune::MUSIC_TUNE_NIGHT_MOONGRAINS:			return "moongrains";
+	case MusicTune::MUSIC_TUNE_POOL_WATERYGRAVES:			return "waterygraves";
+	case MusicTune::MUSIC_TUNE_FOG_RIGORMORMIST:			return "rigormormist";
+	case MusicTune::MUSIC_TUNE_ROOF_GRAZETHEROOF:			return "grazetheroof";
+	case MusicTune::MUSIC_TUNE_CHOOSE_YOUR_SEEDS:			return "chooseyourseeds";
+	case MusicTune::MUSIC_TUNE_TITLE_CRAZY_DAVE_MAIN_THEME:	return "crazydave";
+	case MusicTune::MUSIC_TUNE_ZEN_GARDEN:					return "zengarden";
+	case MusicTune::MUSIC_TUNE_PUZZLE_CEREBRAWL:			return "cerebrawl";
+	case MusicTune::MUSIC_TUNE_MINIGAME_LOONBOON:			return "loonboon";
+	case MusicTune::MUSIC_TUNE_CONVEYER:					return "conveyer";
+	case MusicTune::MUSIC_TUNE_FINAL_BOSS_BRAINIAC_MANIAC:	return "brainiacmaniac";
+	default:												return nullptr;
+	}
+}
+
+static Mix_Music* LoadPrerenderedTune(MusicTune theMusicTune)
+{
+	const char* aName = PrerenderedTuneFile(theMusicTune);
+	if (aName == nullptr)
+		return nullptr;
+	SDL_RWops* aRW = RWFromGameFile(std::string("sounds/prerendered/") + aName + ".ogg");
+	return aRW ? Mix_LoadMUS_RW(aRW, 1) : nullptr;
+}
+#endif
+
 bool Music::TodLoadMusic(MusicFile theMusicFile, const std::string& theFileName)
 {
 	Mix_Music* aHMusic = 0;
@@ -63,6 +154,30 @@ bool Music::TodLoadMusic(MusicFile theMusicFile, const std::string& theFileName)
 	size_t aDot = theFileName.rfind('.');
 	if (aDot != std::string::npos)
 		anExt = StringToLower(theFileName.substr(aDot + 1));
+
+#ifdef PVZ_PRERENDERED_MUSIC
+	if (anExt == "mo3")
+	{
+		// The drums are a second copy of the module (burst layer); not used.
+		if (theMusicFile != MusicFile::MUSIC_FILE_MAIN_MUSIC)
+			return true;
+		// The main-music slot is re-pointed at each tune's stream as tunes
+		// change (PlayFromOffset); start with the title tune so the handle
+		// always exists, which also checks the pre-rendered files are there.
+		aHMusic = LoadPrerenderedTune(MusicTune::MUSIC_TUNE_TITLE_CRAZY_DAVE_MAIN_THEME);
+	}
+	else
+	{
+		SDL_RWops* aRW = RWFromGameFile(theFileName);
+		aHMusic = aRW ? Mix_LoadMUS_RW(aRW, 1) : nullptr;
+	}
+	if (aHMusic == nullptr)
+		return false;
+	SDLMusicInfo aStreamInfo;
+	aStreamInfo.mHMusic = aHMusic;
+	anSDL->mMusicMap.insert(SDLMusicMap::value_type(theMusicFile, aStreamInfo));
+	return true;
+#endif
 
 	PFILE* pFile = p_fopen(theFileName.c_str(), "rb");
 	if (pFile == nullptr)
@@ -96,6 +211,10 @@ bool Music::TodLoadMusic(MusicFile theMusicFile, const std::string& theFileName)
 
 void Music::SetupVolumeForTune(MusicTune theMusicTune, float theDrumsVolume, float theHihatsVolume)
 {
+#ifdef PVZ_PRERENDERED_MUSIC
+	(void)theMusicTune; (void)theDrumsVolume; (void)theHihatsVolume;
+	return; // pre-rendered tracks have no per-channel volumes
+#endif
 	constexpr const int TRACK_COUNT = 30;
 	int aMainEnd = 29;
 	int aDrumsStart = -1, aDrumsEnd = -1;
@@ -241,6 +360,23 @@ void Music::PlayFromOffset(MusicFile theMusicFile, int theOffset, double theVolu
 	}
 	else
 	{
+#ifdef PVZ_PRERENDERED_MUSIC
+		(void)theOffset; // pre-rendered tunes always start from the top
+		Mix_HaltMusicStream(aMusicInfo->mHMusic);
+		if (Mix_Music* aTune = LoadPrerenderedTune(mCurMusicTune))
+		{
+			Mix_FreeMusic(aMusicInfo->mHMusic);
+			aMusicInfo->mHMusic = aTune;
+		}
+		else
+			return;
+		aMusicInfo->mStopOnFade = false;
+		aMusicInfo->mVolume = aMusicInfo->mVolumeCap * theVolume;
+		aMusicInfo->mVolumeAdd = 0.0;
+		Mix_PlayMusicStream(aMusicInfo->mHMusic, -1); // loops at the file's LOOPSTART/LOOPEND
+		Mix_VolumeMusicStream(aMusicInfo->mHMusic, (int)(aMusicInfo->mVolume*128));
+		return;
+#endif
 		Mix_HaltMusicStream(aMusicInfo->mHMusic);
 		aMusicInfo->mStopOnFade = false;
 		aMusicInfo->mVolume = aMusicInfo->mVolumeCap * theVolume;
@@ -274,14 +410,16 @@ void Music::PlayMusic(MusicTune theMusicTune, int theOffset, int theDrumsOffset)
 
 	case MusicTune::MUSIC_TUNE_NIGHT_MOONGRAINS:
 		mCurMusicFileMain = MusicFile::MUSIC_FILE_MAIN_MUSIC;
-		mCurMusicFileDrums = MusicFile::MUSIC_FILE_DRUMS;
 		if (theOffset == -1)
 		{
 			theOffset = 0x30;
 			theDrumsOffset = 0x5C;
 		}
 		PlayFromOffset(mCurMusicFileMain, theOffset, 1.0);
+#ifndef PVZ_PRERENDERED_MUSIC
+		mCurMusicFileDrums = MusicFile::MUSIC_FILE_DRUMS;
 		PlayFromOffset(mCurMusicFileDrums, theDrumsOffset, 0.0);
+#endif
 		break;
 
 	case MusicTune::MUSIC_TUNE_POOL_WATERYGRAVES:
@@ -432,6 +570,9 @@ void Music::FadeOut(int theFadeOutDuration)
 
 void Music::UpdateMusicBurst()
 {
+#ifdef PVZ_PRERENDERED_MUSIC
+	return; // no burst layers in the pre-rendered tracks
+#endif
 	if (mApp->mBoard == nullptr)
 		return;
 	if (mApp->mGameMode == GameMode::GAMEMODE_INTRO)

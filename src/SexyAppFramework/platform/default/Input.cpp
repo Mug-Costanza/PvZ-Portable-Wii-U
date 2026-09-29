@@ -23,6 +23,12 @@
  */
 
 #include <SDL.h>
+#ifdef __wii__
+#include <algorithm>
+#include <cmath>
+#include <cstring>
+#include "../wii/WiiPointer.h"
+#endif
 
 #include "SexyAppBase.h"
 #include "graphics/GLInterface.h"
@@ -318,7 +324,201 @@ static bool SDLSynthesizeAsciiCharFromKeyDown(const SDL_KeyboardEvent& theEvent,
 void SexyAppBase::InitInput()
 {
 	SDL_Init(SDL_INIT_EVENTS);
+#ifdef __wii__
+	// The pointer and A button reach us through SDL's mouse emulation, but
+	// the other controller buttons only as joystick events. Controllers are
+	// opened as they connect (SDL_JOYDEVICEADDED), since Wiimotes usually
+	// pair after launch.
+	SDL_InitSubSystem(SDL_INIT_JOYSTICK);
+#endif
 }
+
+#ifdef __wii__
+// Controller support. The IR pointer and the Wiimote's B/A buttons come from
+// SDL's mouse emulation (B = left click, A = right click), but only while the
+// Wiimote points at the screen; everything else arrives as joystick events.
+// We swap SDL's emulated clicks so A selects and B cancels, matching the
+// Classic Controller and GameCube pad (see WiiSwapMouseButton).
+// Indices follow SDL's ogc joystick driver in its default (non-split) mode:
+//   Wiimote (+ expansion): hat 0 = Wiimote or Classic d-pad; axes 0/1 =
+//     Nunchuk / Classic left stick, 2/3 = Classic right stick; buttons
+//     0 A, 1 B, 5 +, 7 Z, 8 C (Classic A/B share 0/1).
+//   GameCube: hat 0 = d-pad; axes 0/1 = stick, 2/3 = C-stick; buttons
+//     0 A, 1 B, 7 Start.
+
+static bool WiiIsGameCube(SDL_JoystickID theWhich)
+{
+	SDL_Joystick* aJoystick = SDL_JoystickFromInstanceID(theWhich);
+	const char* aName = aJoystick ? SDL_JoystickName(aJoystick) : nullptr;
+	return aName != nullptr && strncmp(aName, "Gamecube", 8) == 0;
+}
+
+static bool WiiHasClassic(SDL_JoystickID theWhich)
+{
+	SDL_Joystick* aJoystick = SDL_JoystickFromInstanceID(theWhich);
+	const char* aName = aJoystick ? SDL_JoystickName(aJoystick) : nullptr;
+	return aName != nullptr && strstr(aName, "Classic") != nullptr;
+}
+
+// SDL names Wiimotes "Wiimote <channel>" (plus " + Nunchuk"/" + Classic"
+// when one's attached); returns the channel, or -1 for other controllers.
+static int WiiRemoteChannel(SDL_Joystick* theJoystick)
+{
+	const char* aName = theJoystick ? SDL_JoystickName(theJoystick) : nullptr;
+	int aChannel;
+	if (aName == nullptr || sscanf(aName, "Wiimote %d", &aChannel) != 1)
+		return -1;
+	return aChannel;
+}
+
+// Tags the clicks we synthesize below, so they aren't mistaken for SDL's own
+// Wiimote mouse emulation and swapped a second time.
+static constexpr Uint32 kWiiSyntheticMouseID = 0x57494950;
+
+// SDL's Wiimote emulation clicks left on B and right on A; swap so A selects.
+static Uint8 WiiSwapMouseButton(const SDL_MouseButtonEvent& theEvent)
+{
+	if (theEvent.which == kWiiSyntheticMouseID)
+		return theEvent.button;
+	if (theEvent.button == SDL_BUTTON_LEFT)
+		return SDL_BUTTON_RIGHT;
+	if (theEvent.button == SDL_BUTTON_RIGHT)
+		return SDL_BUTTON_LEFT;
+	return theEvent.button;
+}
+
+static void WiiSendMouseButton(bool theDown, Uint8 theButton)
+{
+	SDL_Window* aWindow = SDL_GetMouseFocus();
+	int x, y;
+	SDL_GetMouseState(&x, &y);
+	SDL_Event anEvent = {};
+	anEvent.type = theDown ? SDL_MOUSEBUTTONDOWN : SDL_MOUSEBUTTONUP;
+	anEvent.button.windowID = aWindow ? SDL_GetWindowID(aWindow) : 0;
+	anEvent.button.which = kWiiSyntheticMouseID;
+	anEvent.button.button = theButton;
+	anEvent.button.state = theDown ? SDL_PRESSED : SDL_RELEASED;
+	anEvent.button.clicks = 1;
+	anEvent.button.x = x;
+	anEvent.button.y = y;
+	SDL_PushEvent(&anEvent);
+}
+
+enum class WiiButtonAction { None, Menu, LeftClick, RightClick };
+
+static WiiButtonAction WiiButtonToAction(const SDL_JoyButtonEvent& theEvent)
+{
+	if (WiiIsGameCube(theEvent.which))
+	{
+		switch (theEvent.button)
+		{
+		case 0: return WiiButtonAction::LeftClick;	// A
+		case 1: return WiiButtonAction::RightClick;	// B
+		case 7: return WiiButtonAction::Menu;		// Start
+		default: return WiiButtonAction::None;
+		}
+	}
+	switch (theEvent.button)
+	{
+	case 5: return WiiButtonAction::Menu;			// +
+	case 3: return WiiButtonAction::LeftClick;		// 2 (sideways: the main button)
+	case 2: return WiiButtonAction::RightClick;		// 1 (sideways: cancel)
+	case 7: return WiiButtonAction::LeftClick;		// Nunchuk Z
+	case 8: return WiiButtonAction::RightClick;		// Nunchuk C
+	case 0:
+	case 1:
+		// A selects, B cancels, on both the Classic and the Wiimote itself.
+		// The Wiimote's own A/B are handled by SDL while pointing (swapped
+		// in WiiSwapMouseButton); handle them here otherwise.
+		if (!WiiHasClassic(theEvent.which) && WiiAnyPointerOnScreen())
+			return WiiButtonAction::None;
+		return theEvent.button == 0 ? WiiButtonAction::LeftClick : WiiButtonAction::RightClick;
+	default:
+		return WiiButtonAction::None;
+	}
+}
+
+// Moves the cursor with the d-pads and sticks while no Wiimote points at the
+// screen (when one does, SDL moves the cursor to the IR position each frame).
+// Called once per main-loop iteration.
+void WiiUpdateControllerCursor()
+{
+	static uint32_t sLastTick = SDL_GetTicks();
+	static float sX = -1, sY = -1;
+	uint32_t aTick = SDL_GetTicks();
+	float aSeconds = std::min((aTick - sLastTick) / 1000.0f, 0.1f);
+	sLastTick = aTick;
+
+	SDL_Window* aWindow = SDL_GetMouseFocus();
+	if (aWindow == nullptr || WiiAnyPointerOnScreen())
+	{
+		sX = -1; // re-sync from the real position next time
+		return;
+	}
+
+	constexpr int kDeadZone = 8000;
+	constexpr float kStickSpeed = 700.0f;	// px/s at full deflection
+	constexpr float kPadSpeed = 350.0f;		// px/s for the d-pad
+	float aDX = 0, aDY = 0;
+	for (int i = 0; i < SDL_NumJoysticks(); i++)
+	{
+		// Opened on SDL_JOYDEVICEADDED; skip any that aren't open yet.
+		SDL_Joystick* aJoystick = SDL_JoystickFromInstanceID(SDL_JoystickGetDeviceInstanceID(i));
+		if (aJoystick == nullptr)
+			continue;
+
+		if (SDL_JoystickNumHats(aJoystick) > 0)
+		{
+			Uint8 aHat = SDL_JoystickGetHat(aJoystick, 0);
+			if (WiiRemoteIsSideways(WiiRemoteChannel(aJoystick)))
+			{
+				// Held sideways with the d-pad on the left, the Wiimote's
+				// own up arrow points left (same rotation SDL applies with
+				// SDL_WII_JOYSTICK_SIDEWAYS, but only for sideways remotes).
+				Uint8 aRotated = 0;
+				if (aHat & SDL_HAT_UP) aRotated |= SDL_HAT_LEFT;
+				if (aHat & SDL_HAT_DOWN) aRotated |= SDL_HAT_RIGHT;
+				if (aHat & SDL_HAT_LEFT) aRotated |= SDL_HAT_DOWN;
+				if (aHat & SDL_HAT_RIGHT) aRotated |= SDL_HAT_UP;
+				aHat = aRotated;
+			}
+			if (aHat & SDL_HAT_LEFT) aDX -= kPadSpeed;
+			if (aHat & SDL_HAT_RIGHT) aDX += kPadSpeed;
+			if (aHat & SDL_HAT_UP) aDY -= kPadSpeed;
+			if (aHat & SDL_HAT_DOWN) aDY += kPadSpeed;
+		}
+		for (int aStick = 0; aStick < 2 && aStick * 2 + 1 < SDL_JoystickNumAxes(aJoystick); aStick++)
+		{
+			int aAX = SDL_JoystickGetAxis(aJoystick, aStick * 2);
+			int aAY = SDL_JoystickGetAxis(aJoystick, aStick * 2 + 1);
+			// Squared response: small deflections give fine control.
+			auto aCurve = [](int v) {
+				if (std::abs(v) < kDeadZone) return 0.0f;
+				float f = (std::abs(v) - kDeadZone) / float(32767 - kDeadZone);
+				return (v < 0 ? -1.0f : 1.0f) * std::min(f, 1.0f) * std::min(f, 1.0f);
+			};
+			aDX += aCurve(aAX) * kStickSpeed;
+			aDY += aCurve(aAY) * kStickSpeed;
+		}
+	}
+
+	if (aDX == 0 && aDY == 0)
+		return;
+
+	int aW, aH;
+	SDL_GetWindowSize(aWindow, &aW, &aH);
+	if (sX < 0)
+	{
+		int x, y;
+		SDL_GetMouseState(&x, &y);
+		sX = (float)x;
+		sY = (float)y;
+	}
+	sX = std::clamp(sX + aDX * aSeconds, 0.0f, (float)(aW - 1));
+	sY = std::clamp(sY + aDY * aSeconds, 0.0f, (float)(aH - 1));
+	SDL_WarpMouseInWindow(aWindow, (int)sX, (int)sY);
+}
+#endif
 
 bool SexyAppBase::StartTextInput(std::string& theInput)
 {
@@ -447,6 +647,9 @@ bool SexyAppBase::ProcessDeferredMessages(bool singleMessage)
 				mLastUserInputTick = mLastTimerTime;
 				
 				mWidgetManager->MouseMove(x, y);
+#ifdef __wii__
+				event.button.button = WiiSwapMouseButton(event.button);
+#endif
 				int btn =
 					(event.button.button == SDL_BUTTON_LEFT) ? 1 :
 					(event.button.button == SDL_BUTTON_RIGHT) ? -1 :
@@ -470,6 +673,9 @@ bool SexyAppBase::ProcessDeferredMessages(bool singleMessage)
 				mLastUserInputTick = mLastTimerTime;
 				
 				mWidgetManager->MouseMove(x, y);
+#ifdef __wii__
+				event.button.button = WiiSwapMouseButton(event.button);
+#endif
 				int btn =
 					(event.button.button == SDL_BUTTON_LEFT) ? 1 :
 					(event.button.button == SDL_BUTTON_RIGHT) ? -1 :
@@ -495,6 +701,37 @@ bool SexyAppBase::ProcessDeferredMessages(bool singleMessage)
 				mLastUserInputTick = mLastTimerTime;
 				mWidgetManager->KeyUp(SDLKeyToKeyCode(event.key.keysym.sym));
 				break;
+
+#ifdef __wii__
+			case SDL_JOYDEVICEADDED:
+				SDL_JoystickOpen(event.jdevice.which);
+				break;
+
+			case SDL_JOYBUTTONDOWN:
+			case SDL_JOYBUTTONUP:
+			{
+				bool isDown = event.type == SDL_JOYBUTTONDOWN;
+				switch (WiiButtonToAction(event.jbutton))
+				{
+				case WiiButtonAction::Menu:
+					mLastUserInputTick = mLastTimerTime;
+					if (isDown)
+						mWidgetManager->KeyDown(KEYCODE_ESCAPE);
+					else
+						mWidgetManager->KeyUp(KEYCODE_ESCAPE);
+					break;
+				case WiiButtonAction::LeftClick:
+					WiiSendMouseButton(isDown, SDL_BUTTON_LEFT);
+					break;
+				case WiiButtonAction::RightClick:
+					WiiSendMouseButton(isDown, SDL_BUTTON_RIGHT);
+					break;
+				case WiiButtonAction::None:
+					break;
+				}
+				break;
+			}
+#endif
 
 			case SDL_TEXTINPUT:
 				mLastUserInputTick = mLastTimerTime;

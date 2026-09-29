@@ -40,6 +40,7 @@ namespace Sexy
 
 class SexyAppBase;
 class GLImage;
+class SharedImageRef;
 class SexyMatrix3;
 class TriVertex;
 
@@ -232,6 +233,16 @@ public:
 
 	bool					CreateImageTexture(MemoryImage* theImage);
 	bool					RecoverBits(MemoryImage* theImage);
+#ifdef __wii__
+	// Textures are normally created on first draw, so images that haven't
+	// been drawn yet keep their full-size CPU pixels (tens of MB at startup).
+	// On Wii the loading thread queues each image as it finishes loading, and
+	// the main thread (which owns the GL state) uploads the queue a little
+	// at a time, after which the CPU copy is purged.
+	static void				QueueTextureUpload(const SharedImageRef& theImage);	// any thread
+	void					ProcessQueuedTextureUploads(uint32_t theBudgetMs);	// main thread
+	static size_t			PendingTextureUploads();
+#endif
 	void					Blt(Image* theImage, float theX, float theY, const Rect& theSrcRect, const Color& theColor, int theDrawMode, bool linearFilter = true);
 	void					BltClipF(Image* theImage, float theX, float theY, const Rect& theSrcRect, const Rect *theClipRect, const Color& theColor, int theDrawMode, bool linearFilter = true);
 	void					BltMirror(Image* theImage, float theX, float theY, const Rect& theSrcRect, const Color& theColor, int theDrawMode, bool linearFilter = true);

@@ -22,6 +22,7 @@
 #include "TodCommon.h"
 #include "TodParticle.h"
 #include "Trail.h"
+#include <alloca.h>
 #include <assert.h>
 #include <cstring>
 #include <stddef.h>
@@ -36,6 +37,10 @@
 #include "misc/XMLParser.h"
 #include "../Resources.h"
 #include "Common.h"
+#ifdef __wii__
+#include "SexyAppBase.h"
+#include "graphics/GLInterface.h"
+#endif
 
 DefSymbol gTrailFlagDefSymbols[] = {
     { 0, "Loops" },                 { -1, nullptr }
@@ -363,6 +368,13 @@ bool DefinitionLoadImage(Image** theImage, const std::string& theName)
                 TodHesitationTrace("Load Image '%s'", theName.c_str());
                 TodAddImageToMap(&aImageRef, theName);
                 TodMarkImageForSanding((Image*)aImageRef);
+#ifdef __wii__
+                // Same as resource-manager images (see TodResourceManager::
+                // TodLoadResources): store once, as a texture.
+                ((MemoryImage*)aImageRef)->mPurgeBits = true;
+                TodSandImageIfNeeded((Image*)aImageRef);
+                gSexyAppBase->mGLInterface->QueueTextureUpload(aImageRef);
+#endif
                 *theImage = (Image*)aImageRef;
                 return true;
             }
@@ -1321,7 +1333,7 @@ bool DefinitionCompileFile(const std::string theXMLFilePath, const std::string& 
     }
     else if (!DefinitionLoadMap(&aXMLParser, theDefMap, theDefinition))
         return false;
-    
+
     return DefinitionWriteCompiledFile(theCompiledFilePath, theDefMap, theDefinition);
 }
 

@@ -47,6 +47,12 @@
 #elif defined(__EMSCRIPTEN__)
 #include <emscripten.h>
 #include <emscripten/html5.h>
+#elif defined(__WIIU__)
+#include <whb/sdcard.h>
+#elif defined(__wii__)
+#include <ogc/lwp.h>
+#include "platform/wii/OgxShader.h"
+#include "platform/wii/OgxTexture.h"
 #endif
 
 #include "SexyAppBase.h"
@@ -55,7 +61,18 @@
 #include "widget/Widget.h"
 #include "misc/Debug.h"
 #include "misc/KeyCodes.h"
-#include "graphics/GLInterface.h"
+// Angle brackets are deliberate here (not "graphics/GLInterface.h"): this
+// file lives directly in src/SexyAppFramework/, so a quoted include would
+// resolve against its own directory first and always find
+// src/SexyAppFramework/graphics/GLInterface.h (the desktop backend) before
+// ever consulting the -I search path - silently ignoring platform variants
+// like platform/3ds/graphics/GLInterface.h or platform/wiiu/graphics/GLInterface.h
+// and causing an ODR violation (two different definitions of Sexy::GLInterface
+// linked into the same binary) that crashes the instant a MemoryImage is
+// created. Angle-bracket lookup skips that same-directory check and goes
+// straight to the configured include paths, which correctly prioritize the
+// active platform's variant.
+#include <graphics/GLInterface.h>
 #include "graphics/GLImage.h"
 #include "graphics/MemoryImage.h"
 //#include "misc/HTTPTransfer.h"
@@ -201,6 +218,16 @@ SexyAppBase::SexyAppBase()
 	}
 #elif defined(__EMSCRIPTEN__)
 	mResourceDir = "/";
+#elif defined(__WIIU__)
+	// Matches the content mount a .wuhb gets on Wii U (real hardware and
+	// Cemu alike); the game's data must be packaged inside the .wuhb's own
+	// content directory, not just sitting next to a standalone .rpx.
+	mResourceDir = "fs:/vol/content/";
+#elif defined(__wii__)
+	// Matches the devkitPro homebrew SD-card convention (same shape as the
+	// sdmc:/3ds and sdmc:/switch dirs above); libfat mounts the SD card as
+	// sd:/ automatically before main() runs (see SDL2's Wii main wrapper).
+	mResourceDir = "sd:/apps/PvZPortable/";
 #else
 	char* aBasePath = SDL_GetBasePath();
 	if (aBasePath)
@@ -1761,6 +1788,17 @@ bool SexyAppBase::DrawDirtyStuff()
 	}
 
 	mIsDrawing = true;
+#ifdef __wii__
+	// SDL's Wii backend draws the pointer straight into the EFB when a frame
+	// is presented, and the EFB isn't cleared between frames (see
+	// GLInterface::Flush), so a frame that only redraws dirty widgets would
+	// leave old pointer images behind. Repaint everything every frame, as
+	// SDL expects of a GL app.
+	mWidgetManager->MarkAllDirty();
+	// That same pointer drawing changes GX state (notably a scissor box
+	// around the pointer) behind opengx's back; have it all re-sent.
+	WiiInvalidateGXState();
+#endif
 	bool drewScreen = mWidgetManager->DrawScreen();
 	mIsDrawing = false;
 
@@ -2261,7 +2299,26 @@ void SexyAppBase::LoadingThreadProcStub(SexyAppBase *theArg)
 {
 	SexyAppBase* aSexyApp = theArg;
 	
+#ifdef __wii__
+	// [wii-debug] an exception escaping this thread ends in std::terminate ->
+	// abort(), which on Wii silently resets the console; report it instead.
+	try
+	{
+		aSexyApp->LoadingThreadProc();
+	}
+	catch (const std::exception& e)
+	{
+		printf("[wii-debug] loading thread exception: %s\n", e.what());
+		throw;
+	}
+	catch (...)
+	{
+		printf("[wii-debug] loading thread unknown exception\n");
+		throw;
+	}
+#else
 	aSexyApp->LoadingThreadProc();		
+#endif
 
 	printf("Resource Loading Time: %d\r\n", (SDL_GetTicks() - aSexyApp->mTimeLoaded));
 
@@ -2277,6 +2334,19 @@ void SexyAppBase::StartLoadingThread()
 		mLoadingThreadStarted = true;
 #ifdef __EMSCRIPTEN__
 		LoadingThreadProcStub(this);
+#elif defined(__wii__)
+		// Not std::thread: libogc has no pthread_detach (devkitPPC's returns
+		// ENOSYS), so .detach() throws and the still-joinable temporary calls
+		// std::terminate. std::thread also always runs at the top priority
+		// (127), and LWP doesn't time-slice, so the loader would starve the
+		// main thread (priority 64) that draws the loading screen. Run it
+		// below main instead, with an explicit stack big enough for the
+		// image decoders and XML parser.
+		static lwp_t sLoadingThread;
+		LWP_CreateThread(&sLoadingThread, [](void* theArg) -> void* {
+			LoadingThreadProcStub(static_cast<SexyAppBase*>(theArg));
+			return nullptr;
+		}, this, nullptr, 512 * 1024, 48);
 #else
 		//_beginthread(LoadingThreadProcStub, 0, this);
 		std::thread(LoadingThreadProcStub, this).detach();
@@ -2866,11 +2936,94 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
 	return true;
 }
 
+#ifdef __wii__
+extern volatile unsigned gWiiDebugHeartbeat; // [wii-debug] see main.cpp
+void WiiUpdateControllerCursor(); // platform/default/Input.cpp
+
+// [wii-debug] Where the memory goes: CPU-side image buffers vs GX textures
+// vs decoded sounds. Main thread only. theTryLock: don't block on the image
+// lock (used from the terminate handler, which may run with it held).
+void WiiDebugMemoryBreakdown(const char* theWhen, bool theTryLock)
+{
+	SexyAppBase* anApp = gSexyAppBase;
+	if (anApp == nullptr || anApp->mGLInterface == nullptr)
+		return;
+	std::unique_lock<std::mutex> lk(anApp->mGLInterface->mCritSect, std::defer_lock);
+	if (theTryLock ? !lk.try_lock() : (lk.lock(), false))
+	{
+		printf("[wii-debug] breakdown %s: image lock busy\n", theWhen);
+		return;
+	}
+
+	std::set<MemoryImage*> anImages(anApp->mGLInterface->mImageSet.begin(), anApp->mGLInterface->mImageSet.end());
+	std::map<MemoryImage*, const std::string*> aNames;
+	for (auto& [aKey, aShared] : anApp->mSharedImageMap)
+		if (aShared.mImage != nullptr)
+		{
+			anImages.insert(aShared.mImage);
+			aNames[aShared.mImage] = &aKey.first;
+		}
+
+	uint64_t aCpu = 0, aGpu = 0;
+	int aWithCpu = 0, aWithGpu = 0;
+	std::vector<std::pair<uint32_t, MemoryImage*>> aTopCpu;
+	for (MemoryImage* anImage : anImages)
+	{
+		uint32_t aPixels = (uint32_t)anImage->mWidth * anImage->mHeight;
+		uint32_t aCpuBytes = 0;
+		if (anImage->mBits) aCpuBytes += aPixels * 4;
+		if (anImage->mColorIndices) aCpuBytes += aPixels + 256 * 4;
+		if (anImage->mNativeAlphaData) aCpuBytes += aPixels * 4;
+		if (anImage->mRLAlphaData) aCpuBytes += aPixels;
+		if (anImage->mRLAdditiveData) aCpuBytes += aPixels;
+		if (aCpuBytes) { aWithCpu++; aCpu += aCpuBytes; aTopCpu.push_back({aCpuBytes, anImage}); }
+		if (anImage->mRenderData)
+		{
+			aWithGpu++;
+			for (TextureDataPiece& aPiece : ((TextureData*)anImage->mRenderData)->mTextures)
+				aGpu += WiiTextureBytes(aPiece.mTexture);
+		}
+	}
+
+	uint64_t aSound = 0;
+	int aSoundCount = 0;
+	if (auto* aSoundMgr = dynamic_cast<SDLSoundManager*>(anApp->mSoundManager))
+		aSound = aSoundMgr->DebugTotalSoundBytes(&aSoundCount);
+
+	printf("[wii-debug] breakdown %s: %d images | CPU pixels %u KB in %d images | GX textures %u KB in %d images | sounds %u KB in %d\n",
+		theWhen, (int)anImages.size(), (unsigned)(aCpu / 1024), aWithCpu, (unsigned)(aGpu / 1024), aWithGpu,
+		(unsigned)(aSound / 1024), aSoundCount);
+	std::sort(aTopCpu.begin(), aTopCpu.end(), [](auto& a, auto& b) { return a.first > b.first; });
+	for (size_t i = 0; i < aTopCpu.size() && i < 8; i++)
+	{
+		MemoryImage* anImage = aTopCpu[i].second;
+		auto aName = aNames.find(anImage);
+		printf("[wii-debug]   CPU %u KB %dx%d tex=%s purge=%d '%s'\n", aTopCpu[i].first / 1024,
+			anImage->mWidth, anImage->mHeight, anImage->mRenderData ? "yes" : "no", (int)anImage->mPurgeBits,
+			aName != aNames.end() ? aName->second->c_str() : "(unshared)");
+	}
+}
+#endif
+
 bool SexyAppBase::UpdateApp()
 {
 	bool updated;
 	for (;;)
 	{
+#ifdef __wii__
+		gWiiDebugHeartbeat++;
+		WiiUpdateControllerCursor();
+		if (mGLInterface != nullptr)
+			mGLInterface->ProcessQueuedTextureUploads(8);
+		{
+			static uint32_t sLastBreakdown = 0;
+			if (SDL_GetTicks() - sLastBreakdown >= 5000)
+			{
+				sLastBreakdown = SDL_GetTicks();
+				WiiDebugMemoryBreakdown("periodic", false);
+			}
+		}
+#endif
 		if (!UpdateAppStep(&updated))
 			return false;
 		if (updated)
@@ -3354,6 +3507,24 @@ void SexyAppBase::Init()
 #elif defined(__EMSCRIPTEN__)
 	{
 		SetAppDataFolder("/saves/");
+	}
+#elif defined(__WIIU__)
+	{
+		// The resource dir (fs:/vol/content/, set earlier) is the read-only
+		// content bundled inside the .wuhb - fine for game data, but
+		// writable per-title save data on real Cafe OS needs a proper
+		// title-ID-based fs:/vol/save/ registration that a homebrew .wuhb
+		// doesn't have. SD card is the standard homebrew workaround.
+		if (WHBMountSdCard())
+		{
+			char* aSdPath = WHBGetSdCardMountPath();
+			if (aSdPath)
+				SetAppDataFolder(std::string(aSdPath) + "/wiiu/apps/PvZPortable/save/");
+		}
+	}
+#elif defined(__wii__)
+	{
+		SetAppDataFolder("sd:/apps/PvZPortable/save/");
 	}
 #elif !defined(__SWITCH__) && !defined(__3DS__)
 	{

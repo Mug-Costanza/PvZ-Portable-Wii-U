@@ -92,6 +92,11 @@ bool PakInterface::AddPakFile(const std::string& theFileName)
 	size_t aFileSize = ftell(aFileHandle);
 	fseek(aFileHandle, 0, SEEK_SET);
 
+#ifdef PAK_STREAMING
+	mPakCollectionList.emplace_back();
+	PakCollection* aPakCollection = &mPakCollectionList.back();
+	aPakCollection->mFile = aFileHandle;
+#else
 	mPakCollectionList.emplace_back(aFileSize);
 	PakCollection* aPakCollection = &mPakCollectionList.back();
 
@@ -105,6 +110,7 @@ bool PakInterface::AddPakFile(const std::string& theFileName)
 	auto *aDataPtr = static_cast<uint8_t *>(aPakCollection->mDataPtr);
 	for (size_t i = 0; i < aFileSize; i++)
 		*aDataPtr++ ^= 0xF7;
+#endif
 
 	std::string aPakKey = NormalizePakPath(theFileName);
 	auto aRecordItr = mPakRecordMap.emplace(aPakKey, PakRecord()).first;
@@ -187,6 +193,75 @@ bool PakInterface::AddPakFile(const std::string& theFileName)
 	return true;
 }
 
+#ifdef PAK_STREAMING
+static constexpr int PAK_READ_BUF_SIZE = 4096;
+
+// Reads theLen bytes at absolute offset theOffset of the pak file, decrypted.
+static int ReadPakFile(PakCollection* theCollection, void* theDest, int theOffset, int theLen)
+{
+	size_t aRead;
+	{
+		std::scoped_lock lk(theCollection->mMutex);
+		if (fseek(theCollection->mFile, theOffset, SEEK_SET) != 0)
+			return 0;
+		aRead = fread(theDest, 1, theLen, theCollection->mFile);
+	}
+	auto* aBytes = static_cast<uchar*>(theDest);
+	for (size_t i = 0; i < aRead; i++)
+		aBytes[i] ^= 0xF7;
+	return static_cast<int>(aRead);
+}
+#endif
+
+// Copies theLen bytes of the record at theFile's current position into
+// theDest and advances the position. theLen must already be clamped to the
+// bytes left in the record.
+static int ReadRecord(PFILE* theFile, void* theDest, int theLen)
+{
+	PakRecord* aRecord = theFile->mRecord;
+#ifdef PAK_STREAMING
+	auto* aDest = static_cast<uchar*>(theDest);
+	int aDone = 0;
+	while (aDone < theLen)
+	{
+		int aPos = theFile->mPos;
+		if (aPos >= theFile->mBufPos && aPos < theFile->mBufPos + theFile->mBufLen)
+		{
+			int aChunk = std::min(theLen - aDone, theFile->mBufPos + theFile->mBufLen - aPos);
+			memcpy(aDest + aDone, theFile->mBuf + (aPos - theFile->mBufPos), aChunk);
+			aDone += aChunk;
+			theFile->mPos += aChunk;
+		}
+		else if (theLen - aDone >= PAK_READ_BUF_SIZE)
+		{
+			// Large reads (whole images, sounds) bypass the cache.
+			int aRead = ReadPakFile(aRecord->mCollection, aDest + aDone,
+				aRecord->mStartPos + aPos, theLen - aDone);
+			aDone += aRead;
+			theFile->mPos += aRead;
+			break;
+		}
+		else
+		{
+			if (theFile->mBuf == nullptr)
+				theFile->mBuf = new uchar[PAK_READ_BUF_SIZE];
+			int aFill = std::min(PAK_READ_BUF_SIZE, aRecord->mSize - aPos);
+			theFile->mBufPos = aPos;
+			theFile->mBufLen = ReadPakFile(aRecord->mCollection, theFile->mBuf,
+				aRecord->mStartPos + aPos, aFill);
+			if (theFile->mBufLen <= 0)
+				break;
+		}
+	}
+	return aDone;
+#else
+	uchar* src = (uchar*) aRecord->mCollection->mDataPtr + aRecord->mStartPos + theFile->mPos;
+	memcpy(theDest, src, theLen);
+	theFile->mPos += theLen;
+	return theLen;
+#endif
+}
+
 PFILE* PakInterface::FOpen(const char* theFileName, const char* anAccess)
 {
 	if ((strcasecmp(anAccess, "r") == 0) || (strcasecmp(anAccess, "rb") == 0) || (strcasecmp(anAccess, "rt") == 0))
@@ -228,6 +303,9 @@ int PakInterface::FClose(PFILE* theFile)
 {
 	if (theFile->mRecord == nullptr)
 		fclose(theFile->mFP);
+#ifdef PAK_STREAMING
+	delete[] theFile->mBuf;
+#endif
 	delete theFile;
 	return 0;
 }
@@ -266,11 +344,7 @@ size_t PakInterface::FRead(void* thePtr, int theElemSize, int theCount, PFILE* t
 		// 实际读取的字节数不能超过当前资源文件剩余可读取的字节数
 		int aSizeBytes = std::min(theElemSize*theCount, theFile->mRecord->mSize - theFile->mPos);
 
-		// 取得在整个 pak 中开始读取的位置的指针
-		uchar* src = (uchar*) theFile->mRecord->mCollection->mDataPtr + theFile->mRecord->mStartPos + theFile->mPos;
-		uchar* dest = (uchar*) thePtr;
-		memcpy(dest, src, aSizeBytes);
-		theFile->mPos += aSizeBytes;  // 读取完成后，移动当前读取位置的指针
+		aSizeBytes = ReadRecord(theFile, thePtr, std::max(aSizeBytes, 0));
 		return aSizeBytes / theElemSize;  // 返回实际读取的项数
 	}
 	
@@ -285,7 +359,9 @@ int PakInterface::FGetC(PFILE* theFile)
 		{
 			if (theFile->mPos >= theFile->mRecord->mSize)
 				return EOF;		
-			char aChar = *((char*) theFile->mRecord->mCollection->mDataPtr + theFile->mRecord->mStartPos + theFile->mPos++);
+			char aChar;
+			if (ReadRecord(theFile, &aChar, 1) != 1)
+				return EOF;
 			if (aChar != '\r')
 				return (uchar) aChar;
 		}
@@ -319,7 +395,9 @@ char* PakInterface::FGetS(char* thePtr, int theSize, PFILE* theFile)
 					return nullptr;
 				break;
 			}
-			char aChar = *((char*) theFile->mRecord->mCollection->mDataPtr + theFile->mRecord->mStartPos + theFile->mPos++);
+			char aChar;
+			if (ReadRecord(theFile, &aChar, 1) != 1)
+				break;
 			if (aChar != '\r')
 				thePtr[anIdx++] = aChar;
 			if (aChar == '\n')

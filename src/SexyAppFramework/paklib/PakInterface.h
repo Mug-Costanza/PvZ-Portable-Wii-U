@@ -30,6 +30,11 @@
 #include <string>
 #include <string_view>
 #include <cstdint>
+#include <cstdio>
+#include <cstdlib>
+#ifdef PAK_STREAMING
+#include <mutex>
+#endif
 
 class PakCollection;
 
@@ -60,10 +65,21 @@ public:
 	//HANDLE					mFileHandle;
 	//HANDLE					mMappingHandle;
 	void*						mDataPtr;				//+0x8：资源包中的所有数据
+#ifdef PAK_STREAMING
+	// Low-memory platforms don't keep the whole pak (tens of MB) resident:
+	// records are read from this handle on demand and decrypted as they're
+	// read. The mutex serializes the seek+read pair, since the loading
+	// thread and the main thread both read from the pak.
+	FILE*						mFile = nullptr;
+	std::mutex					mMutex;
 
+	PakCollection() : mDataPtr(nullptr) {}
+	~PakCollection() { if (mFile) fclose(mFile); }
+#else
 	explicit PakCollection(size_t size) { mDataPtr = malloc(size); }
 
 	~PakCollection() { free(mDataPtr); }
+#endif
 };
 
 typedef std::list<PakCollection> PakCollectionList;
@@ -73,6 +89,13 @@ struct PFILE
 	PakRecord*				mRecord;
 	int						mPos;
 	FILE*					mFP;
+#ifdef PAK_STREAMING
+	// Small per-file read cache so byte-at-a-time readers (FGetC/FGetS, used
+	// by the XML and text parsers) don't each cost a locked seek+read.
+	unsigned char*			mBuf = nullptr;
+	int						mBufPos = 0;			// record offset of mBuf[0]
+	int						mBufLen = 0;
+#endif
 };
 
 class PakInterfaceBase
