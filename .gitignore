@@ -417,5 +417,5 @@ tools/read-compiled/target
 build-*/
 
 # Copyrighted files
-./properties
-./main.pak
+properties
+main.pak
